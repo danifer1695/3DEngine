@@ -11,5 +11,6 @@ Credits
 -HDR textures used:
 	https://polyhaven.com/a/moonless_golf
 	https://polyhaven.com/a/studio_small_03
+
 -Checker Pattern texture by EliasWick:
 	https://polycount.com/discussion/186513/free-checker-pattern-texture
