@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core/GameObject.h"
-#include "Model.h"
-#include "Material.h"
+#include "GameObject.h"
+#include "../Resources/Model.h"
+#include "Materials/MaterialBlinn.h"
 
 #include <memory>
 #include <string>

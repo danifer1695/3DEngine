@@ -1,6 +1,5 @@
 #pragma once
 
-#include"../../Shader.h"
 #include"../GBuffer.h"
 #include"../../Engine/Scene.h"
 

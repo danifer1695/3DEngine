@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../Primitives/Quad.h"
-#include"../../Engine/Scene.h"
 #include"../GBuffer.h"
+#include"../../Resources/Primitives/Quad.h"
+#include"../../Engine/Scene.h"
 
 //SHADER DIRECTORIES
 #define LIGHTPASS_SHADER_VS "./shaders/renderer/lightingPass.vs"

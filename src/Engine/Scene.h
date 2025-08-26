@@ -11,13 +11,11 @@
 #include<string>
 #include<map>
 
-#include "../Model.h"
-#include "../Lights/PointLight.h"
-#include "../MaterialBlinn.h"
-#include "../Camera.h"
+#include "Item.h"
+#include "Camera.h"
+#include "Lights/PointLight.h"
 #include "../Resources/Skybox.h"
-#include "../ResourceManager.h"
-#include "../Item.h"
+#include "../Resources/ResourceManager.h"
 
 //Scene class holds information on what exists, where all objects are and their properties
 class Scene

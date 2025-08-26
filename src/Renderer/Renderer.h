@@ -9,16 +9,13 @@
 #include<memory>
 #include<map>
 
-#include"../Shader.h"
-#include"../Engine/Scene.h"
-#include"../Item.h"
-#include"../Primitives/Quad.h"
-#include"../Core/Utils.h"
 #include"GBuffer.h"
-#include"Passes/ShadowPass.h"
 #include"Passes/GeometryPass.h"
-#include"Passes/LightingPass.h"
+#include"Passes/ShadowPass.h"
 #include"Passes/SSAO.h"
+#include"Passes/LightingPass.h"
+#include"../Engine/Scene.h"
+#include"../Core/Utils.h"
 
 //Renderer class knows how to render objects in the scene, manages framebuffers and render passes
 class Renderer

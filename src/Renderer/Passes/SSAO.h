@@ -9,10 +9,9 @@
 #include<vector>
 #include<random>
 
-#include"../../Shader.h"
-#include"../../Engine/Scene.h"
-#include"../../Primitives/Quad.h"
 #include"../GBuffer.h"
+#include"../../Engine/Scene.h"
+#include"../../Resources/Primitives/Quad.h"
 
 #define SSAO_VS			"./shaders/renderer/ssao.vs"
 #define SSAO_FS			"./shaders/renderer/ssao.fs"

@@ -3,7 +3,7 @@
 #include<string>
 #include<iostream>
 
-#include "../Core/GameObject.h"
+#include "../../Engine/GameObject.h"
 
 class Quad : public GameObject
 {

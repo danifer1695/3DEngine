@@ -8,8 +8,8 @@
 
 #include<memory>
 
-#include"../Core/GameObject.h"
-#include"../Shader.h"
+#include"../GameObject.h"
+#include"../../Renderer/Shader.h"
 #include"ShadowMap.h"
 
 class Light : public GameObject
