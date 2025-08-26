@@ -1,7 +1,7 @@
 #Visual studio file types
-.vcxproj
-.filters
-.user
+*.vcxproj
+*.filters
+*.user
 
 #folders
 documenting/
