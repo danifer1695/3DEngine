@@ -10,6 +10,7 @@
 #include"../Core/Utils.h"
 #include"../Renderer/Renderer.h"
 #include"../Input/InputManager.h"
+#include"../UI/ImGuiLayer.h"
 
 #include<memory>
 
@@ -31,6 +32,9 @@ private:
 
 	//GLFW
 	GLFWwindow* window = nullptr;
+
+	//ImGui
+	std::unique_ptr<ImGuiLayer> imGuiLayer;
 
 	//Engine objects
 	std::unique_ptr<Scene> scene = nullptr;

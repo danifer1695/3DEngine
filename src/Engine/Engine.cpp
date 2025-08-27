@@ -20,6 +20,8 @@ void Engine::Init()
 	InitGLFW();
 	InitGLAD();
 	InitOpenGlState();
+
+	imGuiLayer = std::make_unique<ImGuiLayer>(window);
 }
 
 //=============================================================================================
@@ -118,6 +120,9 @@ void Engine::Run()
 
 		//RENDER
 		renderer->Draw(*scene.get());
+
+		//IMGUI
+		imGuiLayer->Render();
 
 		//SWAP BUFFERS
 		glfwSwapBuffers(window);
