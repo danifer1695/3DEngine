@@ -5,6 +5,12 @@
 
 #include<array>
 
+enum NavigationTarget
+{
+	NAVIGATION_SCENE,
+	NAVIGATION_UI
+};
+
 class InputManager
 {
 public:
@@ -12,6 +18,9 @@ public:
 	static const int MAX_MOUSE_BUTTONS = 8;
 
 private:
+	//state
+	NavigationTarget navTarget = NAVIGATION_UI;
+
 	//Keyboard keys
 	std::array<bool, MAX_KEYS> keysDown;		//keys held down
 	std::array<bool, MAX_KEYS> keysPressed;		//keys pressed this frame
@@ -54,5 +63,10 @@ public:
 	bool IsMouseReleased(int button) const	{ return mouseReleased[button]; }
 	glm::vec2 GetMousePosition() const		{ return mousePos; }
 	glm::vec2 GetMouseDelta() const			{ return mouseDelta; }
+
+	NavigationTarget GetNavigationTarget()	{ return navTarget; }
+
+	//setters
+	void SetNavigationTarget(NavigationTarget nt) { navTarget = nt; }
 };
 

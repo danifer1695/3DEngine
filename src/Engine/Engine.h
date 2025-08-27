@@ -59,7 +59,9 @@ private:
 		//Get pointer to this same instance
 		Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
 		engine->inputManager->MouseMoveCallback(xposIn, yposIn);
-		engine->scene->SetCameraRotation(engine->inputManager->GetMouseDelta());
+
+		if(engine->inputManager->GetNavigationTarget() == NAVIGATION_SCENE)
+			engine->scene->SetCameraRotation(engine->inputManager->GetMouseDelta());
 	}
 	static void scroll_callback(GLFWwindow* window, double x_offset, double y_offset)
 	{
@@ -72,6 +74,12 @@ private:
 		//fetch engine instance
 		Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
 		engine->inputManager->KeyCallback(key, scancode, action, mods);
+	}
+	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+	{
+		//Fetch engine instance
+		Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
+		engine->inputManager->MouseButtonCallback(button, action, mods);
 	}
 
 	//Render loop

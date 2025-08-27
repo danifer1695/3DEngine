@@ -57,7 +57,7 @@ void ImGuiLayer::EndFrame()
 //Render()
 //=============================================================================================
 
-void ImGuiLayer::Render()
+void ImGuiLayer::Render(const Scene& scene)
 {
 	ImGuiIO& io = ImGui::GetIO();
 	BeginFrame();
@@ -65,6 +65,20 @@ void ImGuiLayer::Render()
 	//Add features here
 	ImGui::Begin("New Window - ImGUI");
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
+	ImGui::SeparatorText("Lights:");
+	int i = 0;
+	for (auto& light : scene.GetLightCollection())
+	{
+		//Whenever you create ImGui widgets in a loop, always ensure they get a unique ID. 
+		//Otherwise, ImGui treats them as the same control.
+		ImGui::PushID(i);
+		ImGui::Text("Light %d", i);
+		ImGui::ColorEdit3("Light Color", glm::value_ptr(light->color));
+		ImGui::PopID();
+		i++;
+	}
+
 	ImGui::End();
 
 	EndFrame();

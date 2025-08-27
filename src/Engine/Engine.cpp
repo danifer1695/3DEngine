@@ -49,6 +49,7 @@ void Engine::InitGLFW()
 	//set up callback functions
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetKeyCallback(window, key_callback);
 
@@ -122,7 +123,7 @@ void Engine::Run()
 		renderer->Draw(*scene.get());
 
 		//IMGUI
-		imGuiLayer->Render();
+		imGuiLayer->Render(*scene.get());
 
 		//SWAP BUFFERS
 		glfwSwapBuffers(window);
@@ -141,21 +142,37 @@ void Engine::ProcessInput()
 	if (inputManager->IsKeyPressed(GLFW_KEY_ESCAPE))
 		Exit();
 
-	//Moving around
-	if (inputManager->IsKeyDown(GLFW_KEY_W))
-		scene->SetCameraMovement(FORWARD, deltaTime);
-	if (inputManager->IsKeyDown(GLFW_KEY_S))
-		scene->SetCameraMovement(BACKWARD, deltaTime);
-	if (inputManager->IsKeyDown(GLFW_KEY_A))
-		scene->SetCameraMovement(LEFT, deltaTime);
-	if (inputManager->IsKeyDown(GLFW_KEY_D))
-		scene->SetCameraMovement(RIGHT, deltaTime);
+	//Navigation target
+	if (inputManager->IsMouseDown(GLFW_MOUSE_BUTTON_RIGHT))
+		inputManager->SetNavigationTarget(NAVIGATION_SCENE);
+	if (inputManager->IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
+		inputManager->SetNavigationTarget(NAVIGATION_UI);
 
-	//Sprinting
-	if (inputManager->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
-		scene->SetCameraSprint(true);
-	if (inputManager->IsKeyReleased(GLFW_KEY_LEFT_SHIFT))
-		scene->SetCameraSprint(false);
+	//Cursor status
+	if(inputManager->GetNavigationTarget() == NAVIGATION_SCENE)
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	if(inputManager->GetNavigationTarget() == NAVIGATION_UI)
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+	//Moving around
+	if (inputManager->GetNavigationTarget() == NAVIGATION_SCENE)
+	{
+		if (inputManager->IsKeyDown(GLFW_KEY_W))
+			scene->SetCameraMovement(FORWARD, deltaTime);
+		if (inputManager->IsKeyDown(GLFW_KEY_S))
+			scene->SetCameraMovement(BACKWARD, deltaTime);
+		if (inputManager->IsKeyDown(GLFW_KEY_A))
+			scene->SetCameraMovement(LEFT, deltaTime);
+		if (inputManager->IsKeyDown(GLFW_KEY_D))
+			scene->SetCameraMovement(RIGHT, deltaTime);
+
+		//Sprinting
+		if (inputManager->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
+			scene->SetCameraSprint(true);
+		if (inputManager->IsKeyReleased(GLFW_KEY_LEFT_SHIFT))
+			scene->SetCameraSprint(false);
+	}
+
 	
 	Utils::getOpenGLError("ENGINE::PROCESS_INPUT");
 }

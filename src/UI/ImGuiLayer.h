@@ -4,6 +4,8 @@
 #include"../../vendors/ImGui/imgui_impl_opengl3.h"
 #include"../../vendors/ImGui/imgui_impl_glfw.h"
 
+#include"../Engine/Scene.h"
+
 class ImGuiLayer
 {
 private:
@@ -23,6 +25,6 @@ public:
 	~ImGuiLayer();
 
 	//Runtime methods
-	void Render();
+	void Render(const Scene& scene);
 };
 
