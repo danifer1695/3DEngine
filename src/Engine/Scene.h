@@ -14,6 +14,7 @@
 #include "Item.h"
 #include "Camera.h"
 #include "Lights/PointLight.h"
+#include "Lights/DirectionalLight.h"
 #include "../Resources/Skybox.h"
 #include "../Resources/ResourceManager.h"
 

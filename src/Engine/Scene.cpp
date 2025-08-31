@@ -64,15 +64,15 @@ void Scene::Init()
 	lights.push_back(std::make_unique<PointLight>(
 		glm::vec3(-6.0f, 2.0f, -4.0f),
 		glm::vec3(1.0f, 0.25f, 0.18f),
-		true,
+		false,
 		30.0f, 
 		10.0f));
-	lights.push_back(std::make_unique<PointLight>(
-		glm::vec3(6.0f, 20.0f, -10.0f),
-		glm::vec3(0.2f, 0.5f, 0.90f),
-		false,
-		80.0f, 
-		90.0f));
+	lights.push_back(std::make_unique<DirectionalLight>(
+		glm::vec3(6.0f, 7.0f, -10.0f),
+		glm::vec3(0.0f, 0.0f, 0.90f),
+		glm::vec3(0.8f, 0.27f, 0.90f),
+		true,
+		1.0f));
 
 	getError("INIT");
 }

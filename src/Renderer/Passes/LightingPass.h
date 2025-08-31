@@ -24,6 +24,10 @@ private:
 	//Initialize
 	void Initialize();
 
+	//Helpers
+	void SendPointLightToShader(PointLight* pl, const Scene& scene, int texUnitIndex, int lightIndex);
+	void SendDirLightToShader(DirectionalLight* dl, const Scene& scene, int texUnitIndex, int lightIndex);
+
 public:
 	//Constructors
 	LightingPass(unsigned int screenWidth, unsigned int screenHeight);

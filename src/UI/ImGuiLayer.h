@@ -9,6 +9,7 @@
 class ImGuiLayer
 {
 private:
+	bool showDemo = false;
 
 	//Initialization
 	void Init(GLFWwindow* window);
@@ -16,6 +17,7 @@ private:
 	//Runtime methods
 	void BeginFrame();
 	void EndFrame();
+	void RenderLightPanel(const Scene& scene);
 
 public:
 	//Constructor

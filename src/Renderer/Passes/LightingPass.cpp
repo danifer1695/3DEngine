@@ -45,16 +45,35 @@ void LightingPass::Initialize()
 
 void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex)
 {
-	size_t numberOfLights = scene.GetLightCollection().size();
+	//vector for each type of light (this will to be moved to the light class)
+	std::vector<Light*>plVec;
+	std::vector<Light*>dlVec;
+
+	for (auto& light : scene.GetLightCollection())
+	{
+		if (light->GetLightType() == POINT_LIGHT)
+		{
+			plVec.push_back(light.get()); 
+			continue;
+		}
+		else if (light->GetLightType() == DIRECTIONAL_LIGHT)
+		{
+			dlVec.push_back(light.get()); 
+			continue;
+		}
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	lightPassShader->use();
-	lightPassShader->setInt("numberOfLights", numberOfLights);
+	lightPassShader->setInt("numberOfPointLights",	(int)plVec.size());
+	lightPassShader->setInt("numberOfDirLights",	(int)dlVec.size());
+	lightPassShader->setInt("numberOfSpotLights",	0);			//***NEEDS UPDATING WHEN IMPLEMENTING SPOTLIGHTS***
 	lightPassShader->setFloat("farPlane", scene.GetFarPlane());
 	lightPassShader->setFloat("materialShininess", 16.0f);
 	lightPassShader->setMatrix4("inverseViewMatrix", glm::inverse(scene.GetCamera()->get_view_matrix()));
+	lightPassShader->setMatrix4("viewMatrix", scene.GetCamera()->get_view_matrix());
 	Utils::getOpenGLError("LIGHTINGPASS::LIGHTING_PASS::UNIFORM_SETUP");
 
 	//bind all gbuffer textures
@@ -70,30 +89,73 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 	glBindTexture(GL_TEXTURE_CUBE_MAP, scene.GetSkybox()->GetIrradianceMap());
 	Utils::getOpenGLError("LIGHTINGPASS::LIGHTING_PASS::TEX_BINDING");
 
-	//send light info to shader
-	for (size_t i = 0; i < numberOfLights; ++i)
+	//start index at GL_TEXTURE5
+	int texUnitIndex = 5;
+
+	//point lights info to shader
+	for (size_t i = 0; i < plVec.size(); ++i)
 	{
-		//start index at GL_TEXTURE5
-		int texUnitIndex = 5 + i;
 		//conditional: if GL_TEXTURE0 + texUnitIndex exceeds GL_TEXTURE31, break the loop
 		if (texUnitIndex > 31) break;
-		GLint texUnit = GL_TEXTURE0 + texUnitIndex;
+		auto* pl = dynamic_cast<PointLight*>(plVec.at(i));
 
-		if (auto* pl = dynamic_cast<PointLight*>(scene.GetLightCollection()[i].get()))
-		{
+		SendPointLightToShader(pl, scene, texUnitIndex, i);
 
-			pl->sendToShader(
-				*lightPassShader,								//shader
-				"pointLights[" + std::to_string(i) + "]",		//uniform name
-				scene.GetCamera()->get_view_matrix(),			//view matrix
-				texUnitIndex);									//texture unit
+		texUnitIndex++;
+	}
 
-			//Bind ShadowMap Texture
-			pl->GetShadowMap()->BindTexture(texUnit);
-		}
+	//send directional lights info to shader
+	for (size_t i = 0; i < dlVec.size(); ++i)
+	{
+		//conditional: if GL_TEXTURE0 + texUnitIndex exceeds GL_TEXTURE31, break the loop
+		if (texUnitIndex > 31) break;
+		auto* dl = dynamic_cast<DirectionalLight*>(dlVec.at(i));
+
+		SendDirLightToShader(dl, scene, texUnitIndex, i);
+
+		texUnitIndex++;
 	}
 
 	screenQuad.Draw();
 
 	Utils::getOpenGLError("LIGHTINGPASS::LIGHTING_PASS");
+}
+//=============================================================================================
+//SendPointLightToShader
+//=============================================================================================
+
+void LightingPass::SendPointLightToShader(PointLight* pl, const Scene& scene, int texUnitIndex, int lightIndex)
+{
+	GLint texUnit = GL_TEXTURE0 + texUnitIndex;
+
+	pl->sendToShader(
+		*lightPassShader,								//shader
+		"pointLights[" + std::to_string(lightIndex) + "]",		//uniform name
+		scene.GetCamera()->get_view_matrix(),			//view matrix
+		texUnitIndex);									//texture unit
+
+	//Bind ShadowMap Texture
+	pl->GetShadowMap()->BindTexture(texUnit);
+}
+//=============================================================================================
+//SendDirLightToShader
+//=============================================================================================
+
+void LightingPass::SendDirLightToShader(DirectionalLight* dl, const Scene& scene, int texUnitIndex, int lightIndex)
+{
+	GLint texUnit = GL_TEXTURE0 + texUnitIndex;
+
+	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, scene.GetNearPlane(), scene.GetFarPlane());
+	glm::mat4 lightView = glm::lookAt(dl->transform.getPosition(), dl->GetTarget(), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+
+	dl->sendToShader(
+		*lightPassShader,								//shader
+		"dirLights[" + std::to_string(lightIndex) + "]",			//uniform name
+		scene.GetCamera()->get_view_matrix(),			//view matrix
+		texUnitIndex,									//texture unit
+		lightSpaceMatrix);								//light space matrix
+
+	//Bind ShadowMap Texture
+	dl->GetShadowMap()->BindTexture(texUnit);
 }

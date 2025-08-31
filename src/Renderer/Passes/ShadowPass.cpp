@@ -16,12 +16,67 @@ void ShadowPass::Initialize()
 {
 	//Build and compile shaders
 	pointShadowShader = std::make_unique<Shader>("RENDERER::POINT_SHADOW", POINT_SHADOW_SHADER_VS, POINT_SHADOW_SHADER_FS, POINT_SHADOW_SHADER_GS);
+	dirShadowShader = std::make_unique<Shader>("RENDERER::DIRECTIONAL_SHADOW", DIR_SHADOW_SHADER_VS, DIR_SHADOW_SHADER_FS);
 }
 //=============================================================================================
 //Render
 //=============================================================================================
 
 void ShadowPass::Render(const Scene& scene)
+{
+	bool needsUpdate = false;
+
+	//Check Items
+	for (const auto& item : scene.GetItemCollection())
+	{
+		if (item.second->transform.GetIsDirty())
+		{
+			needsUpdate = true;
+			break;
+		}
+	}
+
+	//Check lights if items are all clean
+	if (!needsUpdate)
+	{
+		for (const auto& light : scene.GetLightCollection())
+		{
+			if (light->transform.GetIsDirty())
+			{
+				needsUpdate = true;
+				break;
+			}
+		}
+	}
+
+	//If scene is not clean, update shadows, and reset dirty flags
+	if (needsUpdate)
+	{
+		UpdateShadows(scene);
+		ResetDirtyFlags(scene);
+	}
+}
+//=============================================================================================
+//ResetDirtyFlags()
+//=============================================================================================
+
+void ShadowPass::ResetDirtyFlags(const Scene& scene)
+{
+	//Reset dirty flags
+	for (const auto& item : scene.GetItemCollection())
+	{
+		item.second->transform.SetIsDirty(false);
+	}
+	for (const auto& light : scene.GetLightCollection())
+	{
+		light->transform.SetIsDirty(false);
+	}
+}
+//=============================================================================================
+//UpdateShadows
+//=============================================================================================
+
+void ShadowPass::UpdateShadows(const Scene& scene)
 {
 	float nearPlane = scene.GetNearPlane();
 	float farPlane = scene.GetFarPlane();
@@ -31,12 +86,14 @@ void ShadowPass::Render(const Scene& scene)
 	//We loop through all of the scene's lights
 	for (size_t i = 0; i < numberOfLights; ++i)
 	{
-		//skip if light casts no shadows
-		if (!scene.GetLightCollection().at(i)->castShadows) continue;
+		//skip if light casts no shadows or if its not dirty
+		if (!scene.GetLightCollection().at(i)->castShadows || 
+			!scene.GetLightCollection().at(i)->transform.GetIsDirty()) continue;
 
 		//if static_cast to PointLight on current Light does not return nullptr, its a point light
-		if (auto* pl = dynamic_cast<PointLight*>(scene.GetLightCollection()[i].get()))
+		if (scene.GetLightCollection().at(i)->GetLightType() == POINT_LIGHT)
 		{
+			auto* pl = dynamic_cast<PointLight*>(scene.GetLightCollection()[i].get());
 			glm::vec3 lightPos = pl->transform.getPosition();
 
 			//Create transform matrices for shadow capturing
@@ -59,6 +116,7 @@ void ShadowPass::Render(const Scene& scene)
 			}
 
 			//Draw all objects
+			std::cout << "Rendering Point Shadows" << std::endl;
 			for (const auto& item : scene.GetItemCollection()) {
 				pointShadowShader->setMatrix4("model", item.second->transform.GetModelMatrix());
 				item.second->getModel()->Draw();
@@ -66,7 +124,29 @@ void ShadowPass::Render(const Scene& scene)
 			pl->GetShadowMap()->EndCapture();
 		}
 
-		//Other shadow types will be processed here once implemented
-		//[...]
+		else if (scene.GetLightCollection().at(i)->GetLightType() == DIRECTIONAL_LIGHT)
+		{
+			auto* dl = dynamic_cast<DirectionalLight*>(scene.GetLightCollection()[i].get());
+			glm::vec3 lightPos = dl->transform.getPosition();
+			glm::vec3 lightTarget = dl->GetTarget();
+
+			glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, scene.GetNearPlane(), scene.GetFarPlane());
+			glm::mat4 lightView = glm::lookAt(lightPos, lightTarget, glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+
+			dirShadowShader->use();
+			dirShadowShader->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+
+			dl->GetShadowMap()->BeginCapture();
+
+			//Draw all items in the scene
+			std::cout << "Rendering Direct Shadows" << std::endl;
+			for (const auto& item : scene.GetItemCollection()) {
+				dirShadowShader->setMatrix4("model", item.second->transform.GetModelMatrix());
+				item.second->getModel()->Draw();
+			}
+
+			dl->GetShadowMap()->EndCapture();
+		}
 	}
 }

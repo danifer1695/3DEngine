@@ -5,7 +5,6 @@ class PointLight : public Light
 {
 private:
 	float radius;
-	float intensity;
 
 public:
 	//constructor
@@ -17,14 +16,13 @@ public:
 		float intensity_in = 1.0f);
 
 	//methods
-	virtual void sendToShader(
+	void sendToShader(
 		const Shader& shader, 
 		const std::string& uniformName, 
 		const glm::mat4& view,
-		const GLint& textureUnit) const override;
+		const GLint& textureUnit) const;
 
 	//setter
 	void SetRadius(const float& rad);
-	void SetIntensity(const float& i) { intensity = i; }
 };
 

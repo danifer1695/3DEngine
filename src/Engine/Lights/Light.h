@@ -12,32 +12,48 @@
 #include"../../Renderer/Shader.h"
 #include"ShadowMap.h"
 
+enum LightType
+{
+	POINT_LIGHT,
+	DIRECTIONAL_LIGHT,
+	SPOTLIGHT
+};
+
 class Light : public GameObject
 {
 public:
 	//State
+	bool active = true;
+
+	LightType type;
 	glm::vec3 color;
+	float intensity;
+
+	//Shadows
 	bool castShadows;
+	bool softShadows = true;
 
 	//Shadow Maps
 	std::unique_ptr<ShadowMap> shadowMap = nullptr;
 
 	//Constructors
-	Light(glm::vec3 pos, bool castShadows, glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f));
+	Light(LightType type, 
+		glm::vec3 pos, 
+		bool castShadows, 
+		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f), 
+		float intensity = 1.0f);
 
 	//Destructor
 	virtual ~Light() = default;
 
 	//methods
-	virtual void sendToShader(
-		const Shader& shader,
-		const std::string& uniformName,
-		const glm::mat4& view,
-		const GLint& textureUnit) const = 0;
 	glm::mat4 GetModelMatrix() const = delete;	//we wont need a model matrix for a light object
 
-	//Shadows
-	ShadowMap* GetShadowMap() { return shadowMap.get(); }
+	//Getters
+	ShadowMap*	GetShadowMap()	{ return shadowMap.get(); }
+	const LightType	GetLightType() const { return type; }
 
+	//Setters
+	void SetIntensity(const float& i) { intensity = i; }
 };
 

@@ -3,7 +3,7 @@
 //===============================================================================================
 // Constructors();
 //===============================================================================================
-Light::Light(glm::vec3 pos, bool castShadows, glm::vec3 color)
-	:GameObject(pos), color{color}, castShadows{castShadows}
+Light::Light(LightType type, glm::vec3 pos, bool castShadows, glm::vec3 color, float intensity)
+	:GameObject(pos), type{ type }, color { color }, castShadows{ castShadows }, intensity{ intensity }
 {
 }
