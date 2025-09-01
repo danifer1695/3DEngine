@@ -27,7 +27,7 @@ private:
 	GLuint noiseTex;
 
 	std::vector<glm::vec3> kernel;
-	unsigned int sampleNr = 64;
+	unsigned int sampleNr = 32;
 
 	std::unique_ptr<Shader> ssaoShader;
 	std::unique_ptr<Shader> ssaoBlurShader;

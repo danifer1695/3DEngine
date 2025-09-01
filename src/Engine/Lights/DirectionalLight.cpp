@@ -7,7 +7,7 @@
 DirectionalLight::DirectionalLight(const glm::vec3 position, const glm::vec3 target, const glm::vec3 color, const bool castShadows, const float intensity)
 	:Light(DIRECTIONAL_LIGHT, position, castShadows, color, intensity), target{ target }
 {
-	shadowMap = std::make_unique<ShadowMap>(Directional, 512, 512);
+	shadowMap = std::make_unique<ShadowMap>(Directional, 1024, 1024);
 }
 //=============================================================================================
 //sendToShader()

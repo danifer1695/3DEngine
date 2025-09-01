@@ -66,7 +66,6 @@ vec3 toSRGB(vec3 c)   { return pow(c, vec3(1.0/2.2)); }
 
 //array of offset dierctions around the fragment where we will sample
 const int MAX_SAMPLES = 20;
-int sampleNumber = 10;
 vec3 sampleOffsets[MAX_SAMPLES] = vec3[]
 (
 	vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
@@ -96,15 +95,15 @@ mat3 buildRotationMatrix(vec3 dir)
 
 int DynamicSampling(vec3 FragPos)
 {
-	float FragDist = length(-FragPos);
+	float FragDist = -FragPos.z;
 	
 	//sample number bracket
-	int maxSamples = MAX_SAMPLES;
+	int maxSamples = 12;
 	int minSamples = 4;
 
 	//distance bracket
 	float maxDistance = 50.0;
-	float minDistance = 1.0;
+	float minDistance = 0.5;
 
 	float t = clamp((FragDist - minDistance) / (maxDistance - minDistance), 0.0, 1.0);
 	int sampleCount = int(mix(maxSamples, minSamples, t));

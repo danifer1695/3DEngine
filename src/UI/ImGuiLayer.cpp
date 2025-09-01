@@ -9,6 +9,8 @@ ImGuiLayer::ImGuiLayer(GLFWwindow* window)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io  = ImGui::GetIO();	(void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;	//Enable docking
+
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
@@ -60,7 +62,6 @@ void ImGuiLayer::EndFrame()
 void ImGuiLayer::RenderLightPanel(const Scene& scene)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;	//Enable docking
 
 	//Set position of the window
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -95,7 +96,8 @@ void ImGuiLayer::RenderLightPanel(const Scene& scene)
 		ImGui::SameLine(); ImGui::ColorEdit3("Light Color", glm::value_ptr(light->color), ImGuiColorEditFlags_NoInputs);
 		ImGui::InputFloat("Intensity", &light->intensity, 0.01f, 100.0f, "%.3f");
 		ImGui::Text("Light Transform:");
-		ImGui::InputFloat3("Position", glm::value_ptr(move));
+		if(ImGui::InputFloat3("Position", glm::value_ptr(move)))
+			light->transform.SetPosition(move);;
 		ImGui::Checkbox("Cast Shadows", &light->castShadows);
 		ImGui::Checkbox("Soft Shadows", &light->softShadows);
 

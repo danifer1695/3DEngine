@@ -19,14 +19,34 @@ vec2 noiseScale;
 
 uniform mat4 projection;
 
+int DynamicSampling(vec3 FragPos)
+{
+	float FragDist = -FragPos.z;
+	
+	//sample number bracket
+	int maxSamples = sampleNr;
+	int minSamples = 4;
+
+	//distance bracket
+	float maxDistance = 50.0;
+	float minDistance = 1.0;
+
+	float t = clamp((FragDist - minDistance) / (maxDistance - minDistance), 0.0, 1.0);
+	int sampleCount = int(mix(maxSamples, minSamples, t));
+
+	return sampleCount;
+}
+
 void main()
 {
+	//early fragment discard
+	vec3 fragPos =	texture(gPosition, TexCoords).xyz;	//gbuffer sends infor in view
+	if(fragPos.z == 0.0) discard;						//fragments with no geometry in it will return a depth of 0.0
+
 	//setup noiseScale vector
 	noiseScale = vec2(screenWidth/4.0, screenHeight/4.0);	//noise texture is 4x4 in size
 
 	//get gbuffer data
-	vec3 fragPos =	texture(gPosition, TexCoords).xyz;	//gbuffer sends infor in view
-
 	vec3 normal =	normalize(texture(gNormal, TexCoords).rgb);
 
 	vec3 randomVec = normalize(texture(texNoise, TexCoords * noiseScale).xyz);
@@ -39,7 +59,8 @@ void main()
 	//iterate over the kernel vectors to calculate occlusion factor
 	float occlusion = 0.0;
 
-	int count = min(sampleNr, 64);		//make sure we dont sample beyond max size of the sample array
+	int dynamicSamples = DynamicSampling(fragPos);
+	int count = min(dynamicSamples, 64);		//make sure we dont sample beyond max size of the sample array
 	for(int i = 0; i < count; ++i)
 	{
 		//get sample position
