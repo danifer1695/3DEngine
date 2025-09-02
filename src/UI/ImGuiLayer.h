@@ -18,6 +18,7 @@ private:
 	void BeginFrame();
 	void EndFrame();
 	void RenderLightPanel(const Scene& scene);
+	void RenderViewport(const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight);
 
 public:
 	//Constructor
@@ -27,6 +28,6 @@ public:
 	~ImGuiLayer();
 
 	//Runtime methods
-	void Render(const Scene& scene);
+	void Render(const Scene& scene, const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight);
 };
 

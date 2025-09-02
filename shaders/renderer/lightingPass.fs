@@ -268,7 +268,7 @@ vec3 Lighting_DirLight(DirectionalLight light, vec3 FragPos, vec3 fragPosWorld, 
 
 	//diffuse
 	float diff = max(dot(light.Direction, Normal), 0.0);
-	vec3 diffuse = diff * light.Color;
+	vec3 diffuse = diff * light.Color * Diffuse;
 
 	//specular
 	vec3 H = normalize(light.Direction + viewDir);		//halfway dir vector

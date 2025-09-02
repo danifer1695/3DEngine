@@ -23,7 +23,8 @@ class Engine
 {
 private:
 	//Settings
-	const unsigned int globalScreenWidth{ 800 }, globalScreenHeight{ 600 };
+	const unsigned int globalScreenWidth{ 1600 }, globalScreenHeight{ 900 };
+	const unsigned int viewportWidth{ 800 }, viewportHeight{ 600 };
 
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;

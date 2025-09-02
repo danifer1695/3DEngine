@@ -103,17 +103,46 @@ void ImGuiLayer::RenderLightPanel(const Scene& scene)
 
 		ImGui::PopID();
 		i++;
-
-		//apply transformations
-		//light->transform.SetPosition(move);
 	}
+
+	ImGui::End();
+}
+//=============================================================================================
+//RenderViewPort()
+//=============================================================================================
+
+void ImGuiLayer::RenderViewport(const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight)
+{
+	ImGuiIO& io = ImGui::GetIO();
+
+	//Set window parameters
+	ImGui::SetNextWindowSize(ImVec2(viewPortWidth, viewPortHeight));
+
+	//Set window flags
+	ImGuiWindowFlags windowFlags = 0;
+	windowFlags |= ImGuiWindowFlags_NoResize;
+	windowFlags |= ImGuiWindowFlags_NoCollapse;
+	windowFlags |= ImGuiWindowFlags_NoScrollbar;
+	windowFlags |= ImGuiWindowFlags_NoTitleBar;
+
+	ImGui::Begin("ViewPort", NULL, windowFlags);
+
+	//Draw Renderer's texture
+	ImTextureID imguiTexID = (ImTextureID)(intptr_t)texture;
+	ImGui::Image(imguiTexID, ImVec2((float)viewPortWidth, (float)viewPortHeight),
+		ImVec2(0, 1),
+		ImVec2(1, 0));
+
+	ImGui::End();
 }
 //=============================================================================================
 //Render()
 //=============================================================================================
 
-void ImGuiLayer::Render(const Scene& scene)
+void ImGuiLayer::Render(const Scene& scene, const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	BeginFrame();
 
 	//Add features here
@@ -121,7 +150,7 @@ void ImGuiLayer::Render(const Scene& scene)
 
 	RenderLightPanel(scene);
 
-	ImGui::End();
+	RenderViewport(texture, viewPortWidth, viewPortHeight);
 
 	EndFrame();
 }

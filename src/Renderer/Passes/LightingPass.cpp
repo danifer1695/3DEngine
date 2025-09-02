@@ -43,8 +43,9 @@ void LightingPass::Initialize()
 //Render
 //=============================================================================================
 
-void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex)
+void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const GLuint& targetFBO)
 {
+	Utils::getOpenGLError("LIGHTINGPASS::RENDER::COMING_FROM_ABOVE");
 	//vector for each type of light (this will to be moved to the light class)
 	std::vector<Light*>plVec;
 	std::vector<Light*>dlVec;
@@ -63,9 +64,6 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 		}
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	lightPassShader->use();
 	lightPassShader->setInt("numberOfPointLights",	(int)plVec.size());
 	lightPassShader->setInt("numberOfDirLights",	(int)dlVec.size());
@@ -74,7 +72,7 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 	lightPassShader->setFloat("materialShininess", 16.0f);
 	lightPassShader->setMatrix4("inverseViewMatrix", glm::inverse(scene.GetCamera()->get_view_matrix()));
 	lightPassShader->setMatrix4("viewMatrix", scene.GetCamera()->get_view_matrix());
-	Utils::getOpenGLError("LIGHTINGPASS::LIGHTING_PASS::UNIFORM_SETUP");
+	Utils::getOpenGLError("LIGHTINGPASS::RENDER::UNIFORM_SETUP");
 
 	//bind all gbuffer textures
 	glActiveTexture(GL_TEXTURE0);
@@ -87,7 +85,7 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 	glBindTexture(GL_TEXTURE_2D, ssaoTex);
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, scene.GetSkybox()->GetIrradianceMap());
-	Utils::getOpenGLError("LIGHTINGPASS::LIGHTING_PASS::TEX_BINDING");
+	Utils::getOpenGLError("LIGHTINGPASS::RENDER::TEX_BINDING");
 
 	//start index at GL_TEXTURE5
 	int texUnitIndex = 5;
@@ -115,10 +113,16 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 
 		texUnitIndex++;
 	}
+	Utils::getOpenGLError("LIGHTINGPASS::RENDER::LIGHTINFO_TO_SHADER");
+
+	//bind Texture framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, targetFBO);
+	glClear(GL_COLOR_BUFFER_BIT);
+	Utils::getOpenGLError("LIGHTINGPASS::RENDER::FBO_SETUP");
 
 	screenQuad.Draw();
 
-	Utils::getOpenGLError("LIGHTINGPASS::LIGHTING_PASS");
+	Utils::getOpenGLError("LIGHTINGPASS::RENDER");
 }
 //=============================================================================================
 //SendPointLightToShader

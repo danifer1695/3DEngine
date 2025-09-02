@@ -32,6 +32,7 @@ public:
 
 	//Getters
 	const GLuint GetFBO() const				{ return FBO; }
+	const GLuint GetRBO() const				{ return RBO; }
 	const GLuint GetGPositionTex() const	{ return gPosition; }
 	const GLuint GetGNormalTex() const		{ return gNormal; }
 	const GLuint GetGAlbedoSpecTex() const	{ return gAlbedoSpec; }

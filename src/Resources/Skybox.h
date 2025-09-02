@@ -7,6 +7,7 @@
 #include<glm/gtc/type_ptr.hpp>
 
 #include"../Renderer/Shader.h"
+#include"../Core/Utils.h"
 
 #include<stb_image.h>
 #include<string>
@@ -56,16 +57,15 @@ private:
 
 	//Initialization
 	void Init();
-	void SetMatrices(glm::mat4 projection, glm::mat4 view);
+	void SetMatrices(glm::mat4 projection, glm::mat4 view) const;
 	void setupFBO();
 	void setupCubemap();
 	void setupIrradiance();
 
 	//Helpers
 	void renderCube();
-	void BindTexture(GLenum textureUnit);
+	void BindTexture(GLenum textureUnit) const;
 	void RenderCubemap();
-	void getError(std::string location);
 
 public:
 
@@ -79,7 +79,7 @@ public:
 	~Skybox();
 
 	//Methods
-	void Draw(glm::mat4 projection, glm::mat4 view);
+	void Draw(glm::mat4 projection, glm::mat4 view, const GLuint& targetFBO);
 	void BindCubemap(GLenum texUnit);
 
 	//Getters

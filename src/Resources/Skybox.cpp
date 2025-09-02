@@ -51,7 +51,7 @@ void Skybox::Init()
 	glCullFace(GL_BACK);
 	
 
-	getError("INIT");
+	Utils::getOpenGLError("SKYBOX::INIT");
 }
 
 //=============================================================================================
@@ -122,21 +122,21 @@ void Skybox::renderCube()
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
-		getError("RENDER_CUBE::INIT");
+		Utils::getOpenGLError("SKYBOX::RENDER_CUBE::INIT");
 	}
 	// render Cube
 	glBindVertexArray(cubeVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 
-	getError("RENDER_CUBE");
+	Utils::getOpenGLError("SKYBOX::RENDER_CUBE");
 }
 
 //=============================================================================================
 //BindTexture
 //=============================================================================================
 
-void Skybox::BindTexture(GLenum textureUnit)
+void Skybox::BindTexture(GLenum textureUnit) const
 {
 	if (type == SKY_IMAGE)
 	{
@@ -148,7 +148,7 @@ void Skybox::BindTexture(GLenum textureUnit)
 	backgroundShader->setInt("cubeMap", 0);
 	backgroundShader->setInt("skybox_type", type);
 	
-	getError("BINDTEXTURE");
+	Utils::getOpenGLError("SKYBOX::BINDTEXTURE");
 }
 
 //=============================================================================================
@@ -167,7 +167,7 @@ void Skybox::setupFBO()
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;
 
-	getError("SETUPFBO");
+	Utils::getOpenGLError("SKYBOX::SETUP_FBO");
 }
 
 //=============================================================================================
@@ -190,7 +190,7 @@ void Skybox::setupCubemap()
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	getError("SETUPCUBEMAP");
+	Utils::getOpenGLError("SKYBOX::SETUP_CUBEMAP");
 }
 //=============================================================================================
 //RenderCubemap
@@ -248,7 +248,7 @@ void Skybox::setupIrradiance()
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	//reset to default framebuffer
 
-	getError("SetupIrradiance");
+	Utils::getOpenGLError("SKYBOX::SETUP_IRRADIANCE");
 }
 
 //=============================================================================================
@@ -288,37 +288,38 @@ void Skybox::RenderCubemap()
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	getError("RENDERCUBEMAP");
+	Utils::getOpenGLError("SKYBOX::RENDER_CUBEMAP");
 }
 
 //=============================================================================================
 //SetMatrices()
 //=============================================================================================
 
-void Skybox::SetMatrices(glm::mat4 projection, glm::mat4 view)
+void Skybox::SetMatrices(glm::mat4 projection, glm::mat4 view) const
 {
 	backgroundShader->use();
 	backgroundShader->setMatrix4("projection", projection);
 	backgroundShader->setMatrix4("view", view);
 
-	getError("SET_MATRICES");
+	Utils::getOpenGLError("SKYBOX::SET_MATRICES");
 }
 
 //=============================================================================================
 //SetMatrices()
 //=============================================================================================
 
-void Skybox::Draw(glm::mat4 projection, glm::mat4 view)
+void Skybox::Draw(glm::mat4 projection, glm::mat4 view, const GLuint& targetFBO)
 {
 	glCullFace(GL_FRONT);
 
 	SetMatrices(projection, view);
 	BindTexture(GL_TEXTURE0);
+	glBindFramebuffer(GL_FRAMEBUFFER, targetFBO);
 	renderCube();
 
 	glCullFace(GL_BACK);
 
-	getError("DRAW");
+	Utils::getOpenGLError("SKYBOX::DRAW");
 }
 
 //=============================================================================================
@@ -329,21 +330,4 @@ void Skybox::BindCubemap(GLenum texUnit)
 {
 	glActiveTexture(texUnit);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, GetCubemap());
-}
-
-//=============================================================================================
-//getError()
-//=============================================================================================
-
-void Skybox::getError(std::string location)
-{
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-	{
-		std::cerr << "SKYBOX::" << location << "::OpenGL error: " << err;
-		if (err == 1280) std::cerr << " - GL_INVALID_ENUM.";
-		else if (err == 1286) std::cerr << " - Invalid Framebuffer Operation.";
-		else if (err == 1282) std::cerr << " - GL_INVALID_OPERATION.";
-		std::cout << std::endl;
-	}
 }

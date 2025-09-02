@@ -13,6 +13,10 @@ class LightingPass
 private:
 	//Data
 	unsigned int screenWidth, screenHeight;
+	GLuint FBO;
+	GLuint screenTex;
+
+	//State
 	bool irradianceActive = false;
 
 	//Shaders
@@ -33,6 +37,6 @@ public:
 	LightingPass(unsigned int screenWidth, unsigned int screenHeight);
 
 	//Render
-	void Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex);
+	void Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const GLuint& targetFBO);
 };
 

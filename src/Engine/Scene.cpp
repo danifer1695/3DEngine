@@ -55,24 +55,26 @@ void Scene::Init()
 	items["plane"]->transform.Scale(glm::uvec3(100.0f, 1.0f, 100.0f));
 
 	//initialize lights
-	lights.push_back(std::make_unique<PointLight>(
-		glm::vec3(3.0f, 6.0f, 8.0f),
-		glm::vec3(1.0f, 0.95f, 0.8f),
-		true,
-		60.0f, 
-		60.0f));
-	lights.push_back(std::make_unique<PointLight>(
-		glm::vec3(-6.0f, 2.0f, -4.0f),
-		glm::vec3(1.0f, 0.25f, 0.18f),
-		false,
-		30.0f, 
-		10.0f));
+	//lights.push_back(std::make_unique<PointLight>(glm::vec3(3.0f, 6.0f, 8.0f), glm::vec3(1.0f, 0.95f, 0.8f), true, 60.0f, 60.0f));
+	//lights.push_back(std::make_unique<PointLight>(glm::vec3(-6.0f, 2.0f, -4.0f), glm::vec3(1.0f, 0.25f, 0.18f), false, 30.0f, 10.0f));
 	lights.push_back(std::make_unique<DirectionalLight>(
-		glm::vec3(6.0f, 7.0f, -10.0f),
-		glm::vec3(0.0f, 0.0f, 0.90f),
-		glm::vec3(0.8f, 0.27f, 0.90f),
+		glm::vec3(6.0f, 7.0f, -5.0f),
+		items["cube"]->transform.getPosition(),
+		glm::vec3(0.0f, 1.0f, 0.0f),
 		true,
-		1.0f));
+		0.7f));
+	lights.push_back(std::make_unique<DirectionalLight>(
+		glm::vec3(-6.0f, 7.0f, -10.0f),
+		items["cube"]->transform.getPosition(),
+		glm::vec3(0.0f, 0.0f, 1.0f),
+		true,
+		0.7f));
+	lights.push_back(std::make_unique<DirectionalLight>(
+		glm::vec3(-6.0f, 7.0f, 10.0f),
+		items["cube"]->transform.getPosition(),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		true,
+		0.7f));
 
 	getError("INIT");
 }
@@ -99,18 +101,6 @@ void Scene::UpdateScene()
 	//Update scene
 	projection = glm::perspective(glm::radians(activeCamera->zoom), (float)sceneWidth / (float)sceneHeight, near_plane, far_plane);;
 	getError("UPDATE_SCENE");
-}
-//===============================================================================================
-// UpdateScene();
-//===============================================================================================
-
-void Scene::RenderSkybox() const
-{
-	glDepthFunc(GL_LEQUAL);
-	glDepthMask(GL_FALSE);
-	skybox->Draw(projection, activeCamera->get_view_matrix());
-	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LESS);
 }
 
 //===============================================================================================

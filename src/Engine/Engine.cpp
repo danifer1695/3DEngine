@@ -81,8 +81,8 @@ void Engine::InitOpenGlState()
 	glCullFace(GL_BACK);
 
 	//Initialize engine objects
-	scene = std::make_unique<Scene>(globalScreenWidth, globalScreenHeight);
-	renderer = std::make_unique<Renderer>(globalScreenWidth, globalScreenHeight);
+	scene = std::make_unique<Scene>(viewportWidth, viewportHeight);
+	renderer = std::make_unique<Renderer>(viewportWidth, viewportHeight);
 	inputManager = std::make_unique<InputManager>();
 
 	//Configure viewport
@@ -123,7 +123,7 @@ void Engine::Run()
 		renderer->Draw(*scene.get());
 
 		//IMGUI
-		imGuiLayer->Render(*scene.get());
+		imGuiLayer->Render(*scene.get(), renderer->GetTexture(), viewportWidth, viewportHeight);
 
 		//SWAP BUFFERS
 		glfwSwapBuffers(window);

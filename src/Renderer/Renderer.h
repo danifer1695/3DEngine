@@ -25,6 +25,11 @@ private:
 
 	//Buffers
 	GBuffer gBuffer;
+	GLuint renderFBO;
+	GLuint renderRBO;
+
+	//Textures
+	GLuint renderTex;
 
 	//Passes
 	ShadowPass		shadowPass;
@@ -34,6 +39,11 @@ private:
 
 	//Initialization
 	void Init();
+	void SetupFBO();
+
+	//Helpers
+	void RenderSkybox(const Scene& scene, const GLuint& targetFBO);
+	void CopyDepthData();
 
 public:
 	//Constructors
@@ -41,5 +51,8 @@ public:
 
 	//Public methods
 	void Draw(const Scene& scene);
+
+	//Getters
+	const GLuint GetTexture() const { return renderTex; }
 };
 

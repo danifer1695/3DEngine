@@ -70,7 +70,6 @@ public:
 
 	//Render Loop
 	void UpdateScene();
-	void RenderSkybox() const;
 
 	//Camera Controls
 	void SetCameraScroll(float y_offset) { activeCamera->process_mouse_scroll(y_offset); }
@@ -83,7 +82,7 @@ public:
 	const auto&			GetLightCollection() const		{ return lights; }
 	glm::mat4			GetProjectionMatrix() const		{ return projection; }
     const Camera*		GetCamera() const				{ return activeCamera; }
-	const Skybox*		GetSkybox() const				{ return skybox.get(); }
+	Skybox*				GetSkybox()	const				{ return skybox.get(); }
 	const float			GetFarPlane() const				{ return far_plane; }
 	const float			GetNearPlane() const			{ return near_plane; }
 
