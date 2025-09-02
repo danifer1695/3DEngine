@@ -8,11 +8,11 @@ Please note
 
 Libraries used
 --------------
--'GLFW' to manage OpenGL contexts
--'GLAD' to use OpenGL functions
--'stb_image' to load image files
--'assimp' to load meshes
--'Dear ImGui' for the UI
+- 'GLFW' to manage OpenGL contexts
+- 'GLAD' to use OpenGL functions
+- 'stb_image' to load image files
+- 'assimp' to load meshes
+- 'Dear ImGui' for the UI
 
 Credits
 -------
