@@ -16,7 +16,7 @@ InputManager::InputManager()
 	mouseReleased.fill(false);
 }
 //=============================================================================================
-//KeyCallback
+//Update
 //=============================================================================================
 
 void InputManager::Update() {
@@ -30,6 +30,10 @@ void InputManager::Update() {
 
 	// reset mouse delta
 	mouseDelta = glm::vec2(0.0f);
+
+	// reset mouse scroll delta
+	scrollX = 0.0f;
+	scrollY = 0.0f;
 }
 //=============================================================================================
 //KeyCallback
@@ -88,4 +92,13 @@ void InputManager::MouseMoveCallback(double xpos, double ypos)
 	mouseDelta.y *= -1.0;					//y coords go from top to bottom so we reverse y coords
 
 	lastMousePos = mousePos;
+}
+//=============================================================================================
+//MouseScrollCallback
+//=============================================================================================
+
+void InputManager::MouseScrollCallback(double xOffset, double yOffset)
+{
+	scrollX = static_cast<float>(xOffset);
+	scrollY = static_cast<float>(yOffset);
 }

@@ -123,7 +123,7 @@ void Engine::Run()
 		renderer->Draw(*scene.get());
 
 		//IMGUI
-		imGuiLayer->Render(*scene.get(), renderer->GetTexture(), viewportWidth, viewportHeight);
+		imGuiLayer->Render(*scene.get(), renderer->GetTexture(), viewportWidth, viewportHeight, globalScreenWidth, globalScreenHeight);
 
 		//SWAP BUFFERS
 		glfwSwapBuffers(window);

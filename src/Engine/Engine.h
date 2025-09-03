@@ -68,7 +68,8 @@ private:
 	{
 		//Get pointer to this same instance
 		Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
-		engine->scene->SetCameraScroll(y_offset);
+		if(engine->inputManager->GetNavigationTarget() == NAVIGATION_SCENE)
+			engine->scene->SetCameraScroll(y_offset);
 	}
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{

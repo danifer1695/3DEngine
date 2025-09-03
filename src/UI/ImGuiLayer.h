@@ -18,6 +18,8 @@ private:
 	void BeginFrame();
 	void EndFrame();
 	void RenderLightPanel(const Scene& scene);
+	void RenderObjectPanel(const Scene& scene, unsigned int screenWidth, unsigned int screenHeight);
+	void RenderScenePanel(const Scene& scene, unsigned int screenWidth);
 	void RenderViewport(const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight);
 
 public:
@@ -28,6 +30,13 @@ public:
 	~ImGuiLayer();
 
 	//Runtime methods
-	void Render(const Scene& scene, const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight);
+	void Render(
+		const Scene& scene, 
+		const GLuint& texture, 
+		unsigned int viewPortWidth, 
+		unsigned int viewPortHeight,
+		unsigned int screenWidth,
+		unsigned int screenHeight
+		);
 };
 

@@ -38,6 +38,8 @@ private:
 	glm::vec2 lastMousePos;
 	glm::vec2 mouseDelta;		//we send this to the Camera
 
+	float scrollX, scrollY;
+
 public:
 	//Constructors
 	InputManager();
@@ -49,6 +51,7 @@ public:
 	void KeyCallback(int key, int scanCode, int action, int mods);
 	void MouseButtonCallback(int button, int action, int mods);
 	void MouseMoveCallback(double xpos, double ypos);
+	void MouseScrollCallback(double xOffset, double yOffset);
 
 	//Per-Frame State Reset
 	void Update();
@@ -63,6 +66,7 @@ public:
 	bool IsMouseReleased(int button) const	{ return mouseReleased[button]; }
 	glm::vec2 GetMousePosition() const		{ return mousePos; }
 	glm::vec2 GetMouseDelta() const			{ return mouseDelta; }
+	float GetMouseScrollY() const			{ return scrollY; }
 
 	NavigationTarget GetNavigationTarget()	{ return navTarget; }
 

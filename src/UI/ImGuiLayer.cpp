@@ -65,10 +65,13 @@ void ImGuiLayer::RenderLightPanel(const Scene& scene)
 
 	//Set position of the window
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(400, 600));
 
 	//Set window flags
 	ImGuiWindowFlags windowFlags = 0;
 	windowFlags |= ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoCollapse;
+	windowFlags |= ImGuiWindowFlags_NoResize;
 
 	ImGui::Begin("Lights", NULL, windowFlags);
 
@@ -108,6 +111,56 @@ void ImGuiLayer::RenderLightPanel(const Scene& scene)
 	ImGui::End();
 }
 //=============================================================================================
+//RenderObjectPanel()
+//=============================================================================================
+
+void ImGuiLayer::RenderObjectPanel(const Scene& scene, unsigned int screenWidth, unsigned int screenHeight)
+{
+	int panelHeight = screenHeight - 600;
+
+	ImGuiIO& io = ImGui::GetIO();
+
+	//Set window parameters
+	ImGui::SetNextWindowSize(ImVec2(screenWidth, panelHeight));
+	ImGui::SetNextWindowPos(ImVec2(0, 600));
+
+	//Set window flags
+	ImGuiWindowFlags windowFlags = 0;
+	windowFlags |= ImGuiWindowFlags_NoResize;
+	windowFlags |= ImGuiWindowFlags_NoCollapse;
+
+	ImGui::Begin("Resources", NULL, windowFlags);
+
+	//Contents
+
+	ImGui::End();
+}
+//=============================================================================================
+//RenderScenePanel()
+//=============================================================================================
+
+void ImGuiLayer::RenderScenePanel(const Scene& scene, unsigned int screenWidth)
+{
+	int windowWidth = 800 + 400;
+
+	ImGuiIO& io = ImGui::GetIO();
+
+	//Set window parameters
+	ImGui::SetNextWindowSize(ImVec2(screenWidth - windowWidth, 600));
+	ImGui::SetNextWindowPos(ImVec2(windowWidth, 0));
+
+	//Set window flags
+	ImGuiWindowFlags windowFlags = 0;
+	windowFlags |= ImGuiWindowFlags_NoResize;
+	windowFlags |= ImGuiWindowFlags_NoCollapse;
+
+	ImGui::Begin("Scene", NULL, windowFlags);
+
+	//Contents
+
+	ImGui::End();
+}
+//=============================================================================================
 //RenderViewPort()
 //=============================================================================================
 
@@ -117,6 +170,8 @@ void ImGuiLayer::RenderViewport(const GLuint& texture, unsigned int viewPortWidt
 
 	//Set window parameters
 	ImGui::SetNextWindowSize(ImVec2(viewPortWidth, viewPortHeight));
+	ImGui::SetNextWindowPos(ImVec2(400, 0));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));	//set padding to 0
 
 	//Set window flags
 	ImGuiWindowFlags windowFlags = 0;
@@ -134,12 +189,13 @@ void ImGuiLayer::RenderViewport(const GLuint& texture, unsigned int viewPortWidt
 		ImVec2(1, 0));
 
 	ImGui::End();
+	ImGui::PopStyleVar();
 }
 //=============================================================================================
 //Render()
 //=============================================================================================
 
-void ImGuiLayer::Render(const Scene& scene, const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight)
+void ImGuiLayer::Render(const Scene& scene, const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight, unsigned int screenWidth, unsigned int screenHeight)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -151,6 +207,10 @@ void ImGuiLayer::Render(const Scene& scene, const GLuint& texture, unsigned int 
 	RenderLightPanel(scene);
 
 	RenderViewport(texture, viewPortWidth, viewPortHeight);
+
+	RenderScenePanel(scene, screenWidth);
+
+	RenderObjectPanel(scene, screenWidth, screenHeight);
 
 	EndFrame();
 }
