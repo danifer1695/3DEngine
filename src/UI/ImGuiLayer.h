@@ -5,6 +5,7 @@
 #include"../../vendors/ImGui/imgui_impl_glfw.h"
 
 #include"../Engine/Scene.h"
+#include"../Renderer/Renderer.h"
 
 class ImGuiLayer
 {
@@ -19,7 +20,7 @@ private:
 	void EndFrame();
 	void RenderLightPanel(const Scene& scene);
 	void RenderObjectPanel(const Scene& scene, unsigned int screenWidth, unsigned int screenHeight);
-	void RenderScenePanel(const Scene& scene, unsigned int screenWidth);
+	void RenderScenePanel(Renderer& renderer, unsigned int screenWidth);
 	void RenderViewport(const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight);
 
 public:
@@ -32,7 +33,7 @@ public:
 	//Runtime methods
 	void Render(
 		const Scene& scene, 
-		const GLuint& texture, 
+		Renderer& renderer, 
 		unsigned int viewPortWidth, 
 		unsigned int viewPortHeight,
 		unsigned int screenWidth,

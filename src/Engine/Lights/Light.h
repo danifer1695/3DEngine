@@ -37,7 +37,8 @@ public:
 	std::unique_ptr<ShadowMap> shadowMap = nullptr;
 
 	//Constructors
-	Light(LightType type, 
+	Light(std::string name,
+		LightType type, 
 		glm::vec3 pos, 
 		bool castShadows, 
 		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f), 

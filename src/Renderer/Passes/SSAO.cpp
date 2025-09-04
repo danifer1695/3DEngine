@@ -30,6 +30,7 @@ void SSAOPass::SetupShaders()
 	ssaoBlurShader = std::make_unique<Shader>("SSAO_BLUR", SSAO_VS, SSAO_BLUR_FS);
 
 	ssaoShader->use();
+	ssaoShader->setBool("ssaoEnabled", ssaoEnabled);
 	ssaoShader->setInt("gPosition", 0);
 	ssaoShader->setInt("gNormal", 1);
 	ssaoShader->setInt("texNoise", 2);
@@ -38,6 +39,7 @@ void SSAOPass::SetupShaders()
 	ssaoShader->setFloat("screenHeight", (float)screenHeight);
 
 	ssaoBlurShader->use();
+	ssaoBlurShader->setBool("ssaoEnabled", ssaoEnabled);
 	ssaoBlurShader->setInt("ssaoInput", 0);
 
 	getError("SETUP_SHADERS");

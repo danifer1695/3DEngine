@@ -20,6 +20,7 @@
 class SSAOPass
 {
 private:
+	bool ssaoEnabled = true;
 	unsigned int screenWidth, screenHeight;
 
 	GLuint ssaoFBO, ssaoBlurFBO;
@@ -56,6 +57,10 @@ public:
 	void Render(const Scene& scene, const GBuffer& gBuffer);
 
 	//Getters
-	const GLuint GetTexture() const { return ssaoBlurColorBuffer; }
+	const GLuint	GetTexture() const { return ssaoBlurColorBuffer; }
+	const bool		GetEnabled() const { return ssaoEnabled; }
+
+	//Setters
+	void SetEnabled(bool set) { ssaoEnabled = set; }
 };
 

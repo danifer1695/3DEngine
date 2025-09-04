@@ -11,6 +11,7 @@ uniform sampler2D AOMap;						//check: set
 
 //Environment
 uniform bool irradianceActive;					//check: set
+uniform bool ssaoEnabled;						//check: not set
 uniform samplerCube irradianceMap;				//check: set
 
 //Camera & Material
@@ -302,7 +303,9 @@ void main()
 	vec3 Normal = normalize(texture(gNormal, TexCoords).rgb);
 	vec3 Diffuse =			texture(gAlbedoSpec, TexCoords).rgb;
 	float Specular =		texture(gAlbedoSpec, TexCoords).a;
-	float AO =				texture(AOMap, TexCoords).r;
+	float AO =				1.0f;
+
+	if(ssaoEnabled) AO = texture(AOMap, TexCoords).r;
 
 	vec3 fragPosWorld = (inverseViewMatrix * vec4(FragPos, 1.0)).xyz;
 	vec3 Ambient = Diffuse * 0.3 * AO;

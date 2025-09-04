@@ -6,8 +6,13 @@ in vec2 TexCoords;
 //the SSAO map created by ssao.fs
 uniform sampler2D ssaoInput;
 
+uniform bool ssaoEnabled;       //check: set
+
 void main() 
 {
+    //Early discard
+    if(!ssaoEnabled) discard;
+
     //ge get the size of a texel
     vec2 texelSize = 1.0 / vec2(textureSize(ssaoInput, 0));
     float result = 0.0;

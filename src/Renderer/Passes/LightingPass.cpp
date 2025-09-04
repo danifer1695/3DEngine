@@ -43,7 +43,7 @@ void LightingPass::Initialize()
 //Render
 //=============================================================================================
 
-void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const GLuint& targetFBO)
+void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const bool& ssaoEnabled, const GLuint& targetFBO)
 {
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::COMING_FROM_ABOVE");
 	//vector for each type of light (this will to be moved to the light class)
@@ -65,6 +65,7 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 	}
 
 	lightPassShader->use();
+	lightPassShader->setBool("ssaoEnabled", ssaoEnabled);
 	lightPassShader->setInt("numberOfPointLights",	(int)plVec.size());
 	lightPassShader->setInt("numberOfDirLights",	(int)dlVec.size());
 	lightPassShader->setInt("numberOfSpotLights",	0);			//***NEEDS UPDATING WHEN IMPLEMENTING SPOTLIGHTS***

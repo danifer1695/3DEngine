@@ -37,6 +37,6 @@ public:
 	LightingPass(unsigned int screenWidth, unsigned int screenHeight);
 
 	//Render
-	void Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const GLuint& targetFBO);
+	void Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const bool& ssaoEnabled, const GLuint& targetFBO);
 };
 

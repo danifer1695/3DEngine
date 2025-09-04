@@ -19,7 +19,7 @@ private:
 
 public:
 	//Constructor
-	Item(std::shared_ptr<Model> model, std::shared_ptr<Material> material, glm::vec3 worldPos = glm::vec3(0.0f));
+	Item(std::string name, std::shared_ptr<Model> model, std::shared_ptr<Material> material, glm::vec3 worldPos = glm::vec3(0.0f));
 
 	//Methods
 	void Draw(glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec3 camPos);

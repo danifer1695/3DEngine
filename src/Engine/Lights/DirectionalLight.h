@@ -10,6 +10,7 @@ private:
 public:
 	//Constructors
 	DirectionalLight(
+		const std::string name,
 		const glm::vec3 position,
 		const glm::vec3 target,
 		const glm::vec3 color,

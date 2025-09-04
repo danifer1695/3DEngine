@@ -4,8 +4,8 @@
 //Constructor()
 //===============================================================================================
 
-Item::Item(std::shared_ptr<Model> model, std::shared_ptr<Material> material, glm::vec3 worldPos)
-	:model{ model }, material{ material }, GameObject(worldPos) 
+Item::Item(std::string name, std::shared_ptr<Model> model, std::shared_ptr<Material> material, glm::vec3 worldPos)
+	:model{ model }, material{ material }, GameObject(name, worldPos) 
 {
 
 	getError("CONSTRUCTOR");

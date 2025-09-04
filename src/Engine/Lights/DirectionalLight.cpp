@@ -4,8 +4,8 @@
 // Constructors();
 //===============================================================================================
 
-DirectionalLight::DirectionalLight(const glm::vec3 position, const glm::vec3 target, const glm::vec3 color, const bool castShadows, const float intensity)
-	:Light(DIRECTIONAL_LIGHT, position, castShadows, color, intensity), target{ target }
+DirectionalLight::DirectionalLight(const std::string name, const glm::vec3 position, const glm::vec3 target, const glm::vec3 color, const bool castShadows, const float intensity)
+	:Light(name, DIRECTIONAL_LIGHT, position, castShadows, color, intensity), target{ target }
 {
 	shadowMap = std::make_unique<ShadowMap>(Directional, 1024, 1024);
 }

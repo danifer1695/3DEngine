@@ -53,6 +53,7 @@ public:
 	void Draw(const Scene& scene);
 
 	//Getters
-	const GLuint GetTexture() const { return renderTex; }
+	const GLuint		GetTexture() const	{ return renderTex; }
+	SSAOPass&			GetSSAOPass()		{ return ssaoPass; }
 };
 

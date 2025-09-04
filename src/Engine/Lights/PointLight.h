@@ -9,6 +9,7 @@ private:
 public:
 	//constructor
 	PointLight(
+		const std::string name,
 		const glm::vec3& position_in,
 		const glm::vec3& color_in,
 		const bool castShadows_in,

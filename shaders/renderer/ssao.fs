@@ -3,6 +3,8 @@ out float FragColor;
 
 in vec2 TexCoords;
 
+uniform bool ssaoEnabled;		//check: set
+
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D texNoise;		//4x4 noise texture generated in the SSAO class
@@ -40,6 +42,8 @@ int DynamicSampling(vec3 FragPos)
 void main()
 {
 	//early fragment discard
+	if(!ssaoEnabled) discard;
+
 	vec3 fragPos =	texture(gPosition, TexCoords).xyz;	//gbuffer sends infor in view
 	if(fragPos.z == 0.0) discard;						//fragments with no geometry in it will return a depth of 0.0
 

@@ -105,7 +105,7 @@ void Renderer::Draw(const Scene& scene)
 	CopyDepthData();
 
 	//We render lighting and skybox to the Renderer's FBO
-	lightingPass.Render(scene, gBuffer, ssaoPass.GetTexture(), renderFBO);
+	lightingPass.Render(scene, gBuffer, ssaoPass.GetTexture(), ssaoPass.GetEnabled(), renderFBO);
 	RenderSkybox(scene, renderFBO);
 
 	Utils::getOpenGLError("RENDERER::DRAW");

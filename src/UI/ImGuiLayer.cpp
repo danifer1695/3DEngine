@@ -88,26 +88,26 @@ void ImGuiLayer::RenderLightPanel(const Scene& scene)
 		glm::vec3 move = light->transform.getPosition();
 
 		ImGui::NewLine();
+		ImGui::PushID(i);	//Unique ID per light
 
-		//Whenever you create ImGui widgets in a loop, always ensure they get a unique ID. 
-		//Otherwise, ImGui treats them as the same control.
-		ImGui::PushID(i);
+		if(ImGui::TreeNode(light->GetName().c_str()))
+		{
 
-		ImGui::Text("Light %d", i);
-		ImGui::SameLine(); ImGui::Checkbox("Active", &light->active);
-		ImGui::Text("Light Color:");
-		ImGui::SameLine(); ImGui::ColorEdit3("Light Color", glm::value_ptr(light->color), ImGuiColorEditFlags_NoInputs);
-		ImGui::InputFloat("Intensity", &light->intensity, 0.01f, 100.0f, "%.3f");
-		ImGui::Text("Light Transform:");
-		if(ImGui::InputFloat3("Position", glm::value_ptr(move)))
-			light->transform.SetPosition(move);;
-		ImGui::Checkbox("Cast Shadows", &light->castShadows);
-		ImGui::Checkbox("Soft Shadows", &light->softShadows);
+			ImGui::SameLine(); ImGui::Checkbox("Active", &light->active);
+			ImGui::Text("Light Color:");
+			ImGui::SameLine(); ImGui::ColorEdit3("Light Color", glm::value_ptr(light->color), ImGuiColorEditFlags_NoInputs);
+			ImGui::InputFloat("Intensity", &light->intensity, 0.01f, 100.0f, "%.3f");
+			ImGui::Text("Light Transform:");
+			if(ImGui::InputFloat3("Position", glm::value_ptr(move)))
+				light->transform.SetPosition(move);
+			ImGui::Checkbox("Cast Shadows", &light->castShadows);
+			ImGui::Checkbox("Soft Shadows", &light->softShadows);
 
+			ImGui::TreePop();
+		}
 		ImGui::PopID();
 		i++;
 	}
-
 	ImGui::End();
 }
 //=============================================================================================
@@ -139,9 +139,10 @@ void ImGuiLayer::RenderObjectPanel(const Scene& scene, unsigned int screenWidth,
 //RenderScenePanel()
 //=============================================================================================
 
-void ImGuiLayer::RenderScenePanel(const Scene& scene, unsigned int screenWidth)
+void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 {
 	int windowWidth = 800 + 400;
+	bool setSSAO = renderer.GetSSAOPass().GetEnabled();
 
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -157,6 +158,8 @@ void ImGuiLayer::RenderScenePanel(const Scene& scene, unsigned int screenWidth)
 	ImGui::Begin("Scene", NULL, windowFlags);
 
 	//Contents
+	if (ImGui::Checkbox("SSAO active:", &setSSAO))
+		renderer.GetSSAOPass().SetEnabled(setSSAO);
 
 	ImGui::End();
 }
@@ -195,9 +198,10 @@ void ImGuiLayer::RenderViewport(const GLuint& texture, unsigned int viewPortWidt
 //Render()
 //=============================================================================================
 
-void ImGuiLayer::Render(const Scene& scene, const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight, unsigned int screenWidth, unsigned int screenHeight)
+void ImGuiLayer::Render(const Scene& scene, Renderer& renderer, unsigned int viewPortWidth, unsigned int viewPortHeight, unsigned int screenWidth, unsigned int screenHeight)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	GLuint texture = renderer.GetTexture();
 
 	BeginFrame();
 
@@ -208,7 +212,7 @@ void ImGuiLayer::Render(const Scene& scene, const GLuint& texture, unsigned int 
 
 	RenderViewport(texture, viewPortWidth, viewPortHeight);
 
-	RenderScenePanel(scene, screenWidth);
+	RenderScenePanel(renderer, screenWidth);
 
 	RenderObjectPanel(scene, screenWidth, screenHeight);
 

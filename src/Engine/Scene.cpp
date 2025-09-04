@@ -47,10 +47,10 @@ void Scene::Init()
 	ImportMaterialBlinn("grey", "./shaders/Blinn/blinn.vs", "./shaders/Blinn/blinn.fs", textures2D["grey_diff"], textures2D["grey_diff"]);
 
 	//initialize items
-	items["sphere"] = std::make_unique<Item>(models["sphere"], materials["blinn"], glm::vec3(2.0f, 0.0f, 2.0f));
-	items["cube"] = std::make_unique<Item>(models["cube"], materials["blinn"], glm::vec3(1.0f, 0.0f, -2.0f));
-	items["cone"] = std::make_unique<Item>(models["cone"], materials["blinn"], glm::vec3(-1.0f, 0.0f, 0.0f));
-	items["plane"] = std::make_unique<Item>(models["plane"], materials["grey"], glm::vec3(0.0f, 0.0f, 0.0f));
+	items["sphere"] = std::make_unique<Item>("Sphere", models["sphere"], materials["blinn"], glm::vec3(2.0f, 0.0f, 2.0f));
+	items["cube"] = std::make_unique<Item>("Cube", models["cube"], materials["blinn"], glm::vec3(1.0f, 0.0f, -2.0f));
+	items["cone"] = std::make_unique<Item>("Cone", models["cone"], materials["blinn"], glm::vec3(-1.0f, 0.0f, 0.0f));
+	items["plane"] = std::make_unique<Item>("Plane", models["plane"], materials["grey"], glm::vec3(0.0f, 0.0f, 0.0f));
 
 	items["plane"]->transform.Scale(glm::uvec3(100.0f, 1.0f, 100.0f));
 
@@ -58,18 +58,21 @@ void Scene::Init()
 	//lights.push_back(std::make_unique<PointLight>(glm::vec3(3.0f, 6.0f, 8.0f), glm::vec3(1.0f, 0.95f, 0.8f), true, 60.0f, 60.0f));
 	//lights.push_back(std::make_unique<PointLight>(glm::vec3(-6.0f, 2.0f, -4.0f), glm::vec3(1.0f, 0.25f, 0.18f), false, 30.0f, 10.0f));
 	lights.push_back(std::make_unique<DirectionalLight>(
+		"Green Directional",
 		glm::vec3(6.0f, 7.0f, -5.0f),
 		items["cube"]->transform.getPosition(),
 		glm::vec3(0.0f, 1.0f, 0.0f),
 		true,
 		0.7f));
 	lights.push_back(std::make_unique<DirectionalLight>(
+		"Blue Directional",
 		glm::vec3(-6.0f, 7.0f, -10.0f),
 		items["cube"]->transform.getPosition(),
 		glm::vec3(0.0f, 0.0f, 1.0f),
 		true,
 		0.7f));
 	lights.push_back(std::make_unique<DirectionalLight>(
+		"Red Directional",
 		glm::vec3(-6.0f, 7.0f, 10.0f),
 		items["cube"]->transform.getPosition(),
 		glm::vec3(1.0f, 0.0f, 0.0f),
