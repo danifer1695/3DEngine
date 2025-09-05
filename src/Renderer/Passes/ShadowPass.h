@@ -24,7 +24,7 @@ private:
 	void Initialize();
 
 	//Update
-	void UpdateShadows(const Scene& scene);
+	void UpdateShadows(const Scene& scene, bool globalUpdate);
 	void ResetDirtyFlags(const Scene& scene);
 
 public:

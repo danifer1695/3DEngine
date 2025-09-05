@@ -56,10 +56,10 @@ void ImGuiLayer::EndFrame()
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 //=============================================================================================
-//RenderLightPanel()
+//RenderEntityPanel()
 //=============================================================================================
 
-void ImGuiLayer::RenderLightPanel(const Scene& scene)
+void ImGuiLayer::RenderEntityPanel(const Scene& scene)
 {
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -73,41 +73,28 @@ void ImGuiLayer::RenderLightPanel(const Scene& scene)
 	windowFlags |= ImGuiWindowFlags_NoCollapse;
 	windowFlags |= ImGuiWindowFlags_NoResize;
 
-	ImGui::Begin("Lights", NULL, windowFlags);
+	ImGui::Begin("Entities", NULL, windowFlags);
 
-	//Show framerate
-	ImGui::Text("(%.1f FPS)", io.Framerate);
-	//Show demo window
-	ImGui::Checkbox("Show demo window", &showDemo);
-
-	ImGui::SeparatorText("Lights:");
-	int i = 0;
-	for (auto& light : scene.GetLightCollection())
+	if (ImGui::BeginTabBar("Entities"))
 	{
-		//transformation variables
-		glm::vec3 move = light->transform.getPosition();
-
-		ImGui::NewLine();
-		ImGui::PushID(i);	//Unique ID per light
-
-		if(ImGui::TreeNode(light->GetName().c_str()))
+		//LIGHTS TAB
+		//----------
+		if (ImGui::BeginTabItem("Lights"))
 		{
-
-			ImGui::SameLine(); ImGui::Checkbox("Active", &light->active);
-			ImGui::Text("Light Color:");
-			ImGui::SameLine(); ImGui::ColorEdit3("Light Color", glm::value_ptr(light->color), ImGuiColorEditFlags_NoInputs);
-			ImGui::InputFloat("Intensity", &light->intensity, 0.01f, 100.0f, "%.3f");
-			ImGui::Text("Light Transform:");
-			if(ImGui::InputFloat3("Position", glm::value_ptr(move)))
-				light->transform.SetPosition(move);
-			ImGui::Checkbox("Cast Shadows", &light->castShadows);
-			ImGui::Checkbox("Soft Shadows", &light->softShadows);
-
-			ImGui::TreePop();
+			RenderLightTab(scene);
+			ImGui::EndTabItem();
 		}
-		ImGui::PopID();
-		i++;
+		//ITEMS TAB
+		//---------
+		if (ImGui::BeginTabItem("Items"))
+		{
+			RenderItemTab(scene);
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
 	}
+	//END OF TAB MENU
+
 	ImGui::End();
 }
 //=============================================================================================
@@ -158,7 +145,11 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 	ImGui::Begin("Scene", NULL, windowFlags);
 
 	//Contents
-	if (ImGui::Checkbox("SSAO active:", &setSSAO))
+	//--------
+	ImGui::Text("(%.1f FPS)", io.Framerate);		//Show framerate
+	ImGui::Checkbox("Show demo window", &showDemo);	//Show demo window
+
+	if (ImGui::Checkbox("SSAO active", &setSSAO))
 		renderer.GetSSAOPass().SetEnabled(setSSAO);
 
 	ImGui::End();
@@ -195,6 +186,79 @@ void ImGuiLayer::RenderViewport(const GLuint& texture, unsigned int viewPortWidt
 	ImGui::PopStyleVar();
 }
 //=============================================================================================
+//RenderLightTab()
+//=============================================================================================
+
+void ImGuiLayer::RenderLightTab(const Scene& scene)
+{
+	int i = 0;
+	for (auto& light : scene.GetLightCollection())
+	{
+		//transformation variables
+		glm::vec3 move = light->transform.getPosition();
+
+		ImGui::NewLine();
+		ImGui::PushID(i);	//Unique ID per light
+
+		if (ImGui::TreeNode(light->GetName().c_str()))
+		{
+
+			ImGui::SameLine(); ImGui::Checkbox("Active", &light->active);
+			ImGui::Text("Light Color:");
+			ImGui::SameLine(); ImGui::ColorEdit3("Light Color", glm::value_ptr(light->color), ImGuiColorEditFlags_NoInputs);
+			ImGui::InputFloat("Intensity", &light->intensity, 0.01f, 100.0f, "%.3f");
+			ImGui::Text("Light Transform:");
+			if (ImGui::InputFloat3("Position", glm::value_ptr(move)))
+				light->transform.SetPosition(move);
+			ImGui::Checkbox("Cast Shadows", &light->castShadows);
+			ImGui::Checkbox("Soft Shadows", &light->softShadows);
+			ImGui::Separator();
+
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
+		i++;
+	}
+}
+//=============================================================================================
+//RenderItemTab()
+//=============================================================================================
+
+void ImGuiLayer::RenderItemTab(const Scene& scene)
+{
+	int i = 0;
+	for (auto& item : scene.GetItemCollection())
+	{
+		//transformation variables
+		glm::vec3 move = item.second->transform.getPosition();
+		glm::vec3 scale = item.second->transform.getScale();
+		glm::vec3 rotate = item.second->transform.getRotation();
+
+		ImGui::NewLine();
+		ImGui::PushID(i);	//Unique ID per light
+
+		if (ImGui::TreeNode(item.second->GetName().c_str()))
+		{
+			ImGui::Text("Item Transform:");
+
+			if (ImGui::InputFloat3("Position", glm::value_ptr(move)))
+				item.second->transform.SetPosition(move);
+
+			if (ImGui::InputFloat3("Rotation", glm::value_ptr(rotate)))
+				item.second->transform.SetRotation(rotate);
+
+			if (ImGui::InputFloat3("Scale", glm::value_ptr(scale)))
+				item.second->transform.SetScale(scale);
+
+			ImGui::Separator();
+
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
+		i++;
+	}
+}
+//=============================================================================================
 //Render()
 //=============================================================================================
 
@@ -208,7 +272,7 @@ void ImGuiLayer::Render(const Scene& scene, Renderer& renderer, unsigned int vie
 	//Add features here
 	if (showDemo) ImGui::ShowDemoWindow();
 
-	RenderLightPanel(scene);
+	RenderEntityPanel(scene);
 
 	RenderViewport(texture, viewPortWidth, viewPortHeight);
 

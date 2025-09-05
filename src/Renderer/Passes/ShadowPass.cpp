@@ -25,6 +25,7 @@ void ShadowPass::Initialize()
 void ShadowPass::Render(const Scene& scene)
 {
 	bool needsUpdate = false;
+	bool globalUpdate = false;
 
 	//Check Items
 	for (const auto& item : scene.GetItemCollection())
@@ -32,6 +33,7 @@ void ShadowPass::Render(const Scene& scene)
 		if (item.second->transform.GetIsDirty())
 		{
 			needsUpdate = true;
+			globalUpdate = true;
 			break;
 		}
 	}
@@ -52,7 +54,7 @@ void ShadowPass::Render(const Scene& scene)
 	//If scene is not clean, update shadows, and reset dirty flags
 	if (needsUpdate)
 	{
-		UpdateShadows(scene);
+		UpdateShadows(scene, globalUpdate);
 		ResetDirtyFlags(scene);
 	}
 }
@@ -76,7 +78,7 @@ void ShadowPass::ResetDirtyFlags(const Scene& scene)
 //UpdateShadows
 //=============================================================================================
 
-void ShadowPass::UpdateShadows(const Scene& scene)
+void ShadowPass::UpdateShadows(const Scene& scene, bool globalUpdate)
 {
 	float nearPlane = scene.GetNearPlane();
 	float farPlane = scene.GetFarPlane();
@@ -87,8 +89,9 @@ void ShadowPass::UpdateShadows(const Scene& scene)
 	for (size_t i = 0; i < numberOfLights; ++i)
 	{
 		//skip if light casts no shadows or if its not dirty
-		if (!scene.GetLightCollection().at(i)->castShadows || 
-			!scene.GetLightCollection().at(i)->transform.GetIsDirty()) continue;
+		if (!scene.GetLightCollection().at(i)->castShadows) continue;
+		//if update isn't global and shadow isnt dirty, we skip
+		if (!globalUpdate && !scene.GetLightCollection().at(i)->transform.GetIsDirty()) continue;
 
 		//if static_cast to PointLight on current Light does not return nullptr, its a point light
 		if (scene.GetLightCollection().at(i)->GetLightType() == POINT_LIGHT)
