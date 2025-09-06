@@ -98,10 +98,10 @@ void ImGuiLayer::RenderEntityPanel(const Scene& scene)
 	ImGui::End();
 }
 //=============================================================================================
-//RenderObjectPanel()
+//RenderAssetsPanel()
 //=============================================================================================
 
-void ImGuiLayer::RenderObjectPanel(const Scene& scene, unsigned int screenWidth, unsigned int screenHeight)
+void ImGuiLayer::RenderAssetsPanel(const Scene& scene, unsigned int screenWidth, unsigned int screenHeight)
 {
 	int panelHeight = screenHeight - 600;
 
@@ -118,7 +118,24 @@ void ImGuiLayer::RenderObjectPanel(const Scene& scene, unsigned int screenWidth,
 
 	ImGui::Begin("Resources", NULL, windowFlags);
 
-	//Contents
+	if (ImGui::BeginTabBar("Assets"))
+	{
+		//MATERIALS TAB
+		//----------
+		if (ImGui::BeginTabItem("Materials"))
+		{
+			RenderMaterialsTab(scene);
+			ImGui::EndTabItem();
+		}
+		//MODELS TAB
+		//---------
+		if (ImGui::BeginTabItem("Models"))
+		{
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
+	//END OF TAB MENU
 
 	ImGui::End();
 }
@@ -184,6 +201,32 @@ void ImGuiLayer::RenderViewport(const GLuint& texture, unsigned int viewPortWidt
 
 	ImGui::End();
 	ImGui::PopStyleVar();
+}
+//=============================================================================================
+//RenderMaterialsTab()
+//=============================================================================================
+
+void ImGuiLayer::RenderMaterialsTab(const Scene& scene)
+{
+	int i = 0;
+	ImGui::NewLine();
+	for (auto& material : scene.GetMaterialCollection())
+	{
+		ImGui::SameLine();
+		ImGui::PushID(i);	//Unique ID per item
+		
+		//Little thumbnail displaying texture.
+		//eventually to be replaced with a small render of sphere with material on
+		ImTextureID imguiTexID = (ImTextureID)(intptr_t)material.second->getDiffuse();
+		ImGui::ImageButton(material.second->GetName().c_str(),
+			imguiTexID,
+			ImVec2(64.0f, 64.0f),
+			ImVec2(0, 1),
+			ImVec2(1, 0));
+		
+		ImGui::PopID();
+		i++;
+	}
 }
 //=============================================================================================
 //RenderLightTab()
@@ -278,7 +321,7 @@ void ImGuiLayer::Render(const Scene& scene, Renderer& renderer, unsigned int vie
 
 	RenderScenePanel(renderer, screenWidth);
 
-	RenderObjectPanel(scene, screenWidth, screenHeight);
+	RenderAssetsPanel(scene, screenWidth, screenHeight);
 
 	EndFrame();
 }

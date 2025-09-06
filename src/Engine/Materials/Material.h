@@ -16,18 +16,26 @@
 #define BASE_SHADER_VS			"./shaders/baseShader.vs"
 #define BASE_SHADER_FS			"./shaders/baseShader.fs"
 
+enum MaterialType
+{
+	MATERIAL_NONPBR,
+	MATERIAL_PBR
+};
+
 class Material
 {
 protected:
+	//Data
 	std::string name;
+	MaterialType type;
 
 	//Shader
 	std::shared_ptr<Shader> baseShader;			//Display shader
 
 public:
 	//Constructor
-	Material(std::string name = "default");
-	Material(std::string name, const char* vshaderPath, const char* fshaderPath);
+	Material(std::string name = "default", MaterialType type = MATERIAL_NONPBR);
+	Material(std::string name, MaterialType type, const char* vshaderPath, const char* fshaderPath);
 
 	//Destructor
 	virtual ~Material();
@@ -47,11 +55,12 @@ public:
 
 	//Getters
 	//-------
-	std::shared_ptr<Shader> getShader() { return baseShader; }
+	std::shared_ptr<Shader> getShader()		{ return baseShader; }
+	const std::string		GetName() const	{ return name; }
 
 	//NPBR getters
-	virtual unsigned int getDiffuse() { return 0; };	
-	virtual unsigned int getSpecular() { return 0; };
+	virtual unsigned int getDiffuse()	{ return 0; };	
+	virtual unsigned int getSpecular()	{ return 0; };
 };
 
 

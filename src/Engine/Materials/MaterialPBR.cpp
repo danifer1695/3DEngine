@@ -67,7 +67,7 @@ float quadVertices[] = {
 //===============================================================================================
 
 MaterialPBR::MaterialPBR(std::string name, TexturesPBR textures, unsigned int hdriTex)
-	:Material(name), textures{ textures }, hdriTexture{ hdriTex }
+	:Material(name, MATERIAL_PBR), textures{ textures }, hdriTexture{ hdriTex }
 {
 
 	InitShaders();

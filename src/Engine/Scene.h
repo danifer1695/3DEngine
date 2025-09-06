@@ -80,6 +80,7 @@ public:
 	//Getters
 	const auto&			GetItemCollection() const		{ return items; }
 	const auto&			GetLightCollection() const		{ return lights; }
+	const auto&			GetMaterialCollection() const	{ return materials; }
 	glm::mat4			GetProjectionMatrix() const		{ return projection; }
     const Camera*		GetCamera() const				{ return activeCamera; }
 	Skybox*				GetSkybox()	const				{ return skybox.get(); }

@@ -4,7 +4,7 @@
 //Constructors
 //===============================================================================================
 MaterialBlinn::MaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath)
-	:Material(name, vshaderPath, fshaderPath)
+	:Material(name, MATERIAL_NONPBR, vshaderPath, fshaderPath)
 {
 	baseShader->use();
 	baseShader->setInt("diffuseMap", diffuseTexUnit);

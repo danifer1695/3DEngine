@@ -22,9 +22,10 @@ private:
 
 	//Panels
 	void RenderEntityPanel(const Scene& scene);
-	void RenderObjectPanel(const Scene& scene, unsigned int screenWidth, unsigned int screenHeight);
+	void RenderAssetsPanel(const Scene& scene, unsigned int screenWidth, unsigned int screenHeight);
 	void RenderScenePanel(Renderer& renderer, unsigned int screenWidth);
 	void RenderViewport(const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight);
+	void RenderMaterialsTab(const Scene& scene);
 
 	//Tabs
 	void RenderLightTab(const Scene& scene);

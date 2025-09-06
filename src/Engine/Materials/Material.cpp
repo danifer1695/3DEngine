@@ -4,14 +4,14 @@
 //Constructors
 //===============================================================================================
 
-Material::Material(std::string name)
+Material::Material(std::string name, MaterialType type)
 	:name{ name } 
 {
 	//create shader
 	this->baseShader = std::make_shared<Shader>("MATERIAL_BASE", BASE_SHADER_VS, BASE_SHADER_FS);
 }
 
-Material::Material(std::string name, const char* vshaderPath, const char* fshaderPath)
+Material::Material(std::string name, MaterialType type, const char* vshaderPath, const char* fshaderPath)
 	:name{name}
 {
 	//create shader

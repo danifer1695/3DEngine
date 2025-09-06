@@ -26,9 +26,9 @@ public:
 	//Destructors
 
 	//Getters
-	virtual unsigned int getDiffuse() override { return diffuse_map; }
-	virtual unsigned int getSpecular() override { return specular_map; }
-	const float getShininess() { return shininess; }
+	virtual unsigned int	getDiffuse() override		{ return diffuse_map; }
+	virtual unsigned int	getSpecular() override		{ return specular_map; }
+	const float				getShininess()				{ return shininess; }
 
 	//Setters
 	void setShininess(float input) { shininess = input; }
