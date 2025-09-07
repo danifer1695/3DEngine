@@ -59,7 +59,7 @@ void ImGuiLayer::EndFrame()
 //RenderEntityPanel()
 //=============================================================================================
 
-void ImGuiLayer::RenderEntityPanel(const Scene& scene)
+void ImGuiLayer::RenderEntityPanel(Scene& scene)
 {
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -232,13 +232,15 @@ void ImGuiLayer::RenderMaterialsTab(const Scene& scene)
 //RenderLightTab()
 //=============================================================================================
 
-void ImGuiLayer::RenderLightTab(const Scene& scene)
+void ImGuiLayer::RenderLightTab(Scene& scene)
 {
 	int i = 0;
 	for (auto& light : scene.GetLightCollection())
 	{
-		//transformation variables
+		//light state variables
 		glm::vec3 move = light->transform.getPosition();
+		bool castShadow = light->GetCastShadows();
+		bool softShadow = light->GetSoftShadows();
 
 		ImGui::NewLine();
 		ImGui::PushID(i);	//Unique ID per light
@@ -246,15 +248,17 @@ void ImGuiLayer::RenderLightTab(const Scene& scene)
 		if (ImGui::TreeNode(light->GetName().c_str()))
 		{
 
-			ImGui::SameLine(); ImGui::Checkbox("Active", &light->active);
+			ImGui::Checkbox("Active", &light->active);
 			ImGui::Text("Light Color:");
 			ImGui::SameLine(); ImGui::ColorEdit3("Light Color", glm::value_ptr(light->color), ImGuiColorEditFlags_NoInputs);
 			ImGui::InputFloat("Intensity", &light->intensity, 0.01f, 100.0f, "%.3f");
 			ImGui::Text("Light Transform:");
 			if (ImGui::InputFloat3("Position", glm::value_ptr(move)))
 				light->transform.SetPosition(move);
-			ImGui::Checkbox("Cast Shadows", &light->castShadows);
-			ImGui::Checkbox("Soft Shadows", &light->softShadows);
+			if(ImGui::Checkbox("Cast Shadows", &castShadow))
+				light->ToggleCastShadows();
+			if(ImGui::Checkbox("Soft Shadows", &softShadow))
+				light->ToggleSoftShadows();
 			ImGui::Separator();
 
 			ImGui::TreePop();
@@ -262,6 +266,11 @@ void ImGuiLayer::RenderLightTab(const Scene& scene)
 		ImGui::PopID();
 		i++;
 	}
+	ImGui::NewLine();
+	if (ImGui::Button("Add new Directional Light"))
+		scene.CreateLight(DIRECTIONAL_LIGHT);
+	if (ImGui::Button("Add new Point Light"))
+		scene.CreateLight(POINT_LIGHT);
 }
 //=============================================================================================
 //RenderItemTab()
@@ -305,7 +314,7 @@ void ImGuiLayer::RenderItemTab(const Scene& scene)
 //Render()
 //=============================================================================================
 
-void ImGuiLayer::Render(const Scene& scene, Renderer& renderer, unsigned int viewPortWidth, unsigned int viewPortHeight, unsigned int screenWidth, unsigned int screenHeight)
+void ImGuiLayer::Render(Scene& scene, Renderer& renderer, unsigned int viewPortWidth, unsigned int viewPortHeight, unsigned int screenWidth, unsigned int screenHeight)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	GLuint texture = renderer.GetTexture();

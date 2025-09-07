@@ -7,6 +7,7 @@
 
 #include<iostream>
 #include<random>
+#include<string>
 
 #include"../../Core/Utils.h"
 

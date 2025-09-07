@@ -77,6 +77,9 @@ public:
 	void SetCameraMovement(Camera_Movement direction, float dt) { activeCamera->process_keyboard(direction, dt); }
 	void SetCameraSprint(bool isSprinting) { activeCamera->is_sprinting(isSprinting); }
 
+	//Methods
+	void CreateLight(LightType type);
+
 	//Getters
 	const auto&			GetItemCollection() const		{ return items; }
 	const auto&			GetLightCollection() const		{ return lights; }

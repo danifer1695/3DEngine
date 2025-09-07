@@ -14,20 +14,22 @@ PointLight::PointLight(const std::string name, const glm::vec3& position_in, con
 //sendToShader()
 //=============================================================================================
 
-void PointLight::sendToShader(const Shader& shader, const std::string& uniformName, const glm::mat4& view, const GLint& textureUnit) const
+void PointLight::sendToShader(const Shader& shader, const size_t& lightIndex, const glm::mat4& view, const GLint& textureUnit) const
 {
 	//we send the light's position in view space
 	glm::vec3 viewPos = glm::vec3(view * glm::vec4(this->transform.getPosition(), 1.0f));
 
-	shader.setBool		(uniformName + ".isActive", active);
-	shader.setVector3	(uniformName + ".Position", viewPos);
-	shader.setVector3	(uniformName + ".Color", color);
-	shader.setFloat		(uniformName + ".Radius", radius);
-	shader.setFloat		(uniformName + ".Intensity", intensity);
+	shader.setBool		("pointLights[" + std::to_string(lightIndex) + "].isActive",	active);
+	shader.setVector3	("pointLights[" + std::to_string(lightIndex) + "].Position",	viewPos);
+	shader.setVector3	("pointLights[" + std::to_string(lightIndex) + "].Color",		color);
+	shader.setFloat		("pointLights[" + std::to_string(lightIndex) + "].Radius",		radius);
+	shader.setFloat		("pointLights[" + std::to_string(lightIndex) + "].Intensity",	intensity);
 
-	shader.setBool		(uniformName + ".CastShadow", castShadows);
-	shader.setBool		(uniformName + ".SoftShadow", softShadows);
-	shader.setInt		(uniformName + ".ShadowMap", textureUnit);
+	shader.setBool		("pointLights[" + std::to_string(lightIndex) + "].CastShadow",	castShadows);
+	shader.setBool		("pointLights[" + std::to_string(lightIndex) + "].SoftShadow",	softShadows);
+
+	//Shadow maps are kept in a separate array
+	shader.setInt		("pointLightShadowMaps[" + std::to_string(lightIndex) + "]",	textureUnit);
 
 	Utils::getOpenGLError("POINTLIGHT::SEND_TO_SHADER");
 }

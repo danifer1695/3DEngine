@@ -9,17 +9,17 @@ private:
 public:
 	//constructor
 	PointLight(
-		const std::string name,
-		const glm::vec3& position_in,
-		const glm::vec3& color_in,
-		const bool castShadows_in,
-		float radius_in = 10.0f,
-		float intensity_in = 1.0f);
+		const std::string name =		"Point Light",
+		const glm::vec3& position_in =	glm::vec3(1.0f),
+		const glm::vec3& color_in =		glm::vec3(1.0f),
+		const bool castShadows_in =		false,
+		float radius_in =				10.0f,
+		float intensity_in =			1.0f);
 
 	//methods
 	void sendToShader(
 		const Shader& shader, 
-		const std::string& uniformName, 
+		const size_t& lightIndex, 
 		const glm::mat4& view,
 		const GLint& textureUnit) const;
 

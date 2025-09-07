@@ -89,7 +89,7 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::TEX_BINDING");
 
 	//start index at GL_TEXTURE5
-	int texUnitIndex = 5;
+	size_t texUnitIndex = 5;
 
 	//point lights info to shader
 	for (size_t i = 0; i < plVec.size(); ++i)
@@ -98,6 +98,7 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 		if (texUnitIndex > 31) break;
 		auto* pl = dynamic_cast<PointLight*>(plVec.at(i));
 
+		//Utils::Print("LIGHTINGPASS::Sending " + plVec.at(i)->GetName() + " to shader. Texture Unit: " + std::to_string(texUnitIndex));
 		SendPointLightToShader(pl, scene, texUnitIndex, i);
 
 		texUnitIndex++;
@@ -110,13 +111,14 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 		if (texUnitIndex > 31) break;
 		auto* dl = dynamic_cast<DirectionalLight*>(dlVec.at(i));
 
+		//Utils::Print("LIGHTINGPASS::Sending " + dlVec.at(i)->GetName() + " to shader. Texture Unit: " + std::to_string(texUnitIndex));
 		SendDirLightToShader(dl, scene, texUnitIndex, i);
 
 		texUnitIndex++;
 	}
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::LIGHTINFO_TO_SHADER");
 
-	//bind Texture framebuffer
+	//bind render framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, targetFBO);
 	glClear(GL_COLOR_BUFFER_BIT);
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::FBO_SETUP");
@@ -129,15 +131,15 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 //SendPointLightToShader
 //=============================================================================================
 
-void LightingPass::SendPointLightToShader(PointLight* pl, const Scene& scene, int texUnitIndex, int lightIndex)
+void LightingPass::SendPointLightToShader(PointLight* pl, const Scene& scene, size_t texUnitIndex, size_t lightIndex)
 {
-	GLint texUnit = GL_TEXTURE0 + texUnitIndex;
+	GLint texUnit = GL_TEXTURE0 + (GLint)texUnitIndex;
 
 	pl->sendToShader(
-		*lightPassShader,								//shader
-		"pointLights[" + std::to_string(lightIndex) + "]",		//uniform name
-		scene.GetCamera()->get_view_matrix(),			//view matrix
-		texUnitIndex);									//texture unit
+		*lightPassShader,									//shader
+		lightIndex,	//uniform name
+		scene.GetCamera()->get_view_matrix(),				//view matrix
+		(GLint)texUnitIndex);								//texture unit
 
 	//Bind ShadowMap Texture
 	pl->GetShadowMap()->BindTexture(texUnit);
@@ -146,20 +148,22 @@ void LightingPass::SendPointLightToShader(PointLight* pl, const Scene& scene, in
 //SendDirLightToShader
 //=============================================================================================
 
-void LightingPass::SendDirLightToShader(DirectionalLight* dl, const Scene& scene, int texUnitIndex, int lightIndex)
+void LightingPass::SendDirLightToShader(DirectionalLight* dl, const Scene& scene, size_t texUnitIndex, size_t lightIndex)
 {
-	GLint texUnit = GL_TEXTURE0 + texUnitIndex;
+	GLint texUnit = GL_TEXTURE0 + (GLint)texUnitIndex;
 
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, scene.GetNearPlane(), scene.GetFarPlane());
 	glm::mat4 lightView = glm::lookAt(dl->transform.getPosition(), dl->GetTarget(), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
+	Utils::Print("Sending dirLights[" + std::to_string(lightIndex) + "]");
+
 	dl->sendToShader(
-		*lightPassShader,								//shader
-		"dirLights[" + std::to_string(lightIndex) + "]",			//uniform name
-		scene.GetCamera()->get_view_matrix(),			//view matrix
-		texUnitIndex,									//texture unit
-		lightSpaceMatrix);								//light space matrix
+		*lightPassShader,											//shader
+		lightIndex,													//light index
+		scene.GetCamera()->get_view_matrix(),						//view matrix
+		(GLint)texUnitIndex,										//texture unit
+		lightSpaceMatrix);											//light space matrix
 
 	//Bind ShadowMap Texture
 	dl->GetShadowMap()->BindTexture(texUnit);

@@ -73,6 +73,7 @@ void ShadowMap::Init(unsigned int width, unsigned int height)
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;
 
+	//Utils::Print("Shadowmap FBO setup");
 	Utils::getOpenGLError("SHADOWMAP::INIT");
 }
 
@@ -111,5 +112,6 @@ void ShadowMap::BindTexture(GLenum textureUnit)
 	else
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 
+	//Utils::Print("Shadow Map bound to texture unit " + std::to_string(textureUnit));
 	Utils::getOpenGLError("SHADOWMAP::TEXTURE_BIND");
 }

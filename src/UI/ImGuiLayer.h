@@ -21,14 +21,14 @@ private:
 	void EndFrame();
 
 	//Panels
-	void RenderEntityPanel(const Scene& scene);
+	void RenderEntityPanel(Scene& scene);
 	void RenderAssetsPanel(const Scene& scene, unsigned int screenWidth, unsigned int screenHeight);
 	void RenderScenePanel(Renderer& renderer, unsigned int screenWidth);
 	void RenderViewport(const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight);
 	void RenderMaterialsTab(const Scene& scene);
 
 	//Tabs
-	void RenderLightTab(const Scene& scene);
+	void RenderLightTab(Scene& scene);
 	void RenderItemTab(const Scene& scene);
 
 public:
@@ -40,7 +40,7 @@ public:
 
 	//Runtime methods
 	void Render(
-		const Scene& scene, 
+		Scene& scene, 
 		Renderer& renderer, 
 		unsigned int viewPortWidth, 
 		unsigned int viewPortHeight,

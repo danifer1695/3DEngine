@@ -50,4 +50,11 @@ namespace Utils
 			std::cout << std::endl;
 		}
 	}
+
+	//Logging
+	//-----------------------------------------------------------------------------------------------
+	inline void Print(std::string text)
+	{
+		std::cout << text << std::endl;
+	}
 }

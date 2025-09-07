@@ -10,17 +10,18 @@ private:
 public:
 	//Constructors
 	DirectionalLight(
-		const std::string name,
-		const glm::vec3 position,
-		const glm::vec3 target,
-		const glm::vec3 color,
-		const bool castShadows,
-		const float intensity = 1.0f);
+		const std::string name =	"Directional Light",
+		const glm::vec3 position =	glm::vec3(10.0f),
+		const glm::vec3 target =	glm::vec3(0.0f),
+		const glm::vec3 color =		glm::vec3(1.0f),
+		const bool castShadows =	true,
+		const float intensity =		0.5f
+	);
 
 	//Methods
 	void sendToShader(
 		const Shader& shader, 
-		const std::string& uniformName, 
+		const size_t& lightIndex, 
 		const glm::mat4& view, 
 		const GLint& textureUnit, 
 		const glm::mat4& lightSpaceMatrix) const;

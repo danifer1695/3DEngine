@@ -21,6 +21,8 @@ enum LightType
 
 class Light : public GameObject
 {
+protected:
+
 public:
 	//State
 	bool active = true;
@@ -51,10 +53,16 @@ public:
 	glm::mat4 GetModelMatrix() const = delete;	//we wont need a model matrix for a light object
 
 	//Getters
-	ShadowMap*	GetShadowMap()	{ return shadowMap.get(); }
-	const LightType	GetLightType() const { return type; }
+	ShadowMap*			GetShadowMap()			{ return shadowMap.get(); }
+	const LightType		GetLightType() const	{ return type; }
+	const bool			GetCastShadows() const	{ return castShadows; }
+	const bool			GetSoftShadows() const	{ return softShadows; }
 
 	//Setters
-	void SetIntensity(const float& i) { intensity = i; }
+	void SetIntensity(const float& i)		{ intensity = i; }
+	void SetCastShadows(const float& cast)	{ castShadows = cast;			transform.SetIsDirty(true); }
+	void ToggleCastShadows()				{ castShadows = !castShadows;	transform.SetIsDirty(true); }
+	void SetSoftShadows(const float& soft)	{ softShadows = soft;			transform.SetIsDirty(true); }
+	void ToggleSoftShadows()				{ softShadows = !softShadows;	transform.SetIsDirty(true); }
 };
 

@@ -55,8 +55,6 @@ void Scene::Init()
 	items["plane"]->transform.Scale(glm::uvec3(100.0f, 1.0f, 100.0f));
 
 	//initialize lights
-	//lights.push_back(std::make_unique<PointLight>(glm::vec3(3.0f, 6.0f, 8.0f), glm::vec3(1.0f, 0.95f, 0.8f), true, 60.0f, 60.0f));
-	//lights.push_back(std::make_unique<PointLight>(glm::vec3(-6.0f, 2.0f, -4.0f), glm::vec3(1.0f, 0.25f, 0.18f), false, 30.0f, 10.0f));
 	lights.push_back(std::make_unique<DirectionalLight>(
 		"Green Directional",
 		glm::vec3(6.0f, 7.0f, -5.0f),
@@ -71,6 +69,7 @@ void Scene::Init()
 		glm::vec3(0.0f, 0.0f, 1.0f),
 		true,
 		0.7f));
+	CreateLight(DIRECTIONAL_LIGHT);
 	lights.push_back(std::make_unique<DirectionalLight>(
 		"Red Directional",
 		glm::vec3(-6.0f, 7.0f, 10.0f),
@@ -152,6 +151,27 @@ void Scene::ImportTexture(std::string name, const char* path, bool gamma_correct
 	else
 		std::cout << "SCENE::IMPORT_TEXTURE::WARNING: Texture with name " << name << " already exists!" << std::endl;
 
+}
+//===============================================================================================
+// CreateLight();
+//===============================================================================================
+
+void Scene::CreateLight(LightType type)
+{
+	switch (type) {
+		case POINT_LIGHT:
+
+			lights.push_back(std::make_unique<PointLight>("Point Light " + std::to_string(lights.size() + 1)));
+			break;
+
+		case DIRECTIONAL_LIGHT:
+
+			lights.push_back(std::make_unique<DirectionalLight>("Directional Light " + std::to_string(lights.size() + 1)));
+			break;
+
+		default:
+			break;
+	}
 }
 //=============================================================================================
 //getError()

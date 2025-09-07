@@ -13,7 +13,7 @@ DirectionalLight::DirectionalLight(const std::string name, const glm::vec3 posit
 //sendToShader()
 //=============================================================================================
 
-void DirectionalLight::sendToShader(const Shader& shader, const std::string& uniformName, const glm::mat4& view, const GLint& textureUnit, const glm::mat4& lightSpaceMatrix) const
+void DirectionalLight::sendToShader(const Shader& shader, const size_t& lightIndex, const glm::mat4& view, const GLint& textureUnit, const glm::mat4& lightSpaceMatrix) const
 {
 	//we send the light's position in view space
 	glm::vec3 viewPos = glm::vec3(view * glm::vec4(this->transform.getPosition(), 1.0f));
@@ -22,17 +22,17 @@ void DirectionalLight::sendToShader(const Shader& shader, const std::string& uni
 	glm::vec3 direction = glm::normalize(transform.getPosition() - target);
 	glm::vec3 lightDirView = glm::mat3(view) * direction;
 
-	shader.setBool(uniformName + ".isActive", active);
-	shader.setVector3(uniformName + ".Position", viewPos);
-	shader.setVector3(uniformName + ".Color", color);
-	shader.setFloat(uniformName + ".Intensity", intensity);
-	shader.setVector3(uniformName + ".Direction", lightDirView);
+	shader.setBool(		"dirLights[" + std::to_string(lightIndex) + "].isActive",			active);
+	shader.setVector3(	"dirLights[" + std::to_string(lightIndex) + "].Position",			viewPos);
+	shader.setVector3(	"dirLights[" + std::to_string(lightIndex) + "].Color",				color);
+	shader.setFloat(	"dirLights[" + std::to_string(lightIndex) + "].Intensity",			intensity);
+	shader.setVector3(	"dirLights[" + std::to_string(lightIndex) + "].Direction",			lightDirView);
 
-	shader.setBool(uniformName + ".CastShadow", castShadows);
-	shader.setBool(uniformName + ".SoftShadow", softShadows);
-	shader.setInt(uniformName + ".ShadowMap", textureUnit);
+	shader.setBool(		"dirLights[" + std::to_string(lightIndex) + "].CastShadow",			GetCastShadows());
+	shader.setBool(		"dirLights[" + std::to_string(lightIndex) + "].SoftShadow",			GetSoftShadows());
+	shader.setMatrix4(	"dirLights[" + std::to_string(lightIndex) + "].LightSpaceMatrix",	lightSpaceMatrix);
 
-	shader.setMatrix4(uniformName + ".LightSpaceMatrix", lightSpaceMatrix);
+	shader.setInt(		"dirLightShadowMaps[" + std::to_string(lightIndex) + "]",	textureUnit);
 
 	Utils::getOpenGLError("POINTLIGHT::SEND_TO_SHADER");
 }

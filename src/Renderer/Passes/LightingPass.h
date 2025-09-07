@@ -29,8 +29,8 @@ private:
 	void Initialize();
 
 	//Helpers
-	void SendPointLightToShader(PointLight* pl, const Scene& scene, int texUnitIndex, int lightIndex);
-	void SendDirLightToShader(DirectionalLight* dl, const Scene& scene, int texUnitIndex, int lightIndex);
+	void SendPointLightToShader(PointLight* pl, const Scene& scene, size_t texUnitIndex, size_t lightIndex);
+	void SendDirLightToShader(DirectionalLight* dl, const Scene& scene, size_t texUnitIndex, size_t lightIndex);
 
 public:
 	//Constructors

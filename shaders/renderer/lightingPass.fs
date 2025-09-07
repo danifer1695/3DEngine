@@ -11,7 +11,7 @@ uniform sampler2D AOMap;						//check: set
 
 //Environment
 uniform bool irradianceActive;					//check: set
-uniform bool ssaoEnabled;						//check: not set
+uniform bool ssaoEnabled;						//check: set
 uniform samplerCube irradianceMap;				//check: set
 
 //Camera & Material
@@ -23,44 +23,49 @@ uniform mat4 inverseViewMatrix;					//check: set
 //Light info
 struct PointLight
 {
-	bool isActive;								//check: not set
-	
 	vec3 Position;								//check: set
+	bool isActive;								//check: set
+
 	vec3 Color;									//check: set
 	float Intensity;							//check: set
+	
 	float Radius;								//check: set
-
 	bool CastShadow;							//check: set
-	bool SoftShadow;							//check: not set
-	samplerCube ShadowMap;						//check: set
+	bool SoftShadow;							//check: set
+	bool dummy;									//dummy space to keep groups of 4
 };
 
 struct DirectionalLight
 {
-	bool isActive;								//check: not set
-
 	vec3 Position;								//check: set
+	bool isActive;								//check: set
+
 	vec3 Color;									//check: set
 	float Intensity;							//check: set
-	vec3 Direction;								//check: set
 	
+	vec3 Direction;								//check: set
 	bool CastShadow;							//check: set
-	bool SoftShadow;							//check: not set
-	sampler2D ShadowMap;						//check: set
+
+	vec3 dummy;
+	bool SoftShadow;							//check: set
 
 	mat4 LightSpaceMatrix;						//check: set
 };
 
 const int MAX_POINT_LIGHTS = 24;
-const int MAX_DIR_LIGHTS = 4;
+const int MAX_DIR_LIGHTS = 10;
 const int MAX_SPOT_LIGHTS = 4;
+
+uniform sampler2D dirLightShadowMaps[MAX_DIR_LIGHTS];			//check: set
+uniform samplerCube pointLightShadowMaps[MAX_POINT_LIGHTS];		//check: set
 
 uniform int numberOfPointLights;								//check: set
 uniform int numberOfDirLights;									//check: set
 uniform int numberOfSpotLights;									//check: set
 
 uniform PointLight pointLights[MAX_POINT_LIGHTS];				//check: set
-uniform DirectionalLight dirLights[MAX_DIR_LIGHTS];				//check: not set
+uniform DirectionalLight dirLights[MAX_DIR_LIGHTS];				//check: set
+
 
 vec3 toLinear(vec3 c) { return pow(c, vec3(2.2)); }
 vec3 toSRGB(vec3 c)   { return pow(c, vec3(1.0/2.2)); }
@@ -112,7 +117,7 @@ int DynamicSampling(vec3 FragPos)
 	return sampleCount;
 }
 
-float PointShadowCalculation(PointLight light, vec3 FragPos, vec3 fragPosWorld)
+float PointShadowCalculation(PointLight light, samplerCube shadowMap, vec3 FragPos, vec3 fragPosWorld)
 {
 	vec3 lightPosWorld = (inverseViewMatrix * vec4(light.Position, 1.0)).xyz;
 
@@ -136,7 +141,7 @@ float PointShadowCalculation(PointLight light, vec3 FragPos, vec3 fragPosWorld)
 		for(int i = 0; i < samples; ++i)
 		{
 			vec3 offset = rot * sampleOffsets[i];
-			float sampledDepth = texture(light.ShadowMap, lightToFrag + offset * diskRadius).r;
+			float sampledDepth = texture(shadowMap, lightToFrag + offset * diskRadius).r;
 			sampledDepth *= farPlane;
 
 			if(depth - bias > sampledDepth)
@@ -146,7 +151,7 @@ float PointShadowCalculation(PointLight light, vec3 FragPos, vec3 fragPosWorld)
 	}
 	else
 	{
-		float sampledDepth = texture(light.ShadowMap, lightToFrag).r;
+		float sampledDepth = texture(shadowMap, lightToFrag).r;
 		sampledDepth *= farPlane;
 		if(depth - bias > sampledDepth) shadow = 1.0;
 	}
@@ -156,7 +161,7 @@ float PointShadowCalculation(PointLight light, vec3 FragPos, vec3 fragPosWorld)
 	//return depth / 30.0;
 }
 
-float DirShadowCalculation(DirectionalLight light, vec3 FragPos, vec3 fragPosWorld, vec3 Normal)
+float DirShadowCalculation(DirectionalLight light, sampler2D shadowMap, vec3 FragPos, vec3 fragPosWorld, vec3 Normal)
 {
 	vec4 fragPosLight = light.LightSpaceMatrix * vec4(fragPosWorld, 1.0);
 
@@ -169,7 +174,7 @@ float DirShadowCalculation(DirectionalLight light, vec3 FragPos, vec3 fragPosWor
 		projCoords.z < 0.0 || projCoords.z > 1.0)
 		return 1.0;
 
-	float closestDepth = texture(light.ShadowMap, projCoords.xy).r;
+	float closestDepth = texture(shadowMap, projCoords.xy).r;
 	float currentDepth = projCoords.z;
 
 	vec3 normal = normalize(Normal);
@@ -182,7 +187,7 @@ float DirShadowCalculation(DirectionalLight light, vec3 FragPos, vec3 fragPosWor
 	{
 		int samples = DynamicSampling(FragPos);
 		float softness = 1.0;
-		float diskRadius = (1.0 + softness) / float(textureSize(light.ShadowMap, 0).x);
+		float diskRadius = (1.0 + softness) / float(textureSize(shadowMap, 0).x);
 
 		//Random rotation matrix
 		vec3 randVec = randomUnitVector(FragPos);
@@ -192,7 +197,7 @@ float DirShadowCalculation(DirectionalLight light, vec3 FragPos, vec3 fragPosWor
 		{
 			vec2 offset = vec2(rot * sampleOffsets[i]);
 			vec2 sampleXY = projCoords.xy + offset * diskRadius;
-			float sampledDepth = texture(light.ShadowMap, sampleXY).r;
+			float sampledDepth = texture(shadowMap, sampleXY).r;
 
 			if(currentDepth - bias > sampledDepth)
 				shadow += 1.0;
@@ -201,8 +206,7 @@ float DirShadowCalculation(DirectionalLight light, vec3 FragPos, vec3 fragPosWor
 	}
 	else
 	{
-		float sampledDepth = texture(light.ShadowMap, projCoords.xy).r;
-		if(currentDepth - bias > sampledDepth)
+		if(currentDepth - bias > closestDepth)
 			shadow = 1.0;
 	}
 
@@ -225,7 +229,7 @@ float GetAttenuation(float dist, float radius)
 	return smoothFactor / (d * d);
 }
 
-vec3 Lighting_PointLight(PointLight light, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
+vec3 Lighting_PointLight(PointLight light, samplerCube shadowMap, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
 {
 	//discard lights that are not active
 	if(!light.isActive) return vec3(0.0);
@@ -250,7 +254,7 @@ vec3 Lighting_PointLight(PointLight light, vec3 FragPos, vec3 fragPosWorld, vec3
 	//shadows
 	float shadow = 1.0;
 	if(light.CastShadow)
-		shadow = PointShadowCalculation(light, FragPos, fragPosWorld);
+		shadow = PointShadowCalculation(light, shadowMap, FragPos, fragPosWorld);
 
 	//attenuation
 	float attenuation = GetAttenuation(dist, light.Radius);
@@ -260,7 +264,7 @@ vec3 Lighting_PointLight(PointLight light, vec3 FragPos, vec3 fragPosWorld, vec3
 	//return vec3(shadow);		//debugging
 }
 
-vec3 Lighting_DirLight(DirectionalLight light, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
+vec3 Lighting_DirLight(DirectionalLight light, sampler2D shadowMap, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
 {
 	//discard lights that are not active
 	if(!light.isActive) return vec3(0.0);
@@ -280,7 +284,7 @@ vec3 Lighting_DirLight(DirectionalLight light, vec3 FragPos, vec3 fragPosWorld, 
 	//shadows
 	float shadow = 1.0;
 	if(light.CastShadow)
-		shadow = DirShadowCalculation(light, FragPos, fragPosWorld, Normal);
+		shadow = DirShadowCalculation(light, shadowMap, FragPos, fragPosWorld, Normal);
 	
 	vec3 lighting = vec3(0.0);
 	lighting += (diffuse + specular) * shadow * light.Intensity;
@@ -338,13 +342,13 @@ void main()
 	int count = min(numberOfPointLights, MAX_POINT_LIGHTS);	
 	for(int i = 0; i < count; ++i)
 	{
-		lighting += Lighting_PointLight(pointLights[i], FragPos, fragPosWorld, Normal, Diffuse, Specular);
+		lighting += Lighting_PointLight(pointLights[i], pointLightShadowMaps[i], FragPos, fragPosWorld, Normal, Diffuse, Specular);
 	}
 
 	count = min(numberOfDirLights, MAX_DIR_LIGHTS);	
 	for(int i = 0; i < count; ++i)
 	{
-		lighting += Lighting_DirLight(dirLights[i], FragPos, fragPosWorld, Normal, Diffuse, Specular);
+		lighting += Lighting_DirLight(dirLights[i], dirLightShadowMaps[i], FragPos, fragPosWorld, Normal, Diffuse, Specular);
 	}
 
 	//lighting = Lighting_PointLight(pointLights[0], FragPos, Normal, Diffuse, Specular);	//debugging
