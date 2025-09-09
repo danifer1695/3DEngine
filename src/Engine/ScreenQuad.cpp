@@ -162,6 +162,32 @@ void ScreenQuad::Draw()
 
 	getError("DRAW");
 }
+//=============================================================================================
+//Draw(GLuint)
+//=============================================================================================
+
+void ScreenQuad::Draw(GLuint texture)
+{
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
+	glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	getError("DRAW::SETUP");
+
+	screenShader->use();
+	screenShader->setInt("screenTex", 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	getError("DRAW::TEXTURE_BIND");
+
+	RenderQuad();
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+
+	getError("DRAW");
+}
 
 //=============================================================================================
 //getError()

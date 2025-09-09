@@ -13,7 +13,7 @@ DirectionalLight::DirectionalLight(const std::string name, const glm::vec3 posit
 //sendToShader()
 //=============================================================================================
 
-void DirectionalLight::sendToShader(const Shader& shader, const size_t& lightIndex, const glm::mat4& view, const GLint& textureUnit, const glm::mat4& lightSpaceMatrix) const
+void DirectionalLight::sendToShader(const Shader& shader, const size_t& lightIndex, const glm::mat4& view, const glm::mat4& lightSpaceMatrix) const
 {
 	//we send the light's position in view space
 	glm::vec3 viewPos = glm::vec3(view * glm::vec4(this->transform.getPosition(), 1.0f));
@@ -31,8 +31,6 @@ void DirectionalLight::sendToShader(const Shader& shader, const size_t& lightInd
 	shader.setBool(		"dirLights[" + std::to_string(lightIndex) + "].CastShadow",			GetCastShadows());
 	shader.setBool(		"dirLights[" + std::to_string(lightIndex) + "].SoftShadow",			GetSoftShadows());
 	shader.setMatrix4(	"dirLights[" + std::to_string(lightIndex) + "].LightSpaceMatrix",	lightSpaceMatrix);
-
-	shader.setInt(		"dirLightShadowMaps[" + std::to_string(lightIndex) + "]",	textureUnit);
 
 	Utils::getOpenGLError("POINTLIGHT::SEND_TO_SHADER");
 }

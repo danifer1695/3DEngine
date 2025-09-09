@@ -20,12 +20,24 @@ private:
 	std::unique_ptr<Shader> pointShadowShader;
 	std::unique_ptr<Shader> dirShadowShader;
 
+	//Shadow Array
+	GLuint shadowFBO;		//reusable FBO
+
+	unsigned int DIR_SHADOW_RES = 1024;
+	unsigned int DIR_SHADOW_MAX = 10;
+
+	GLuint dirShadowArray;
+
 	//Initialization
 	void Initialize();
+	void SetupFBO();
+	void SetupDirShadowArray();
 
 	//Update
 	void UpdateShadows(const Scene& scene, bool globalUpdate);
 	void ResetDirtyFlags(const Scene& scene);
+	void CaptureDirShadows(const Scene& scene, const size_t& lightIndex);
+	void CapturePointShadows(const Scene& scene, const size_t& lightIndex, const glm::mat4& shadowProj);
 
 public:
 	//Constructors
@@ -33,5 +45,8 @@ public:
 
 	//Render
 	void Render(const Scene& scene);
+
+	//Getters
+	const GLuint GetDirTextureArray() const { return dirShadowArray; }
 };
 

@@ -52,12 +52,9 @@ struct DirectionalLight
 	mat4 LightSpaceMatrix;						//check: set
 };
 
-const int MAX_POINT_LIGHTS = 24;
-const int MAX_DIR_LIGHTS = 10;
+const int MAX_POINT_LIGHTS = 1;
+const int MAX_DIR_LIGHTS = 8;
 const int MAX_SPOT_LIGHTS = 4;
-
-uniform sampler2D dirLightShadowMaps[MAX_DIR_LIGHTS];			//check: set
-uniform samplerCube pointLightShadowMaps[MAX_POINT_LIGHTS];		//check: set
 
 uniform int numberOfPointLights;								//check: set
 uniform int numberOfDirLights;									//check: set
@@ -66,6 +63,8 @@ uniform int numberOfSpotLights;									//check: set
 uniform PointLight pointLights[MAX_POINT_LIGHTS];				//check: set
 uniform DirectionalLight dirLights[MAX_DIR_LIGHTS];				//check: set
 
+uniform sampler2DArray dirShadowArray;							//check: set
+uniform samplerCube pointLightShadowMaps[MAX_POINT_LIGHTS];		//check: set
 
 vec3 toLinear(vec3 c) { return pow(c, vec3(2.2)); }
 vec3 toSRGB(vec3 c)   { return pow(c, vec3(1.0/2.2)); }
@@ -161,7 +160,7 @@ float PointShadowCalculation(PointLight light, samplerCube shadowMap, vec3 FragP
 	//return depth / 30.0;
 }
 
-float DirShadowCalculation(DirectionalLight light, sampler2D shadowMap, vec3 FragPos, vec3 fragPosWorld, vec3 Normal)
+float DirShadowCalculation(DirectionalLight light, int lightIndex, vec3 FragPos, vec3 fragPosWorld, vec3 Normal)
 {
 	vec4 fragPosLight = light.LightSpaceMatrix * vec4(fragPosWorld, 1.0);
 
@@ -174,7 +173,7 @@ float DirShadowCalculation(DirectionalLight light, sampler2D shadowMap, vec3 Fra
 		projCoords.z < 0.0 || projCoords.z > 1.0)
 		return 1.0;
 
-	float closestDepth = texture(shadowMap, projCoords.xy).r;
+	float closestDepth = texture(dirShadowArray[lightIndex], vec3(projCoords.xy, lightIndex)).r;
 	float currentDepth = projCoords.z;
 
 	vec3 normal = normalize(Normal);
@@ -187,7 +186,7 @@ float DirShadowCalculation(DirectionalLight light, sampler2D shadowMap, vec3 Fra
 	{
 		int samples = DynamicSampling(FragPos);
 		float softness = 1.0;
-		float diskRadius = (1.0 + softness) / float(textureSize(shadowMap, 0).x);
+		float diskRadius = (1.0 + softness) / float(textureSize(dirShadowArray[lightIndex], 0).x);
 
 		//Random rotation matrix
 		vec3 randVec = randomUnitVector(FragPos);
@@ -197,7 +196,7 @@ float DirShadowCalculation(DirectionalLight light, sampler2D shadowMap, vec3 Fra
 		{
 			vec2 offset = vec2(rot * sampleOffsets[i]);
 			vec2 sampleXY = projCoords.xy + offset * diskRadius;
-			float sampledDepth = texture(shadowMap, sampleXY).r;
+			float sampledDepth = texture(dirShadowArray[lightIndex], vec3(sampleXY, lightIndex)).r;
 
 			if(currentDepth - bias > sampledDepth)
 				shadow += 1.0;
@@ -264,7 +263,7 @@ vec3 Lighting_PointLight(PointLight light, samplerCube shadowMap, vec3 FragPos, 
 	//return vec3(shadow);		//debugging
 }
 
-vec3 Lighting_DirLight(DirectionalLight light, sampler2D shadowMap, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
+vec3 Lighting_DirLight(DirectionalLight light, int lightIndex, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
 {
 	//discard lights that are not active
 	if(!light.isActive) return vec3(0.0);
@@ -284,7 +283,7 @@ vec3 Lighting_DirLight(DirectionalLight light, sampler2D shadowMap, vec3 FragPos
 	//shadows
 	float shadow = 1.0;
 	if(light.CastShadow)
-		shadow = DirShadowCalculation(light, shadowMap, FragPos, fragPosWorld, Normal);
+		shadow = DirShadowCalculation(light, lightIndex, FragPos, fragPosWorld, Normal);
 	
 	vec3 lighting = vec3(0.0);
 	lighting += (diffuse + specular) * shadow * light.Intensity;
@@ -342,17 +341,16 @@ void main()
 	int count = min(numberOfPointLights, MAX_POINT_LIGHTS);	
 	for(int i = 0; i < count; ++i)
 	{
+		if(numberOfPointLights == 0) break;
 		lighting += Lighting_PointLight(pointLights[i], pointLightShadowMaps[i], FragPos, fragPosWorld, Normal, Diffuse, Specular);
 	}
 
 	count = min(numberOfDirLights, MAX_DIR_LIGHTS);	
 	for(int i = 0; i < count; ++i)
 	{
-		lighting += Lighting_DirLight(dirLights[i], dirLightShadowMaps[i], FragPos, fragPosWorld, Normal, Diffuse, Specular);
+		if(numberOfDirLights == 0) break;
+		lighting += Lighting_DirLight(dirLights[i], i, FragPos, fragPosWorld, Normal, Diffuse, Specular);
 	}
 
-	//lighting = Lighting_PointLight(pointLights[0], FragPos, Normal, Diffuse, Specular);	//debugging
-
 	FragColor = vec4(lighting, 1.0);
-	//FragColor = vec4(FragPos + 1.0, 1.0);	//debugging
 }

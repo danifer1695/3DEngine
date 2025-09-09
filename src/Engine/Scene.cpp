@@ -57,7 +57,7 @@ void Scene::Init()
 	//initialize lights
 	lights.push_back(std::make_unique<DirectionalLight>(
 		"Green Directional",
-		glm::vec3(6.0f, 7.0f, -5.0f),
+		glm::vec3(0.0f, 7.0f, 0.0f),
 		items["cube"]->transform.getPosition(),
 		glm::vec3(0.0f, 1.0f, 0.0f),
 		true,
@@ -69,7 +69,6 @@ void Scene::Init()
 		glm::vec3(0.0f, 0.0f, 1.0f),
 		true,
 		0.7f));
-	CreateLight(DIRECTIONAL_LIGHT);
 	lights.push_back(std::make_unique<DirectionalLight>(
 		"Red Directional",
 		glm::vec3(-6.0f, 7.0f, 10.0f),
@@ -77,6 +76,7 @@ void Scene::Init()
 		glm::vec3(1.0f, 0.0f, 0.0f),
 		true,
 		0.7f));
+	CreateLight(DIRECTIONAL_LIGHT);
 
 	getError("INIT");
 }

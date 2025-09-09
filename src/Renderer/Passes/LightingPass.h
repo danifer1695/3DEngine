@@ -18,6 +18,9 @@ private:
 
 	//State
 	bool irradianceActive = false;
+	const int maxPointLights = 5;
+	const int maxDirLights = 5;
+	const int maxSpotLights = 5;
 
 	//Shaders
 	std::unique_ptr<Shader> lightPassShader;
@@ -27,16 +30,17 @@ private:
 
 	//Initialize
 	void Initialize();
+	void SetupDirShadowArray();
 
 	//Helpers
 	void SendPointLightToShader(PointLight* pl, const Scene& scene, size_t texUnitIndex, size_t lightIndex);
-	void SendDirLightToShader(DirectionalLight* dl, const Scene& scene, size_t texUnitIndex, size_t lightIndex);
+	void SendDirLightToShader(DirectionalLight* dl, const Scene& scene, size_t lightIndex);
 
 public:
 	//Constructors
 	LightingPass(unsigned int screenWidth, unsigned int screenHeight);
 
 	//Render
-	void Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const bool& ssaoEnabled, const GLuint& targetFBO);
+	void Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const bool& ssaoEnabled, const GLuint& dirShadowArray, const GLuint& targetFBO);
 };
 

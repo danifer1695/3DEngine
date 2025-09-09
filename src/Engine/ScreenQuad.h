@@ -38,6 +38,7 @@ public:
 	void StartCapture();
 	void EndCapture();
 	void Draw();
+	void Draw(GLuint texture);
 	void ToggleEffects(bool toggle) { 
 		screenShader->use();
 		screenShader->setBool("toggleEffects", toggle); 

@@ -327,6 +327,7 @@ void ImGuiLayer::Render(Scene& scene, Renderer& renderer, unsigned int viewPortW
 	RenderEntityPanel(scene);
 
 	RenderViewport(texture, viewPortWidth, viewPortHeight);
+	//RenderViewport(scene.GetLightCollection().at(3)->GetShadowMap()->getDepthMap(), viewPortWidth, viewPortHeight);
 
 	RenderScenePanel(renderer, screenWidth);
 

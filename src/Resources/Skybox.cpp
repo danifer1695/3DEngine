@@ -246,6 +246,7 @@ void Skybox::setupIrradiance()
 
 		renderCube();
 	}
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	//reset to default framebuffer
 
 	Utils::getOpenGLError("SKYBOX::SETUP_IRRADIANCE");
@@ -286,6 +287,7 @@ void Skybox::RenderCubemap()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		renderCube();
 	}
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Utils::getOpenGLError("SKYBOX::RENDER_CUBEMAP");

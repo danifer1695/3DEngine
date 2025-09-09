@@ -23,7 +23,6 @@ public:
 		const Shader& shader, 
 		const size_t& lightIndex, 
 		const glm::mat4& view, 
-		const GLint& textureUnit, 
 		const glm::mat4& lightSpaceMatrix) const;
 
 	//Setters

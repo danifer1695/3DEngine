@@ -68,10 +68,10 @@ void ShadowMap::Init(unsigned int width, unsigned int height)
 		Utils::getOpenGLError("SHADOWMAP::INIT::NON_POINT");
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//check the framebuffer was set up correctly
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//Utils::Print("Shadowmap FBO setup");
 	Utils::getOpenGLError("SHADOWMAP::INIT");
