@@ -1,4 +1,4 @@
-#version 330 core
+#version 400 core
 out vec4 FragColor;
 
 in vec2 TexCoords;
@@ -52,7 +52,7 @@ struct DirectionalLight
 	mat4 LightSpaceMatrix;						//check: set
 };
 
-const int MAX_POINT_LIGHTS = 1;
+const int MAX_POINT_LIGHTS = 8;
 const int MAX_DIR_LIGHTS = 8;
 const int MAX_SPOT_LIGHTS = 4;
 
@@ -64,7 +64,7 @@ uniform PointLight pointLights[MAX_POINT_LIGHTS];				//check: set
 uniform DirectionalLight dirLights[MAX_DIR_LIGHTS];				//check: set
 
 uniform sampler2DArray dirShadowArray;							//check: set
-uniform samplerCube pointLightShadowMaps[MAX_POINT_LIGHTS];		//check: set
+uniform samplerCubeArray pointShadowArray;						//check: set
 
 vec3 toLinear(vec3 c) { return pow(c, vec3(2.2)); }
 vec3 toSRGB(vec3 c)   { return pow(c, vec3(1.0/2.2)); }
@@ -116,7 +116,7 @@ int DynamicSampling(vec3 FragPos)
 	return sampleCount;
 }
 
-float PointShadowCalculation(PointLight light, samplerCube shadowMap, vec3 FragPos, vec3 fragPosWorld)
+float PointShadowCalculation(PointLight light, int lightIndex, vec3 FragPos, vec3 fragPosWorld)
 {
 	vec3 lightPosWorld = (inverseViewMatrix * vec4(light.Position, 1.0)).xyz;
 
@@ -140,7 +140,8 @@ float PointShadowCalculation(PointLight light, samplerCube shadowMap, vec3 FragP
 		for(int i = 0; i < samples; ++i)
 		{
 			vec3 offset = rot * sampleOffsets[i];
-			float sampledDepth = texture(shadowMap, lightToFrag + offset * diskRadius).r;
+			vec3 dir = normalize(lightToFrag + offset * diskRadius);
+			float sampledDepth = texture(pointShadowArray, vec4(dir, lightIndex)).r;
 			sampledDepth *= farPlane;
 
 			if(depth - bias > sampledDepth)
@@ -150,7 +151,7 @@ float PointShadowCalculation(PointLight light, samplerCube shadowMap, vec3 FragP
 	}
 	else
 	{
-		float sampledDepth = texture(shadowMap, lightToFrag).r;
+		float sampledDepth = texture(pointShadowArray, vec4(lightToFrag, lightIndex)).r;
 		sampledDepth *= farPlane;
 		if(depth - bias > sampledDepth) shadow = 1.0;
 	}
@@ -228,7 +229,7 @@ float GetAttenuation(float dist, float radius)
 	return smoothFactor / (d * d);
 }
 
-vec3 Lighting_PointLight(PointLight light, samplerCube shadowMap, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
+vec3 Lighting_PointLight(PointLight light, int lightIndex, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
 {
 	//discard lights that are not active
 	if(!light.isActive) return vec3(0.0);
@@ -253,14 +254,13 @@ vec3 Lighting_PointLight(PointLight light, samplerCube shadowMap, vec3 FragPos, 
 	//shadows
 	float shadow = 1.0;
 	if(light.CastShadow)
-		shadow = PointShadowCalculation(light, shadowMap, FragPos, fragPosWorld);
+		shadow = PointShadowCalculation(light, lightIndex, FragPos, fragPosWorld);
 
 	//attenuation
 	float attenuation = GetAttenuation(dist, light.Radius);
 	lighting += (diffuse + specular) * attenuation * shadow * light.Intensity;
 	
 	return lighting;
-	//return vec3(shadow);		//debugging
 }
 
 vec3 Lighting_DirLight(DirectionalLight light, int lightIndex, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
@@ -342,7 +342,7 @@ void main()
 	for(int i = 0; i < count; ++i)
 	{
 		if(numberOfPointLights == 0) break;
-		lighting += Lighting_PointLight(pointLights[i], pointLightShadowMaps[i], FragPos, fragPosWorld, Normal, Diffuse, Specular);
+		lighting += Lighting_PointLight(pointLights[i], i, FragPos, fragPosWorld, Normal, Diffuse, Specular);
 	}
 
 	count = min(numberOfDirLights, MAX_DIR_LIGHTS);	

@@ -55,28 +55,11 @@ void Scene::Init()
 	items["plane"]->transform.Scale(glm::uvec3(100.0f, 1.0f, 100.0f));
 
 	//initialize lights
-	lights.push_back(std::make_unique<DirectionalLight>(
-		"Green Directional",
-		glm::vec3(0.0f, 7.0f, 0.0f),
-		items["cube"]->transform.getPosition(),
-		glm::vec3(0.0f, 1.0f, 0.0f),
-		true,
-		0.7f));
-	lights.push_back(std::make_unique<DirectionalLight>(
-		"Blue Directional",
-		glm::vec3(-6.0f, 7.0f, -10.0f),
-		items["cube"]->transform.getPosition(),
-		glm::vec3(0.0f, 0.0f, 1.0f),
-		true,
-		0.7f));
-	lights.push_back(std::make_unique<DirectionalLight>(
-		"Red Directional",
-		glm::vec3(-6.0f, 7.0f, 10.0f),
-		items["cube"]->transform.getPosition(),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		true,
-		0.7f));
-	CreateLight(DIRECTIONAL_LIGHT);
+
+	CreateLight(POINT_LIGHT);
+	GetLightCollection().at(0)->transform.Translate(glm::vec3(0.0f, 4.0f, 0.0f));
+	GetLightCollection().at(0)->SetCastShadows(true);
+	GetLightCollection().at(0)->SetIntensity(20.0f);
 
 	getError("INIT");
 }
@@ -158,19 +141,17 @@ void Scene::ImportTexture(std::string name, const char* path, bool gamma_correct
 
 void Scene::CreateLight(LightType type)
 {
-	switch (type) {
-		case POINT_LIGHT:
-
-			lights.push_back(std::make_unique<PointLight>("Point Light " + std::to_string(lights.size() + 1)));
-			break;
-
-		case DIRECTIONAL_LIGHT:
-
-			lights.push_back(std::make_unique<DirectionalLight>("Directional Light " + std::to_string(lights.size() + 1)));
-			break;
-
-		default:
-			break;
+	if (type == POINT_LIGHT)
+	{
+		std::shared_ptr<PointLight> newPL = std::make_unique<PointLight>("Point Light " + std::to_string(lights.size() + 1));
+		lights.push_back(newPL);
+		pointLights.push_back(newPL);
+	}
+	else if (type == DIRECTIONAL_LIGHT)
+	{
+		std::shared_ptr<DirectionalLight> newDL = std::make_unique<DirectionalLight>("Directional Light " + std::to_string(lights.size() + 1));
+		lights.push_back(newDL);
+		dirLights.push_back(newDL);
 	}
 }
 //=============================================================================================

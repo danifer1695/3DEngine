@@ -9,6 +9,7 @@ ShadowPass::ShadowPass()
 	Initialize();
 	SetupFBO();
 	SetupDirShadowArray();
+	SetupPointShadowArray();
 }
 //=============================================================================================
 //Initialize
@@ -17,7 +18,7 @@ ShadowPass::ShadowPass()
 void ShadowPass::Initialize()
 {
 	//Build and compile shaders
-	pointShadowShader = std::make_unique<Shader>("RENDERER::POINT_SHADOW", POINT_SHADOW_SHADER_VS, POINT_SHADOW_SHADER_FS, POINT_SHADOW_SHADER_GS);
+	pointShadowShader = std::make_unique<Shader>("RENDERER::POINT_SHADOW", POINT_SHADOW_SHADER_VS, POINT_SHADOW_SHADER_FS);
 	dirShadowShader = std::make_unique<Shader>("RENDERER::DIRECTIONAL_SHADOW", DIR_SHADOW_SHADER_VS, DIR_SHADOW_SHADER_FS);
 }
 //=============================================================================================
@@ -26,7 +27,8 @@ void ShadowPass::Initialize()
 
 void ShadowPass::SetupFBO()
 {
-	glGenFramebuffers(1, &shadowFBO);
+	glGenFramebuffers(1, &dirShadowFBO);
+	glGenFramebuffers(1, &pointShadowFBO);
 }
 //=============================================================================================
 //SetupDirShadowArray
@@ -58,6 +60,36 @@ void ShadowPass::SetupDirShadowArray()
 	glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+//=============================================================================================
+//SetupPointShadowArray
+//=============================================================================================
+
+void ShadowPass::SetupPointShadowArray()
+{
+	glGenTextures(1, &pointShadowArray);
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, pointShadowArray);
+
+	glTexImage3D(
+		GL_TEXTURE_CUBE_MAP_ARRAY,
+		0,
+		GL_DEPTH_COMPONENT32F,
+		POINT_SHADOW_RES,
+		POINT_SHADOW_RES,
+		6 * POINT_SHADOW_MAX,		//6 faces per cube
+		0,
+		GL_DEPTH_COMPONENT,
+		GL_FLOAT,
+		nullptr);					//we dont add any data yet
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	//Unbind
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
 }
 //=============================================================================================
 //Render
@@ -122,27 +154,29 @@ void ShadowPass::ResetDirtyFlags(const Scene& scene)
 void ShadowPass::UpdateShadows(const Scene& scene, bool globalUpdate)
 {
 	glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, scene.GetNearPlane(), scene.GetFarPlane());
-	size_t numberOfLights = scene.GetLightCollection().size();
+	size_t numberOfPointLights = scene.GetPointLightCollection().size();
+	size_t numberOfDirLights = scene.GetDirLightCollection().size();
 
 	//We loop through all of the scene's lights
-	for (size_t i = 0; i < numberOfLights; ++i)
+	for (size_t i = 0; i < numberOfPointLights; ++i)
 	{
 		//skip if light casts no shadows or if its not dirty
-		if (!scene.GetLightCollection().at(i)->castShadows) continue;
+		if (!scene.GetPointLightCollection().at(i)->castShadows) continue;
 		//if update isn't global and shadow isnt dirty, we skip
-		if (!globalUpdate && !scene.GetLightCollection().at(i)->transform.GetIsDirty()) continue;
+		if (!globalUpdate && !scene.GetPointLightCollection().at(i)->transform.GetIsDirty()) continue;
 
-		//if static_cast to PointLight on current Light does not return nullptr, its a point light
-		if (scene.GetLightCollection().at(i)->GetLightType() == POINT_LIGHT)
-		{
-			CapturePointShadows(scene, i, shadowProj);
-		}
+		CapturePointShadows(scene, i, shadowProj);
+	}
 
-		else if (scene.GetLightCollection().at(i)->GetLightType() == DIRECTIONAL_LIGHT &&
-			i < DIR_SHADOW_MAX)
-		{
-			CaptureDirShadows(scene, i);
-		}
+	//We loop through all of the scene's lights
+	for (size_t i = 0; i < numberOfDirLights; ++i)
+	{
+		//skip if light casts no shadows or if its not dirty
+		if (!scene.GetDirLightCollection().at(i)->castShadows) continue;
+		//if update isn't global and shadow isnt dirty, we skip
+		if (!globalUpdate && !scene.GetDirLightCollection().at(i)->transform.GetIsDirty()) continue;
+		
+		CaptureDirShadows(scene, i);
 	}
 }
 //=============================================================================================
@@ -151,7 +185,7 @@ void ShadowPass::UpdateShadows(const Scene& scene, bool globalUpdate)
 
 void ShadowPass::CaptureDirShadows(const Scene& scene, const size_t& lightIndex)
 {
-	auto* dl = dynamic_cast<DirectionalLight*>(scene.GetLightCollection()[lightIndex].get());
+	auto dl = scene.GetDirLightCollection()[lightIndex];
 	glm::vec3 lightPos = dl->transform.getPosition();
 	glm::vec3 lightTarget = dl->GetTarget();
 
@@ -163,14 +197,14 @@ void ShadowPass::CaptureDirShadows(const Scene& scene, const size_t& lightIndex)
 	dirShadowShader->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
 
 	//Setup FBO and Texture for capture
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, dirShadowFBO);
 
 	glFramebufferTextureLayer(
 		GL_FRAMEBUFFER,
 		GL_DEPTH_ATTACHMENT,
 		dirShadowArray,
 		0,									//mip level
-		lightIndex							//layer
+		lightIndex						//layer - we pass the DIRECTIONAL LIGHT INDEX, we only want dir lights here
 	);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
@@ -192,7 +226,7 @@ void ShadowPass::CaptureDirShadows(const Scene& scene, const size_t& lightIndex)
 
 void ShadowPass::CapturePointShadows(const Scene& scene, const size_t& lightIndex, const glm::mat4& shadowProj)
 {
-	auto* pl = dynamic_cast<PointLight*>(scene.GetLightCollection()[lightIndex].get());
+	auto pl = scene.GetPointLightCollection()[lightIndex];
 	glm::vec3 lightPos = pl->transform.getPosition();
 
 	//Create transform matrices for shadow capturing
@@ -204,21 +238,42 @@ void ShadowPass::CapturePointShadows(const Scene& scene, const size_t& lightInde
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
-	pl->GetShadowMap()->BeginCapture();
-	pointShadowShader->use();
-	pointShadowShader->setFloat("farPlane", scene.GetFarPlane());
-	pointShadowShader->setVector3("lightPos", lightPos);
-	//send transform matrices to shader
-	for (size_t i = 0; i < 6; ++i)
-	{
-		pointShadowShader->setMatrix4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
-	}
-
-	//Draw all objects
 	std::cout << "Rendering Point Shadows" << std::endl;
-	for (const auto& item : scene.GetItemCollection()) {
-		pointShadowShader->setMatrix4("model", item.second->transform.GetModelMatrix());
-		item.second->getModel()->Draw();
+	//Draw all faces
+	for (int face = 0; face < 6; ++face)
+	{
+		size_t layer = (lightIndex * 6) + face;
+
+		//Bind framebuffer and setup capture texture
+		glBindFramebuffer(GL_FRAMEBUFFER, pointShadowFBO);
+		glFramebufferTextureLayer(
+			GL_FRAMEBUFFER,
+			GL_DEPTH_ATTACHMENT,
+			pointShadowArray,
+			0,	//mipmap level
+			(GLint)layer
+			);
+
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+
+		glViewport(0, 0, POINT_SHADOW_RES, POINT_SHADOW_RES);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		pointShadowShader->use();
+		pointShadowShader->setFloat("farPlane", scene.GetFarPlane());
+		pointShadowShader->setVector3("lightPos", lightPos);
+		pointShadowShader->setMatrix4("shadowMatrix", shadowTransforms[face]);
+		//pointShadowShader->setInt("lightIndex", lightIndex);
+
+		//Render all elements in the scene
+		for (const auto& item : scene.GetItemCollection()) 
+		{
+			//Send matrices to shader and draw model
+			pointShadowShader->setMatrix4("model", item.second->transform.GetModelMatrix());
+			item.second->getModel()->Draw();
+		}
 	}
-	pl->GetShadowMap()->EndCapture();
+	//Unbind framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -14,7 +14,7 @@ PointLight::PointLight(const std::string name, const glm::vec3& position_in, con
 //sendToShader()
 //=============================================================================================
 
-void PointLight::sendToShader(const Shader& shader, const size_t& lightIndex, const glm::mat4& view, const GLint& textureUnit) const
+void PointLight::sendToShader(const Shader& shader, const size_t& lightIndex, const glm::mat4& view) const
 {
 	//we send the light's position in view space
 	glm::vec3 viewPos = glm::vec3(view * glm::vec4(this->transform.getPosition(), 1.0f));
@@ -27,9 +27,6 @@ void PointLight::sendToShader(const Shader& shader, const size_t& lightIndex, co
 
 	shader.setBool		("pointLights[" + std::to_string(lightIndex) + "].CastShadow",	castShadows);
 	shader.setBool		("pointLights[" + std::to_string(lightIndex) + "].SoftShadow",	softShadows);
-
-	//Shadow maps are kept in a separate array
-	shader.setInt		("pointLightShadowMaps[" + std::to_string(lightIndex) + "]",	textureUnit);
 
 	Utils::getOpenGLError("POINTLIGHT::SEND_TO_SHADER");
 }

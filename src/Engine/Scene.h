@@ -41,11 +41,15 @@ private:
 
 	//Game Objects
 	std::map<std::string, std::unique_ptr<Item>> items;			//collection of items (model + material)
-	std::vector<std::unique_ptr<Light>> lights;		//collection of lights
 	std::vector<Camera> cameras;
 
 	Camera* activeCamera = nullptr;
 	std::unique_ptr<Skybox> skybox;
+
+	//Lights
+	std::vector<std::shared_ptr<Light>> lights;		//collection of lights
+	std::vector<std::shared_ptr<PointLight>> pointLights;
+	std::vector<std::shared_ptr<DirectionalLight>> dirLights;
 
 	//Initializing
 	void Init();
@@ -83,6 +87,8 @@ public:
 	//Getters
 	const auto&			GetItemCollection() const		{ return items; }
 	const auto&			GetLightCollection() const		{ return lights; }
+	const auto&			GetDirLightCollection() const	{ return dirLights; }
+	const auto&			GetPointLightCollection() const	{ return pointLights; }
 	const auto&			GetMaterialCollection() const	{ return materials; }
 	glm::mat4			GetProjectionMatrix() const		{ return projection; }
     const Camera*		GetCamera() const				{ return activeCamera; }

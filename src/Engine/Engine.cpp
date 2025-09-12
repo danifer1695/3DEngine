@@ -22,6 +22,8 @@ void Engine::Init()
 	InitOpenGlState();
 
 	imGuiLayer = std::make_unique<ImGuiLayer>(window);
+
+	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 }
 
 //=============================================================================================
@@ -31,8 +33,8 @@ void Engine::InitGLFW()
 {
 	//initialize glfw
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//GLFW window creation

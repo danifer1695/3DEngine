@@ -33,7 +33,7 @@ private:
 	void SetupDirShadowArray();
 
 	//Helpers
-	void SendPointLightToShader(PointLight* pl, const Scene& scene, size_t texUnitIndex, size_t lightIndex);
+	void SendPointLightToShader(PointLight* pl, const Scene& scene, size_t lightIndex);
 	void SendDirLightToShader(DirectionalLight* dl, const Scene& scene, size_t lightIndex);
 
 public:
@@ -41,6 +41,13 @@ public:
 	LightingPass(unsigned int screenWidth, unsigned int screenHeight);
 
 	//Render
-	void Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const bool& ssaoEnabled, const GLuint& dirShadowArray, const GLuint& targetFBO);
+	void Render(
+		const Scene& scene, 
+		const GBuffer& gBuffer, 
+		const GLuint& ssaoTex, 
+		const bool& ssaoEnabled, 
+		const GLuint& dirShadowArray, 
+		const GLuint& pointShadowArray, 
+		const GLuint& targetFBO);
 };
 

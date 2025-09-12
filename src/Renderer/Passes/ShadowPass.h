@@ -21,17 +21,22 @@ private:
 	std::unique_ptr<Shader> dirShadowShader;
 
 	//Shadow Array
-	GLuint shadowFBO;		//reusable FBO
+	GLuint dirShadowFBO;		//reusable dir shadow FBO
+	GLuint pointShadowFBO;		//reusable point shadow FBO
 
 	unsigned int DIR_SHADOW_RES = 1024;
 	unsigned int DIR_SHADOW_MAX = 10;
+	unsigned int POINT_SHADOW_RES = 512;
+	unsigned int POINT_SHADOW_MAX = 10;
 
 	GLuint dirShadowArray;
+	GLuint pointShadowArray;
 
 	//Initialization
 	void Initialize();
 	void SetupFBO();
 	void SetupDirShadowArray();
+	void SetupPointShadowArray();
 
 	//Update
 	void UpdateShadows(const Scene& scene, bool globalUpdate);
@@ -47,6 +52,7 @@ public:
 	void Render(const Scene& scene);
 
 	//Getters
-	const GLuint GetDirTextureArray() const { return dirShadowArray; }
+	const GLuint GetDirTextureArray() const		{ return dirShadowArray; }
+	const GLuint GetPointTextureArray() const	{ return pointShadowArray; }
 };
 
