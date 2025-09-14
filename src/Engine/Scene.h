@@ -18,6 +18,9 @@
 #include "../Resources/Skybox.h"
 #include "../Resources/ResourceManager.h"
 
+#define REVIT_DIRLIGHT std::vector<std::shared_ptr<DirectionalLight>>::reverse_iterator
+#define REVIT_POINTLIGHT std::vector<std::shared_ptr<PointLight>>::reverse_iterator
+
 //Scene class holds information on what exists, where all objects are and their properties
 class Scene
 {
@@ -47,7 +50,6 @@ private:
 	std::unique_ptr<Skybox> skybox;
 
 	//Lights
-	std::vector<std::shared_ptr<Light>> lights;		//collection of lights
 	std::vector<std::shared_ptr<PointLight>> pointLights;
 	std::vector<std::shared_ptr<DirectionalLight>> dirLights;
 
@@ -83,12 +85,15 @@ public:
 
 	//Methods
 	void CreateLight(LightType type);
+	REVIT_DIRLIGHT		RemoveDirLight		(REVIT_DIRLIGHT rit);		//returns a reverse iterator
+	REVIT_POINTLIGHT	RemovePointLight	(REVIT_POINTLIGHT rit);		//returns a reverse iterator
+	
+	std::vector<std::shared_ptr<Light>> GetLightCollection() const;		//Dynamically creates a vector of all lights of all types
 
 	//Getters
 	const auto&			GetItemCollection() const		{ return items; }
-	const auto&			GetLightCollection() const		{ return lights; }
-	const auto&			GetDirLightCollection() const	{ return dirLights; }
-	const auto&			GetPointLightCollection() const	{ return pointLights; }
+	auto&				GetDirLightCollection() 		{ return dirLights; }
+	auto&				GetPointLightCollection() 		{ return pointLights; }
 	const auto&			GetMaterialCollection() const	{ return materials; }
 	glm::mat4			GetProjectionMatrix() const		{ return projection; }
     const Camera*		GetCamera() const				{ return activeCamera; }

@@ -76,7 +76,7 @@ void Renderer::CopyDepthData()
 // RenderSkybox();
 //===============================================================================================
 
-void Renderer::RenderSkybox(const Scene& scene, const GLuint& targetFBO)
+void Renderer::RenderSkybox(Scene& scene, const GLuint& targetFBO)
 {
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_FALSE);
@@ -88,7 +88,7 @@ void Renderer::RenderSkybox(const Scene& scene, const GLuint& targetFBO)
 //Draw()
 //=============================================================================================
 
-void Renderer::Draw(const Scene& scene)
+void Renderer::Draw(Scene& scene)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//***IMPORTANT***

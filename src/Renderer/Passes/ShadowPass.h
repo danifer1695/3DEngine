@@ -39,17 +39,17 @@ private:
 	void SetupPointShadowArray();
 
 	//Update
-	void UpdateShadows(const Scene& scene, bool globalUpdate);
-	void ResetDirtyFlags(const Scene& scene);
-	void CaptureDirShadows(const Scene& scene, const size_t& lightIndex);
-	void CapturePointShadows(const Scene& scene, const size_t& lightIndex, const glm::mat4& shadowProj);
+	void UpdateShadows(Scene& scene, bool globalUpdate);
+	void ResetDirtyFlags(Scene& scene);
+	void CaptureDirShadows(Scene& scene, const size_t& lightIndex);
+	void CapturePointShadows(Scene& scene, const size_t& lightIndex, const glm::mat4& shadowProj);
 
 public:
 	//Constructors
 	ShadowPass();
 
 	//Render
-	void Render(const Scene& scene);
+	void Render(Scene& scene);
 
 	//Getters
 	const GLuint GetDirTextureArray() const		{ return dirShadowArray; }

@@ -33,8 +33,8 @@ private:
 	void SetupDirShadowArray();
 
 	//Helpers
-	void SendPointLightToShader(PointLight* pl, const Scene& scene, size_t lightIndex);
-	void SendDirLightToShader(DirectionalLight* dl, const Scene& scene, size_t lightIndex);
+	void SendPointLightToShader(PointLight* pl, Scene& scene, size_t lightIndex);
+	void SendDirLightToShader(DirectionalLight* dl, Scene& scene, size_t lightIndex);
 
 public:
 	//Constructors
@@ -42,7 +42,7 @@ public:
 
 	//Render
 	void Render(
-		const Scene& scene, 
+		Scene& scene, 
 		const GBuffer& gBuffer, 
 		const GLuint& ssaoTex, 
 		const bool& ssaoEnabled, 

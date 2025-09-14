@@ -57,9 +57,9 @@ void Scene::Init()
 	//initialize lights
 
 	CreateLight(POINT_LIGHT);
-	GetLightCollection().at(0)->transform.Translate(glm::vec3(0.0f, 4.0f, 0.0f));
-	GetLightCollection().at(0)->SetCastShadows(true);
-	GetLightCollection().at(0)->SetIntensity(20.0f);
+	GetPointLightCollection().at(0)->transform.Translate(glm::vec3(0.0f, 4.0f, 0.0f));
+	GetPointLightCollection().at(0)->SetCastShadows(true);
+	GetPointLightCollection().at(0)->SetIntensity(20.0f);
 
 	getError("INIT");
 }
@@ -143,16 +143,63 @@ void Scene::CreateLight(LightType type)
 {
 	if (type == POINT_LIGHT)
 	{
-		std::shared_ptr<PointLight> newPL = std::make_unique<PointLight>("Point Light " + std::to_string(lights.size() + 1));
-		lights.push_back(newPL);
-		pointLights.push_back(newPL);
+		pointLights.push_back(std::make_shared<PointLight>("Point Light " + std::to_string(pointLights.size() + 1)));
 	}
 	else if (type == DIRECTIONAL_LIGHT)
 	{
-		std::shared_ptr<DirectionalLight> newDL = std::make_unique<DirectionalLight>("Directional Light " + std::to_string(lights.size() + 1));
-		lights.push_back(newDL);
-		dirLights.push_back(newDL);
+		dirLights.push_back(std::make_shared<DirectionalLight>("Directional Light " + std::to_string(dirLights.size() + 1)));
 	}
+}
+//=============================================================================================
+//RemoveDirLight()
+//=============================================================================================
+
+REVIT_DIRLIGHT Scene::RemoveDirLight(REVIT_DIRLIGHT rit)
+{
+	if (rit != dirLights.rend())
+	{
+		// erase returns a forward iterator
+		auto it = dirLights.erase((rit + 1).base());
+
+		// convert forward iterator back to reverse iterator
+		return std::make_reverse_iterator(it);
+	}
+	return rit;
+}
+//=============================================================================================
+//RemovePointLight()
+//=============================================================================================
+
+REVIT_POINTLIGHT Scene::RemovePointLight(REVIT_POINTLIGHT rit)
+{
+	if (rit != pointLights.rend())
+	{
+		// erase returns a forward iterator
+		auto it = pointLights.erase((rit + 1).base());
+
+		// convert forward iterator back to reverse iterator
+		return std::make_reverse_iterator(it);
+	}
+	return rit;
+}
+//=============================================================================================
+//GetLightCollection()
+//=============================================================================================
+
+std::vector<std::shared_ptr<Light>> Scene::GetLightCollection() const
+{
+	std::vector<std::shared_ptr<Light>> toReturn;
+
+	for (auto light : dirLights)
+	{
+		toReturn.push_back(light);
+	}
+	for (auto light : pointLights)
+	{
+		toReturn.push_back(light);
+	}
+
+	return toReturn;
 }
 //=============================================================================================
 //getError()

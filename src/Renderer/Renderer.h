@@ -42,7 +42,7 @@ private:
 	void SetupFBO();
 
 	//Helpers
-	void RenderSkybox(const Scene& scene, const GLuint& targetFBO);
+	void RenderSkybox(Scene& scene, const GLuint& targetFBO);
 	void CopyDepthData();
 
 public:
@@ -50,7 +50,7 @@ public:
 	Renderer(unsigned int screenWidth, unsigned int screenHeight);
 
 	//Public methods
-	void Draw(const Scene& scene);
+	void Draw(Scene& scene);
 
 	//Getters
 	const GLuint		GetTexture() const	{ return renderTex; }

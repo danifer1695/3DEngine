@@ -95,8 +95,10 @@ void ShadowPass::SetupPointShadowArray()
 //Render
 //=============================================================================================
 
-void ShadowPass::Render(const Scene& scene)
+void ShadowPass::Render(Scene& scene)
 {
+	auto lights = scene.GetLightCollection();
+
 	bool needsUpdate = false;
 	bool globalUpdate = false;
 
@@ -114,7 +116,7 @@ void ShadowPass::Render(const Scene& scene)
 	//Check lights if items are all clean
 	if (!needsUpdate)
 	{
-		for (const auto& light : scene.GetLightCollection())
+		for (const auto& light : lights)
 		{
 			if (light->transform.GetIsDirty())
 			{
@@ -135,7 +137,7 @@ void ShadowPass::Render(const Scene& scene)
 //ResetDirtyFlags()
 //=============================================================================================
 
-void ShadowPass::ResetDirtyFlags(const Scene& scene)
+void ShadowPass::ResetDirtyFlags(Scene& scene)
 {
 	//Reset dirty flags
 	for (const auto& item : scene.GetItemCollection())
@@ -151,7 +153,7 @@ void ShadowPass::ResetDirtyFlags(const Scene& scene)
 //UpdateShadows
 //=============================================================================================
 
-void ShadowPass::UpdateShadows(const Scene& scene, bool globalUpdate)
+void ShadowPass::UpdateShadows(Scene& scene, bool globalUpdate)
 {
 	glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, scene.GetNearPlane(), scene.GetFarPlane());
 	size_t numberOfPointLights = scene.GetPointLightCollection().size();
@@ -183,7 +185,7 @@ void ShadowPass::UpdateShadows(const Scene& scene, bool globalUpdate)
 //CaptureDirShadows
 //=============================================================================================
 
-void ShadowPass::CaptureDirShadows(const Scene& scene, const size_t& lightIndex)
+void ShadowPass::CaptureDirShadows(Scene& scene, const size_t& lightIndex)
 {
 	auto dl = scene.GetDirLightCollection()[lightIndex];
 	glm::vec3 lightPos = dl->transform.getPosition();
@@ -224,7 +226,7 @@ void ShadowPass::CaptureDirShadows(const Scene& scene, const size_t& lightIndex)
 //CapturePointShadows
 //=============================================================================================
 
-void ShadowPass::CapturePointShadows(const Scene& scene, const size_t& lightIndex, const glm::mat4& shadowProj)
+void ShadowPass::CapturePointShadows(Scene& scene, const size_t& lightIndex, const glm::mat4& shadowProj)
 {
 	auto pl = scene.GetPointLightCollection()[lightIndex];
 	glm::vec3 lightPos = pl->transform.getPosition();

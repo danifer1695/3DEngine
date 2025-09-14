@@ -45,31 +45,14 @@ void LightingPass::Initialize()
 //Render
 //=============================================================================================
 
-void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const bool& ssaoEnabled, const GLuint& dirShadowArray, const GLuint& pointShadowArray, const GLuint& targetFBO)
+void LightingPass::Render(Scene& scene, const GBuffer& gBuffer, const GLuint& ssaoTex, const bool& ssaoEnabled, const GLuint& dirShadowArray, const GLuint& pointShadowArray, const GLuint& targetFBO)
 {
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::COMING_FROM_ABOVE");
-	//vector for each type of light (this will to be moved to the light class)
-	std::vector<Light*>plVec;
-	std::vector<Light*>dlVec;
-
-	for (auto& light : scene.GetLightCollection())
-	{
-		if (light->GetLightType() == POINT_LIGHT)
-		{
-			plVec.push_back(light.get()); 
-			continue;
-		}
-		else if (light->GetLightType() == DIRECTIONAL_LIGHT)
-		{
-			dlVec.push_back(light.get()); 
-			continue;
-		}
-	}
 
 	lightPassShader->use();
 	lightPassShader->setBool("ssaoEnabled",				ssaoEnabled);
-	lightPassShader->setInt("numberOfPointLights",		(int)plVec.size());
-	lightPassShader->setInt("numberOfDirLights",		(int)dlVec.size());
+	lightPassShader->setInt("numberOfPointLights",		scene.GetPointLightCollection().size());
+	lightPassShader->setInt("numberOfDirLights",		scene.GetDirLightCollection().size());
 	lightPassShader->setInt("numberOfSpotLights",		0);			//***NEEDS UPDATING WHEN IMPLEMENTING SPOTLIGHTS***
 	lightPassShader->setFloat("farPlane",				scene.GetFarPlane());
 	lightPassShader->setFloat("materialShininess",		16.0f);
@@ -95,20 +78,20 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::TEX_BINDING");
 
 	//point lights info to shader
-	for (size_t i = 0; i < plVec.size(); ++i)
+	for (size_t i = 0; i < scene.GetPointLightCollection().size(); ++i)
 	{
 		//conditional: if GL_TEXTURE0 + texUnitIndex exceeds GL_TEXTURE31, break the loop
-		if (plVec.size() == 0) break;
-		auto* pl = dynamic_cast<PointLight*>(plVec.at(i));
+		if (scene.GetPointLightCollection().size() == 0) break;
+		auto* pl = dynamic_cast<PointLight*>(scene.GetPointLightCollection().at(i).get());
 
 		SendPointLightToShader(pl, scene, i);
 	}
 
 	//send directional lights info to shader
-	for (size_t i = 0; i < dlVec.size(); ++i)
+	for (size_t i = 0; i < scene.GetDirLightCollection().size(); ++i)
 	{
-		if (dlVec.size() == 0) break;
-		auto* dl = dynamic_cast<DirectionalLight*>(dlVec.at(i));
+		if (scene.GetDirLightCollection().size() == 0) break;
+		auto* dl = dynamic_cast<DirectionalLight*>(scene.GetDirLightCollection().at(i).get());
 
 		SendDirLightToShader(dl, scene, i);
 	}
@@ -127,7 +110,7 @@ void LightingPass::Render(const Scene& scene, const GBuffer& gBuffer, const GLui
 //SendPointLightToShader
 //=============================================================================================
 
-void LightingPass::SendPointLightToShader(PointLight* pl, const Scene& scene, size_t lightIndex)
+void LightingPass::SendPointLightToShader(PointLight* pl, Scene& scene, size_t lightIndex)
 {
 	lightPassShader->use();
 	pl->sendToShader(
@@ -139,7 +122,7 @@ void LightingPass::SendPointLightToShader(PointLight* pl, const Scene& scene, si
 //SendDirLightToShader
 //=============================================================================================
 
-void LightingPass::SendDirLightToShader(DirectionalLight* dl, const Scene& scene, size_t lightIndex)
+void LightingPass::SendDirLightToShader(DirectionalLight* dl, Scene& scene, size_t lightIndex)
 {
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, scene.GetNearPlane(), scene.GetFarPlane());
 	glm::mat4 lightView = glm::lookAt(dl->transform.getPosition(), dl->GetTarget(), glm::vec3(0.0f, 1.0f, 0.0f));

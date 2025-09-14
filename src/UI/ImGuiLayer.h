@@ -22,14 +22,18 @@ private:
 
 	//Panels
 	void RenderEntityPanel(Scene& scene);
-	void RenderAssetsPanel(const Scene& scene, unsigned int screenWidth, unsigned int screenHeight);
+	void RenderAssetsPanel(Scene& scene, unsigned int screenWidth, unsigned int screenHeight);
 	void RenderScenePanel(Renderer& renderer, unsigned int screenWidth);
 	void RenderViewport(const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight);
-	void RenderMaterialsTab(const Scene& scene);
+	void RenderMaterialsTab(Scene& scene);
 
 	//Tabs
 	void RenderLightTab(Scene& scene);
-	void RenderItemTab(const Scene& scene);
+	void RenderDirLight(Scene& scene, size_t& index);
+	void RenderPointLight(Scene& scene, size_t& index);
+	void RenderItemTab(Scene& scene);
+
+	//Elements
 
 public:
 	//Constructor
