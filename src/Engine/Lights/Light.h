@@ -36,7 +36,6 @@ public:
 	bool softShadows = true;
 
 	//Shadow Maps
-	std::unique_ptr<ShadowMap> shadowMap = nullptr;
 
 	//Constructors
 	Light(std::string name,
@@ -53,7 +52,6 @@ public:
 	glm::mat4 GetModelMatrix() const = delete;	//we wont need a model matrix for a light object
 
 	//Getters
-	ShadowMap*			GetShadowMap()			{ return shadowMap.get(); }
 	const LightType		GetLightType() const	{ return type; }
 	const bool			GetCastShadows() const	{ return castShadows; }
 	const bool			GetSoftShadows() const	{ return softShadows; }

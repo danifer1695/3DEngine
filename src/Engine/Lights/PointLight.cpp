@@ -7,7 +7,6 @@
 PointLight::PointLight(const std::string name, const glm::vec3& position_in, const glm::vec3& color_in, const bool castShadows_in, float radius_in, float intensity_in)
 	:Light(name, POINT_LIGHT, position_in, castShadows_in, color_in, intensity_in), radius{ radius_in }
 {
-	shadowMap = std::make_unique<ShadowMap>(Point, 512, 512);
 }
 
 //=============================================================================================

@@ -6,6 +6,7 @@
 #include<iostream>
 #include<algorithm>
 #include<cmath>
+#include<random>
 
 namespace Utils
 {
@@ -36,6 +37,17 @@ namespace Utils
 		return a + t * (b - a);
 	}
 
+	inline float Randf(float min, float max)
+	{
+		//make the random engine static so it does not re-seed with every call
+		static std::random_device rd;
+		static std::mt19937 engine(rd());
+
+		//Define range
+		std::uniform_real_distribution<float> dist(min, max);
+
+		return dist(engine);
+	}
 	//OpenGL
 	//-----------------------------------------------------------------------------------------------
 	inline void getOpenGLError(std::string location)

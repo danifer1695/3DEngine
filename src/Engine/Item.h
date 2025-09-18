@@ -2,6 +2,7 @@
 
 #include "GameObject.h"
 #include "../Resources/Model.h"
+#include "../Core/Utils.h"
 #include "Materials/MaterialBlinn.h"
 
 #include <memory>
@@ -10,12 +11,11 @@
 class Item : public GameObject
 {
 private:
+	//Data
+	glm::vec3 IDColor = glm::vec3(1.0f);
 
 	std::shared_ptr<Model> model;
 	std::shared_ptr<Material> material;
-
-	//private methods
-	void getError(std::string location);
 
 public:
 	//Constructor
@@ -26,7 +26,8 @@ public:
 	void sendToShader(const Shader& shader);
 
 	//Getters
-	std::shared_ptr<Material>	getMaterial() { return material; }
-	std::shared_ptr<Model>		getModel() { return model; }
+	std::shared_ptr<Material>	getMaterial()		{ return material; }
+	std::shared_ptr<Model>		getModel()			{ return model; }
+	const glm::vec3				getIDColor() const	{ return IDColor; }
 };
 

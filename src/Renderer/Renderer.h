@@ -14,6 +14,7 @@
 #include"Passes/ShadowPass.h"
 #include"Passes/SSAO.h"
 #include"Passes/LightingPass.h"
+#include"Passes/IDPass.h"
 #include"../Engine/Scene.h"
 #include"../Core/Utils.h"
 
@@ -36,6 +37,7 @@ private:
 	GeometryPass	geometryPass;
 	SSAOPass		ssaoPass;
 	LightingPass	lightingPass;
+	IDPass			idPass;
 
 	//Initialization
 	void Init();
@@ -55,5 +57,6 @@ public:
 	//Getters
 	const GLuint		GetTexture() const	{ return renderTex; }
 	SSAOPass&			GetSSAOPass()		{ return ssaoPass; }
+	const IDPass&		GetIDPass() const	{ return idPass; }
 };
 

@@ -38,9 +38,10 @@ void Scene::Init()
 	ImportModel("plane", "./assets/models/plane.obj");
 
 	//initialize textures
-	ImportTexture("grey_diff", "./assets/textures/grey_diffuse.png", false);
-	ImportTexture("test01_diff", "./assets/textures/test_diffuse.png", false);
-	ImportTexture("test01_spec", "./assets/textures/test_specular.png", false);
+	ImportTexture("Default",		"./assets/textures/Default_Texture.png", false);
+	ImportTexture("grey_diff",		"./assets/textures/grey_diffuse.png", false);
+	ImportTexture("test01_diff",	"./assets/textures/test_diffuse.png", false);
+	ImportTexture("test01_spec",	"./assets/textures/test_specular.png", false);
 	
 	//initialize materials
 	ImportMaterialBlinn("blinn", "./shaders/Blinn/blinn.vs", "./shaders/Blinn/blinn.fs", textures2D["test01_diff"], textures2D["test01_spec"]);

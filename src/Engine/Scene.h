@@ -95,6 +95,7 @@ public:
 	auto&				GetDirLightCollection() 		{ return dirLights; }
 	auto&				GetPointLightCollection() 		{ return pointLights; }
 	const auto&			GetMaterialCollection() const	{ return materials; }
+	const auto&			GetModelCollection() const		{ return models; }
 	glm::mat4			GetProjectionMatrix() const		{ return projection; }
     const Camera*		GetCamera() const				{ return activeCamera; }
 	Skybox*				GetSkybox()	const				{ return skybox.get(); }

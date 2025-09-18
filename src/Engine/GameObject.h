@@ -18,6 +18,7 @@ public:
 	std::string name;
 
 	//State
+	bool selected = false;
 	Transform transform{};
 
 	//Constructors
@@ -36,8 +37,10 @@ public:
 
 	//Setters
 	void SetName(const std::string& newName) { name = newName; }
+	void SetSelected(bool set) { selected = set; }
 
 	//Getters
-	const std::string GetName() const { return name; }
+	const bool			GetSelected() const		{ return selected; }
+	const std::string	GetName() const			{ return name; }
 };
 

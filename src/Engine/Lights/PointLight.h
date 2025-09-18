@@ -22,6 +22,9 @@ public:
 		const size_t& lightIndex, 
 		const glm::mat4& view) const;
 
+	//getter
+	const float GetRadius() const { return radius; }
+
 	//setter
 	void SetRadius(const float& rad);
 };

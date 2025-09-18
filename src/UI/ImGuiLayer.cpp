@@ -131,6 +131,7 @@ void ImGuiLayer::RenderAssetsPanel(Scene& scene, unsigned int screenWidth, unsig
 		//---------
 		if (ImGui::BeginTabItem("Models"))
 		{
+			RenderModelsTab(scene);
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();
@@ -169,6 +170,9 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 	if (ImGui::Checkbox("SSAO active", &setSSAO))
 		renderer.GetSSAOPass().SetEnabled(setSSAO);
 
+	if (ImGui::Checkbox("ID pass", &renderIDpass))
+		renderIDpass != renderIDpass;
+
 	ImGui::End();
 }
 //=============================================================================================
@@ -195,6 +199,7 @@ void ImGuiLayer::RenderViewport(const GLuint& texture, unsigned int viewPortWidt
 
 	//Draw Renderer's texture
 	ImTextureID imguiTexID = (ImTextureID)(intptr_t)texture;
+
 	ImGui::Image(imguiTexID, ImVec2((float)viewPortWidth, (float)viewPortHeight),
 		ImVec2(0, 1),
 		ImVec2(1, 0));
@@ -223,7 +228,35 @@ void ImGuiLayer::RenderMaterialsTab(Scene& scene)
 			ImVec2(64.0f, 64.0f),
 			ImVec2(0, 1),
 			ImVec2(1, 0));
+		ImGui::SetItemTooltip(material.second->GetName().c_str());
 		
+		ImGui::PopID();
+		i++;
+	}
+}
+//=============================================================================================
+//RenderModelsTab()
+//=============================================================================================
+
+void ImGuiLayer::RenderModelsTab(Scene& scene)
+{
+	int i = 0;
+	ImGui::NewLine();
+	for (auto& model : scene.GetModelCollection())
+	{
+		ImGui::SameLine();
+		ImGui::PushID(i);	//Unique ID per item
+
+		//Little thumbnail displaying texture.
+		//eventually to be replaced with a small render of sphere with material on
+		ImTextureID imguiTexID = (ImTextureID)(intptr_t)scene.GetTexture("Default");
+		ImGui::ImageButton(model.first.c_str(),
+			imguiTexID,
+			ImVec2(64.0f, 64.0f),
+			ImVec2(0, 1),
+			ImVec2(1, 0));
+		ImGui::SetItemTooltip(model.first.c_str());
+
 		ImGui::PopID();
 		i++;
 	}
@@ -271,10 +304,10 @@ void ImGuiLayer::RenderDirLight(Scene& scene, size_t& i)
 			ImGui::Checkbox("Active", &rit->get()->active);
 			ImGui::Text("Light Color:");
 			ImGui::SameLine(); ImGui::ColorEdit3("Light Color", glm::value_ptr(rit->get()->color), ImGuiColorEditFlags_NoInputs);
-			ImGui::InputFloat("Intensity", &rit->get()->intensity, 0.01f, 100.0f, "%.3f");
+			ImGui::DragFloat("Intensity", &rit->get()->intensity, 0.05f, 0.01f, 100.0f, "%.3f");
 
 			ImGui::Text("Light Transform:");
-			if (ImGui::InputFloat3("Position", glm::value_ptr(move)))
+			if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
 				rit->get()->transform.SetPosition(move);
 
 			if (ImGui::Checkbox("Cast Shadows", &castShadow))
@@ -309,9 +342,10 @@ void ImGuiLayer::RenderPointLight(Scene& scene, size_t& i)
 	for (auto rit = scene.GetPointLightCollection().rbegin(); rit != scene.GetPointLightCollection().rend(); )
 	{
 		//light state variables
-		glm::vec3 move = rit->get()->transform.getPosition();
-		bool castShadow = rit->get()->GetCastShadows();
-		bool softShadow = rit->get()->GetSoftShadows();
+		glm::vec3 move =	rit->get()->transform.getPosition();
+		bool castShadow =	rit->get()->GetCastShadows();
+		bool softShadow =	rit->get()->GetSoftShadows();
+		float radius =		rit->get()->GetRadius();
 
 		ImGui::NewLine();
 		ImGui::PushID(i);	//Unique ID per light
@@ -322,10 +356,13 @@ void ImGuiLayer::RenderPointLight(Scene& scene, size_t& i)
 			ImGui::Checkbox("Active", &rit->get()->active);
 			ImGui::Text("Light Color:");
 			ImGui::SameLine(); ImGui::ColorEdit3("Light Color", glm::value_ptr(rit->get()->color), ImGuiColorEditFlags_NoInputs);
-			ImGui::InputFloat("Intensity", &rit->get()->intensity, 0.01f, 100.0f, "%.3f");
+			ImGui::DragFloat("Intensity", &rit->get()->intensity, 0.5f, 0.01f, 100.0f, "%.3f");
+
+			if(ImGui::DragFloat("Radius", &radius, 0.5f, 0.01f, 100.0f, "%.3f"))
+				rit->get()->SetRadius(radius);
 
 			ImGui::Text("Light Transform:");
-			if (ImGui::InputFloat3("Position", glm::value_ptr(move)))
+			if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
 				rit->get()->transform.SetPosition(move);
 
 			if (ImGui::Checkbox("Cast Shadows", &castShadow))
@@ -372,13 +409,13 @@ void ImGuiLayer::RenderItemTab(Scene& scene)
 		{
 			ImGui::Text("Item Transform:");
 
-			if (ImGui::InputFloat3("Position", glm::value_ptr(move)))
+			if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
 				item.second->transform.SetPosition(move);
 
-			if (ImGui::InputFloat3("Rotation", glm::value_ptr(rotate)))
+			if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotate), 0.2f))
 				item.second->transform.SetRotation(rotate);
 
-			if (ImGui::InputFloat3("Scale", glm::value_ptr(scale)))
+			if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.2f))
 				item.second->transform.SetScale(scale);
 
 			ImGui::Separator();
@@ -397,6 +434,7 @@ void ImGuiLayer::Render(Scene& scene, Renderer& renderer, unsigned int viewPortW
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	GLuint texture = renderer.GetTexture();
+	if (renderIDpass) texture = renderer.GetIDPass().GetTexture();
 
 	BeginFrame();
 

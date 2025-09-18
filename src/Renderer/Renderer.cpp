@@ -9,7 +9,8 @@ Renderer::Renderer(unsigned int screenWidth, unsigned int screenHeight)
 	ssaoPass{screenWidth, screenHeight},
 	gBuffer{screenWidth, screenHeight},
 	geometryPass{ screenWidth, screenHeight },
-	lightingPass{ screenWidth, screenHeight }
+	lightingPass{ screenWidth, screenHeight },
+	idPass{screenWidth, screenHeight}
 {
 	Init();
 }
@@ -98,6 +99,7 @@ void Renderer::Draw(Scene& scene)
 
 	//We render shadows,Gbuffer and ssao
 	shadowPass.Render(scene);
+	idPass.Render(scene);
 	geometryPass.Render(scene, gBuffer);
 	ssaoPass.Render(scene, gBuffer);
 

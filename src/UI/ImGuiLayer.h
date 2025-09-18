@@ -11,6 +11,7 @@ class ImGuiLayer
 {
 private:
 	bool showDemo = false;
+	bool renderIDpass = false;
 
 	//Initialization
 	void Init(GLFWwindow* window);
@@ -25,15 +26,16 @@ private:
 	void RenderAssetsPanel(Scene& scene, unsigned int screenWidth, unsigned int screenHeight);
 	void RenderScenePanel(Renderer& renderer, unsigned int screenWidth);
 	void RenderViewport(const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight);
-	void RenderMaterialsTab(Scene& scene);
 
 	//Tabs
 	void RenderLightTab(Scene& scene);
-	void RenderDirLight(Scene& scene, size_t& index);
-	void RenderPointLight(Scene& scene, size_t& index);
 	void RenderItemTab(Scene& scene);
+	void RenderMaterialsTab(Scene& scene);
+	void RenderModelsTab(Scene& scene);
 
 	//Elements
+	void RenderDirLight(Scene& scene, size_t& index);
+	void RenderPointLight(Scene& scene, size_t& index);
 
 public:
 	//Constructor

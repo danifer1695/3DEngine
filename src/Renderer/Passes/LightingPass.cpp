@@ -17,7 +17,7 @@ void LightingPass::Initialize()
 {
 	//Build and compile shaders
 	//-------------------------
-	lightPassShader = std::make_unique<Shader>("RENDERER::LIGHTPASS", LIGHTPASS_SHADER_VS, LIGHTPASS_SHADER_FS);
+	lightPassShader = std::make_unique<Shader>("LIGHTPASS", LIGHTPASS_SHADER_VS, LIGHTPASS_SHADER_FS);
 	
 	Utils::getOpenGLError("LIGHTINGPASS::SHADER_CONFIG::SHADER_COMPILATION");
 
