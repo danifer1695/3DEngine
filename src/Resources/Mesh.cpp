@@ -118,3 +118,18 @@ void Mesh::Draw(std::shared_ptr<Shader> shader) {
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
+//=============================================================================================
+//GetVertexPositions
+//=============================================================================================
+
+const std::vector<glm::vec3>& Mesh::GetVertexPositions() const
+{
+	std::vector<glm::vec3> result;
+
+	for (const auto& v : vertices)
+	{
+		result.push_back(v.Position);
+	}
+
+	return result;
+}

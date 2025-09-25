@@ -5,6 +5,7 @@
 #include"../../vendors/ImGui/imgui_impl_glfw.h"
 
 #include"../Engine/Scene.h"
+#include"../Core/RayCaster.h"
 #include"../Renderer/Renderer.h"
 
 class ImGuiLayer
@@ -25,7 +26,13 @@ private:
 	void RenderEntityPanel(Scene& scene);
 	void RenderAssetsPanel(Scene& scene, unsigned int screenWidth, unsigned int screenHeight);
 	void RenderScenePanel(Renderer& renderer, unsigned int screenWidth);
-	void RenderViewport(const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight);
+	void RenderViewport(
+		Scene& scene, 
+		const GLuint& texture, 
+		unsigned int screenWidth, 
+		unsigned int screenHeight, 
+		unsigned int viewPortWidth, 
+		unsigned int viewPortHeight);
 
 	//Tabs
 	void RenderLightTab(Scene& scene);

@@ -29,6 +29,33 @@ Camera::Camera(Camera_Mode cam_mode, float posX, float posY, float posZ, float u
 	update_camera_vectors();
 }
 
+//=============================================================================================
+//GenerateRay
+//=============================================================================================
+
+Ray Camera::GenerateRay(float mouseX, float mouseY, float viewportWidth, float viewportHeight, glm::mat4 projMatrix) const
+{
+	//Convert screen coordinates (viewportWidth, viewportHeight) to NDC [-1, 1]
+	float x = (2.0f * mouseX) / viewportWidth - 1.0f;
+	float y = 1.0f - (2.0f * mouseY) / viewportHeight;	//screen origin is top-left, so we invert Y
+	glm::vec4 rayClip(x, y, -1.0f, 1.0f);	//-Z so it points into the screen, away from the viewer
+
+	//transform to view space (undo projection matrix)
+	glm::mat4 invProjection = glm::inverse(projMatrix);
+	glm::vec4 rayView = invProjection * rayClip;
+	rayView = glm::vec4(rayView.x, rayView.y, -1.0f, 0.0f);	//-Z to point forward
+
+	//transform to world space (undo view matrix)
+	glm::mat4 invView = glm::inverse(get_view_matrix());
+	glm::vec4 rayWorld = invView * rayView;
+	glm::vec3 direction = glm::normalize(glm::vec3(rayWorld));
+
+	//Ray origin is the camera's own position
+	glm::vec3 origin = Position;
+
+	return Ray(origin, direction);
+}
+
 //======================================
 // get_view_matrix
 //======================================

@@ -22,8 +22,6 @@ void Engine::Init()
 	InitOpenGlState();
 
 	imGuiLayer = std::make_unique<ImGuiLayer>(window);
-
-	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 }
 
 //=============================================================================================
@@ -68,6 +66,7 @@ void Engine::InitGLAD()
 
 		throw std::runtime_error("Failed to initialize GLAD");
 	}
+	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 }
 //=============================================================================================
 //InitOpenGlState
@@ -120,6 +119,7 @@ void Engine::Run()
 
 		//UPDATE
 		scene->UpdateScene();
+		UpdateCollisions();
 
 		//RENDER
 		renderer->Draw(*scene.get());
@@ -138,6 +138,21 @@ void Engine::Run()
 //ProcessInput
 //=============================================================================================
 
+void Engine::UpdateCollisions()
+{
+	//Update AABBs
+	for (const auto& item : scene->GetItemCollection())
+	{
+		if (item.second->transform.GetIsDirty())
+		{
+			item.second->GetAABB().Update(item.second->transform.GetModelMatrix());
+		}
+	}
+}
+//=============================================================================================
+//ProcessInput
+//=============================================================================================
+
 void Engine::ProcessInput()
 {
 	//Exit application
@@ -149,6 +164,11 @@ void Engine::ProcessInput()
 		inputManager->SetNavigationTarget(NAVIGATION_SCENE);
 	if (inputManager->IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
 		inputManager->SetNavigationTarget(NAVIGATION_UI);
+
+	if (inputManager->IsMousePressed(GLFW_MOUSE_BUTTON_1))
+	{
+		//RayCasting to select in the scene is done from within the ImGui layer
+	}
 
 	//Cursor status
 	if(inputManager->GetNavigationTarget() == NAVIGATION_SCENE)

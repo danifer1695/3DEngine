@@ -179,13 +179,14 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 //RenderViewPort()
 //=============================================================================================
 
-void ImGuiLayer::RenderViewport(const GLuint& texture, unsigned int viewPortWidth, unsigned int viewPortHeight)
+void ImGuiLayer::RenderViewport(Scene& scene, const GLuint& texture, unsigned int screenWidth, unsigned int screenHeight, unsigned int viewPortWidth, unsigned int viewPortHeight)
 {
 	ImGuiIO& io = ImGui::GetIO();
 
 	//Set window parameters
+	int windowOffsetX = 400;
 	ImGui::SetNextWindowSize(ImVec2(viewPortWidth, viewPortHeight));
-	ImGui::SetNextWindowPos(ImVec2(400, 0));
+	ImGui::SetNextWindowPos(ImVec2(windowOffsetX, 0));
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));	//set padding to 0
 
 	//Set window flags
@@ -203,6 +204,29 @@ void ImGuiLayer::RenderViewport(const GLuint& texture, unsigned int viewPortWidt
 	ImGui::Image(imguiTexID, ImVec2((float)viewPortWidth, (float)viewPortHeight),
 		ImVec2(0, 1),
 		ImVec2(1, 0));
+
+	//Mouse Raycasting
+	ImVec2 mousePos = io.MousePos;
+	ImVec2 viewportPos = ImGui::GetWindowPos();
+
+	float relativeMouseX = mousePos.x - viewportPos.x;
+	float relativeMouseY = mousePos.y - viewportPos.y;
+
+	//Check if mouse is within the viewport window
+	bool coordsInRange =
+		relativeMouseX >= 0 && relativeMouseX <= viewPortWidth && 
+		relativeMouseY >= 0 && relativeMouseY <= viewPortHeight;
+
+	if (coordsInRange && io.MouseClicked[0])
+	{
+		Ray ray = scene.GetCamera()->GenerateRay(relativeMouseX, relativeMouseY, viewPortWidth, viewPortHeight, scene.GetProjectionMatrix());
+		RayCaster raycaster;
+
+		if (Item* hit = raycaster.CastRay(ray, scene.GetItemCollection()))
+		{
+			Utils::Print("Picked: " + hit->GetName());
+		}
+	}
 
 	ImGui::End();
 	ImGui::PopStyleVar();
@@ -302,8 +326,7 @@ void ImGuiLayer::RenderDirLight(Scene& scene, size_t& i)
 		{
 
 			ImGui::Checkbox("Active", &rit->get()->active);
-			ImGui::Text("Light Color:");
-			ImGui::SameLine(); ImGui::ColorEdit3("Light Color", glm::value_ptr(rit->get()->color), ImGuiColorEditFlags_NoInputs);
+			ImGui::ColorEdit3("Light Color", glm::value_ptr(rit->get()->color), ImGuiColorEditFlags_NoInputs);
 			ImGui::DragFloat("Intensity", &rit->get()->intensity, 0.05f, 0.01f, 100.0f, "%.3f");
 
 			ImGui::Text("Light Transform:");
@@ -354,8 +377,7 @@ void ImGuiLayer::RenderPointLight(Scene& scene, size_t& i)
 		{
 
 			ImGui::Checkbox("Active", &rit->get()->active);
-			ImGui::Text("Light Color:");
-			ImGui::SameLine(); ImGui::ColorEdit3("Light Color", glm::value_ptr(rit->get()->color), ImGuiColorEditFlags_NoInputs);
+			ImGui::ColorEdit3("Light Color", glm::value_ptr(rit->get()->color), ImGuiColorEditFlags_NoInputs);
 			ImGui::DragFloat("Intensity", &rit->get()->intensity, 0.5f, 0.01f, 100.0f, "%.3f");
 
 			if(ImGui::DragFloat("Radius", &radius, 0.5f, 0.01f, 100.0f, "%.3f"))
@@ -443,7 +465,7 @@ void ImGuiLayer::Render(Scene& scene, Renderer& renderer, unsigned int viewPortW
 
 	RenderEntityPanel(scene);
 
-	RenderViewport(texture, viewPortWidth, viewPortHeight);
+	RenderViewport(scene, texture, screenWidth, screenHeight, viewPortWidth, viewPortHeight);
 	//RenderViewport(scene.GetLightCollection().at(3)->GetShadowMap()->getDepthMap(), viewPortWidth, viewPortHeight);
 
 	RenderScenePanel(renderer, screenWidth);

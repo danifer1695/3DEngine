@@ -85,6 +85,7 @@ private:
 	}
 
 	//Render loop
+	void UpdateCollisions();
 	void Exit() { engineState = Engine_Exit; }
 	
 public:

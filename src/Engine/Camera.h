@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../Core/Ray.h"
+
 //Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
 	FORWARD,
@@ -40,9 +42,11 @@ public:
 	glm::vec3 Up;
 	glm::vec3 Right;
 	glm::vec3 WorldUp;
+
 	//Euler angles
 	float yaw;
 	float pitch;
+
 	//camera options
 	Camera_Mode camera_mode;
 	float mouse_sensitivity;
@@ -55,6 +59,10 @@ public:
 	//------------
 	Camera(Camera_Mode cam_mode, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw_in = yaw_def, float pitch_in = pitch_def);
 	Camera(Camera_Mode cam_mode, float posX = 0.0f, float posY = 0.0f, float posZ = 0.0f, float upX = 0.0f, float upY = 0.0f, float upZ = 0.0f, float yaw_in = yaw_def, float pitch_in = pitch_def);
+
+	//RayCasting
+	//----------
+	Ray GenerateRay(float mouseX, float mouseY, float viewportWidth, float viewportHeight, glm::mat4 projMatrix) const;
 
 	//methods
 	//-------

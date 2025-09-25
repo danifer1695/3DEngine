@@ -9,6 +9,9 @@ Item::Item(std::string name, std::shared_ptr<Model> model, std::shared_ptr<Mater
 {
 	IDColor = glm::vec3(Utils::Randf(0.0f, 1.0f), Utils::Randf(0.0f, 1.0f), Utils::Randf(0.0f, 1.0f));
 
+	InitializeAABB(model);
+	aabb.Update(transform.GetModelMatrix());	//Need to call update to set up worldPos min and max	
+
 	Utils::getOpenGLError("ITEM::CONSTRUCTOR");
 }
 

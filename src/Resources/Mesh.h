@@ -45,6 +45,7 @@ public:
 	void Draw(std::shared_ptr<Shader> shader);
 
 	//getters
-	unsigned int get_VAO() const { return VAO; }
+	unsigned int					get_VAO() const { return VAO; }
+	const std::vector<glm::vec3>&	GetVertexPositions() const;
 };
 

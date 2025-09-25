@@ -9,10 +9,15 @@
 #include<memory>
 
 #include"Transform.h"
+#include"Collisions/AABB.h"
 #include"../Core/Utils.h"
+#include"../Resources/Model.h"
 
 class GameObject
 {
+protected:
+	AABB aabb;	//getters in child classes that will use aabbs
+
 public:
 	//Data
 	std::string name;
@@ -26,14 +31,11 @@ public:
 		std::string name,
 		glm::vec3 position = glm::vec3(0.0f),
 		glm::vec3 rotation = glm::vec3(0.0f),
-		glm::vec3 scale = glm::vec3(1.0f)) 
-		:name{name}
-	{
-		transform.SetPosition(position);
-		transform.SetRotation(rotation);
-		transform.SetScale(scale);
-	};
+		glm::vec3 scale = glm::vec3(1.0f));
 	GameObject() :GameObject("default", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f)) {};
+
+	//Collisions
+	void InitializeAABB(std::shared_ptr<Model> model);
 
 	//Setters
 	void SetName(const std::string& newName) { name = newName; }
