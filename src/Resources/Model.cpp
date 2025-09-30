@@ -13,10 +13,10 @@ Model::Model(const char* path)
 // Draw()
 //================================================================
 
-void Model::Draw()
+void Model::Draw(RenderType rendering)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].Draw();
+		meshes[i].Draw(rendering);
 }
 
 void Model::Draw(Shader& shader)

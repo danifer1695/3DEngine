@@ -34,7 +34,7 @@ public:
 	Model(const char* path);
 
 	//Drawing
-	void Draw();
+	void Draw(RenderType rendering = TRIANGLES);
 	void Draw(Shader& shader);
 	void Draw(std::shared_ptr<Shader> shader);
 	void Draw(Shader& shader, glm::mat4 projection, glm::mat4 view, glm::mat4 model = glm::mat4(1.0f));

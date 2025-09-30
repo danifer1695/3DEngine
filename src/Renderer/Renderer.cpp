@@ -10,7 +10,8 @@ Renderer::Renderer(unsigned int screenWidth, unsigned int screenHeight)
 	gBuffer{screenWidth, screenHeight},
 	geometryPass{ screenWidth, screenHeight },
 	lightingPass{ screenWidth, screenHeight },
-	idPass{screenWidth, screenHeight}
+	idPass{screenWidth, screenHeight},
+	postPass{screenWidth, screenHeight}
 {
 	Init();
 }
@@ -116,6 +117,9 @@ void Renderer::Draw(Scene& scene)
 		shadowPass.GetPointTextureArray(), 
 		renderFBO);
 	RenderSkybox(scene, renderFBO);
+
+	//Post Processing
+	postPass.Render(scene, idPass.GetTexture(), GetTexture());
 
 	Utils::getOpenGLError("RENDERER::DRAW");
 }

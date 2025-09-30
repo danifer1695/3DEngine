@@ -11,7 +11,10 @@ void AABB::Initialize(std::shared_ptr<Model> model)
 
 	for (const auto& m : model->GetMeshes())
 	{
-		for (const auto& v : m.GetVertexPositions())
+		//GetVertexPositions returns a dynamically constructed vector that will 
+		// be destroyed once it goes out of scope
+		std::vector<glm::vec3> positions = m.GetVertexPositions();
+		for (const auto& v : positions)
 		{
 			//std::cout << v.x << ", " << v.y << ", " << v.z << std::endl;
 			//Compare each of the vertices in all meshes to min and max to get the bounding edges

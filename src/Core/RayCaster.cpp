@@ -48,6 +48,9 @@ bool RayCaster::IntersectsAABB(const Ray& ray, const AABB& aabb, float& tNear) c
 	// This handles the case where the camera starts inside the AABB.
 	tNear = (tmin >= 0.0f) ? tmin : tmax;
 
+	//Utils::Print(std::to_string(tmin));
+	//Utils::Print(std::to_string(tmax));
+
 	return tmin <= tmax;
 }
 //=============================================================================================
@@ -66,9 +69,12 @@ Item* RayCaster::CastRay(const Ray& ray, const std::map<std::string, std::unique
 		float tNear;	//This variable will be modified dynamically from within IntersectAABB
 		if (IntersectsAABB(ray, item.second->GetAABB(), tNear))		//Returns true if ray intersects aabb
 		{
+			//Utils::Print(item.second->GetName());
+			//Utils::Print(std::to_string(tNear));
 			if (tNear < closestT)
 			{	
 				closestT = tNear;
+				//Utils::Print(item.second->GetName());
 				closest = item.second.get();	
 			}
 		}

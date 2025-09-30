@@ -15,8 +15,10 @@
 #include"Passes/SSAO.h"
 #include"Passes/LightingPass.h"
 #include"Passes/IDPass.h"
+#include"Passes/PostProcessingPass.h"
 #include"../Engine/Scene.h"
 #include"../Core/Utils.h"
+
 
 //Renderer class knows how to render objects in the scene, manages framebuffers and render passes
 class Renderer
@@ -33,11 +35,12 @@ private:
 	GLuint renderTex;
 
 	//Passes
-	ShadowPass		shadowPass;
-	GeometryPass	geometryPass;
-	SSAOPass		ssaoPass;
-	LightingPass	lightingPass;
-	IDPass			idPass;
+	ShadowPass			shadowPass;
+	GeometryPass		geometryPass;
+	SSAOPass			ssaoPass;
+	LightingPass		lightingPass;
+	IDPass				idPass;
+	PostProcessingPass	postPass;
 
 	//Initialization
 	void Init();
@@ -54,9 +57,16 @@ public:
 	//Public methods
 	void Draw(Scene& scene);
 
+	//Setters
+	void				SetSelectColor(glm::vec3 color)		{ postPass.selectionColor = color; }
+	void				SetSelectThickness(float size)		{ postPass.selectionThickness = size; }
+
 	//Getters
-	const GLuint		GetTexture() const	{ return renderTex; }
-	SSAOPass&			GetSSAOPass()		{ return ssaoPass; }
-	const IDPass&		GetIDPass() const	{ return idPass; }
+	const GLuint		GetTexture() const			{ return renderTex; }
+	SSAOPass&			GetSSAOPass()				{ return ssaoPass; }
+	const IDPass&		GetIDPass() const			{ return idPass; }
+	const GLuint		GetPostProcessed() const	{ return postPass.GetTexture(); }
+	const glm::vec3		GetSelectColor() const		{ return postPass.selectionColor; }	//pass by value
+	const float			GetSelectThicness() const	{ return postPass.selectionThickness; }	//pass by value
 };
 

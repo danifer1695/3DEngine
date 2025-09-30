@@ -149,6 +149,10 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 	int windowWidth = 800 + 400;
 	bool setSSAO = renderer.GetSSAOPass().GetEnabled();
 
+	//select tool values
+	glm::vec3 selectColor = renderer.GetSelectColor();
+	float selectThicness = renderer.GetSelectThicness();
+
 	ImGuiIO& io = ImGui::GetIO();
 
 	//Set window parameters
@@ -172,6 +176,16 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 
 	if (ImGui::Checkbox("ID pass", &renderIDpass))
 		renderIDpass != renderIDpass;
+
+	//Rendering
+	ImGui::Separator();
+	ImGui::Text("Selection Tool");
+
+	if(ImGui::ColorEdit3("Color", glm::value_ptr(selectColor), ImGuiColorEditFlags_NoInputs))
+		renderer.SetSelectColor(selectColor);
+
+	if(ImGui::DragFloat("Thickness", &selectThicness, 0.1f, 2.0f, 10.0f, "%.3f"))
+		renderer.SetSelectThickness(selectThicness);
 
 	ImGui::End();
 }
@@ -225,7 +239,11 @@ void ImGuiLayer::RenderViewport(Scene& scene, const GLuint& texture, unsigned in
 		if (Item* hit = raycaster.CastRay(ray, scene.GetItemCollection()))
 		{
 			Utils::Print("Picked: " + hit->GetName());
+			std::cout << "Clicked at (" << relativeMouseX << ", " << relativeMouseY << ")" << std::endl;
+			
+			scene.SetSelectedItem(hit);
 		}
+		else scene.SetSelectedItem(nullptr);
 	}
 
 	ImGui::End();
@@ -455,7 +473,7 @@ void ImGuiLayer::RenderItemTab(Scene& scene)
 void ImGuiLayer::Render(Scene& scene, Renderer& renderer, unsigned int viewPortWidth, unsigned int viewPortHeight, unsigned int screenWidth, unsigned int screenHeight)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	GLuint texture = renderer.GetTexture();
+	GLuint texture = renderer.GetPostProcessed();
 	if (renderIDpass) texture = renderer.GetIDPass().GetTexture();
 
 	BeginFrame();

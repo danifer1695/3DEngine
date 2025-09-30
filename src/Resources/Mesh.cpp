@@ -5,7 +5,8 @@
 //================================================================
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, 
-		   std::vector<Texture> textures)
+		   std::vector<Texture> textures, RenderType renderType)
+	:renderType {renderType}
 {
 	this->vertices = vertices;
 	this->indices = indices;
@@ -47,7 +48,9 @@ void Mesh::setupMesh() {
 // Draw()
 //================================================================
 
-void Mesh::Draw() {
+void Mesh::Draw(RenderType rendering) {
+
+	renderType = rendering;
 
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
@@ -61,7 +64,11 @@ void Mesh::Draw() {
 
 	//draw mesh
 	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	if(renderType == TRIANGLES)		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	else if(renderType == LINE)		glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
+	else							glDrawElements(GL_POINTS, indices.size(), GL_UNSIGNED_INT, 0);
+
+	renderType = TRIANGLES;
 	glBindVertexArray(0);
 }
 
@@ -122,7 +129,7 @@ void Mesh::Draw(std::shared_ptr<Shader> shader) {
 //GetVertexPositions
 //=============================================================================================
 
-const std::vector<glm::vec3>& Mesh::GetVertexPositions() const
+const std::vector<glm::vec3> Mesh::GetVertexPositions() const
 {
 	std::vector<glm::vec3> result;
 

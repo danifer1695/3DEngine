@@ -24,6 +24,13 @@ struct Texture {
 	std::string path;
 };
 
+enum RenderType
+{
+	LINE,
+	TRIANGLES,
+	POINT
+};
+
 class Mesh
 {
 private:
@@ -38,14 +45,19 @@ public:
 	std::vector<unsigned int>	indices;
 	std::vector<Texture>		textures;
 
-	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+	RenderType renderType;
+	Mesh(
+		std::vector<Vertex> vertices, 
+		std::vector<unsigned int> indices, 
+		std::vector<Texture> textures, 
+		RenderType rendertype = TRIANGLES);
 
-	void Draw();
+	void Draw(RenderType rendering = TRIANGLES);
 	void Draw(Shader& shader);
 	void Draw(std::shared_ptr<Shader> shader);
 
 	//getters
 	unsigned int					get_VAO() const { return VAO; }
-	const std::vector<glm::vec3>&	GetVertexPositions() const;
+	const std::vector<glm::vec3>	GetVertexPositions() const;
 };
 

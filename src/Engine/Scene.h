@@ -47,6 +47,7 @@ private:
 	std::vector<Camera> cameras;
 
 	Camera* activeCamera = nullptr;
+	Item* selectedItem = nullptr;
 	std::unique_ptr<Skybox> skybox;
 
 	//Lights
@@ -82,6 +83,7 @@ public:
 	void SetCameraRotation(glm::vec2 delta){activeCamera->process_mouse_movement(delta);}
 	void SetCameraMovement(Camera_Movement direction, float dt) { activeCamera->process_keyboard(direction, dt); }
 	void SetCameraSprint(bool isSprinting) { activeCamera->is_sprinting(isSprinting); }
+	void SetSelectedItem(Item* newSelection) { selectedItem = newSelection; }
 
 	//Methods
 	void CreateLight(LightType type);
@@ -98,6 +100,7 @@ public:
 	const auto&			GetModelCollection() const		{ return models; }
 	glm::mat4			GetProjectionMatrix() const		{ return projection; }
     const Camera*		GetCamera() const				{ return activeCamera; }
+	Item*				GetSelectedItem()				{ return selectedItem; }
 	Skybox*				GetSkybox()	const				{ return skybox.get(); }
 	const float			GetFarPlane() const				{ return far_plane; }
 	const float			GetNearPlane() const			{ return near_plane; }
