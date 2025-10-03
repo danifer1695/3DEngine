@@ -39,12 +39,14 @@ void Scene::Init()
 
 	//initialize textures
 	ImportTexture("Default",		"./assets/textures/Default_Texture.png", false);
+	ImportTexture("Default_Normal",	"./assets/textures/Default_Normal.png", false);
 	ImportTexture("grey_diff",		"./assets/textures/grey_diffuse.png", false);
 	ImportTexture("test01_diff",	"./assets/textures/test_diffuse.png", false);
 	ImportTexture("test01_spec",	"./assets/textures/test_specular.png", false);
+	ImportTexture("test01_normal",	"./assets/textures/test_normal.png", false);
 	
 	//initialize materials
-	ImportMaterialBlinn("blinn", "./shaders/Blinn/blinn.vs", "./shaders/Blinn/blinn.fs", textures2D["test01_diff"], textures2D["test01_spec"]);
+	ImportMaterialBlinn("blinn", "./shaders/Blinn/blinn.vs", "./shaders/Blinn/blinn.fs", textures2D["test01_diff"], textures2D["test01_spec"], textures2D["test01_normal"]);
 	ImportMaterialBlinn("grey", "./shaders/Blinn/blinn.vs", "./shaders/Blinn/blinn.fs", textures2D["grey_diff"], textures2D["grey_diff"]);
 
 	//initialize items
@@ -115,14 +117,15 @@ void Scene::ImportMaterialBlinn(std::string name, const char* vshaderPath, const
 }
 
 //overloaded method with texture map arguments
-void Scene::ImportMaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath, unsigned int diffuse_map, unsigned int specular_map)
+void Scene::ImportMaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath, unsigned int diffuse_map, unsigned int specular_map, unsigned int normal_map)
 {
 	//we check for duplicates
 	if (materials.find(name) == materials.end())
-		materials[name] = std::make_shared<MaterialBlinn>(name, vshaderPath, fshaderPath, diffuse_map, specular_map);
+		materials[name] = std::make_shared<MaterialBlinn>(name, vshaderPath, fshaderPath, diffuse_map, specular_map, normal_map);
 	else
 		std::cout << "SCENE::IMPORT_MATERIAL::WARNING: Material with name " << name << " already exists!" << std::endl;
 }
+
 //=============================================================================================
 //ImportTexture()
 //=============================================================================================

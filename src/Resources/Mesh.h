@@ -49,10 +49,9 @@ public:
 	Mesh(
 		std::vector<Vertex> vertices, 
 		std::vector<unsigned int> indices, 
-		std::vector<Texture> textures, 
-		RenderType rendertype = TRIANGLES);
+		std::vector<Texture> textures);
 
-	void Draw(RenderType rendering = TRIANGLES);
+	void Draw();
 	void Draw(Shader& shader);
 	void Draw(std::shared_ptr<Shader> shader);
 

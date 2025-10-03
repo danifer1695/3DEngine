@@ -8,9 +8,11 @@ private:
 	//Textures
 	unsigned int diffuse_map = 0;
 	unsigned int specular_map = 0;
+	unsigned int normal_map = 0;
 
 	unsigned int diffuseTexUnit = 0;
 	unsigned int specularTexUnit = 1;
+	unsigned int normalTexUnit = 2;
 
 	float shininess = 16.0f;
 
@@ -21,7 +23,8 @@ public:
 		const char* vshaderPath, 
 		const char* fshaderPath, 
 		unsigned int diffuseMap,
-		unsigned int specularMap);
+		unsigned int specularMap, 
+		unsigned int normalMap = 0);
 
 	//Destructors
 
@@ -35,10 +38,10 @@ public:
 
 	//Methods
 	virtual void bind() const override;
-	virtual void useMaterial(const glm::mat4& model, 
-							 const glm::mat4& projection, 
-							 const glm::mat4& view, 
-							 const glm::vec3& camPos) override;
+	virtual void useMaterial(const glm::mat4& model,
+		const glm::mat4& projection,
+		const glm::mat4& view,
+		const glm::vec3& camPos) override {};
 	void getError(std::string) const;
 };
 

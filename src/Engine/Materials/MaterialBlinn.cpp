@@ -6,18 +6,20 @@
 MaterialBlinn::MaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath)
 	:Material(name, MATERIAL_NONPBR, vshaderPath, fshaderPath)
 {
-	baseShader->use();
-	baseShader->setInt("diffuseMap", diffuseTexUnit);
-	baseShader->setInt("specularMap", specularTexUnit);
-
 	getError("CONSTRUCTOR");
 }
 
-MaterialBlinn::MaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath, unsigned int diffuseMap, unsigned int specularMap)
+MaterialBlinn::MaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath, unsigned int diffuseMap, unsigned int specularMap, unsigned int normalMap)
 	:MaterialBlinn(name, vshaderPath, fshaderPath)
 {
 	diffuse_map = diffuseMap;
 	specular_map = specularMap;
+
+	if (normalMap == 0)
+		useNormalMap = false;
+	else
+		normal_map = normalMap;
+
 	getError("CONSTRUCTOR::WITH_TEXTURES");
 }
 
@@ -30,24 +32,11 @@ void MaterialBlinn::bind() const
 	glBindTexture(GL_TEXTURE_2D, diffuse_map);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, specular_map);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, normal_map);
+
 
 	getError("BIND");
-}
-//===============================================================================================
-//useMaterial
-//===============================================================================================
-
-void MaterialBlinn::useMaterial(const glm::mat4& model, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& camPos)
-{
-	baseShader->use();
-
-	baseShader->setMatrix4("model", model);
-	baseShader->setMatrix4("projection", projection);
-	baseShader->setMatrix4("view", view);
-	baseShader->setVector3("viewPos", camPos);
-	getError("UNIFORM_SETUP");
-
-	bind();
 }
 //=============================================================================================
 //getError()

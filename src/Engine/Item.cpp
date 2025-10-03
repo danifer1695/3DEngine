@@ -40,5 +40,7 @@ void Item::sendToShader(const Shader& shader)
 	//naming convention should be "diffuseMap" and "specularMap";
 	shader.setInt("diffuseMap", 0);
 	shader.setInt("specularMap", 1);
+	shader.setInt("normalMap", 2);
+	shader.setBool("useNormalMap", material->GetUseNormalMap());
 	shader.setMatrix4("model", transform.GetModelMatrix());
 }

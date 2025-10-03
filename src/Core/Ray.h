@@ -25,9 +25,6 @@ public:
 	//Constructor
 	Ray(const glm::vec3& origin, const glm::vec3& direction);
 
-	//Methods
-	void Cast();
-
 	//Getters
 	const glm::vec3 GetOrigin() const		{ return origin; }
 	const glm::vec3 GetDiretion() const		{ return direction; }

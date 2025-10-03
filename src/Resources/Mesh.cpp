@@ -5,8 +5,7 @@
 //================================================================
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, 
-		   std::vector<Texture> textures, RenderType renderType)
-	:renderType {renderType}
+		   std::vector<Texture> textures)
 {
 	this->vertices = vertices;
 	this->indices = indices;
@@ -40,17 +39,17 @@ void Mesh::setupMesh() {
 	//vertex texture coords
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+	//vertex tangents
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
 
 	glBindVertexArray(0);
 }
-
 //================================================================
 // Draw()
 //================================================================
 
-void Mesh::Draw(RenderType rendering) {
-
-	renderType = rendering;
+void Mesh::Draw() {
 
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
@@ -64,11 +63,7 @@ void Mesh::Draw(RenderType rendering) {
 
 	//draw mesh
 	glBindVertexArray(VAO);
-	if(renderType == TRIANGLES)		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	else if(renderType == LINE)		glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
-	else							glDrawElements(GL_POINTS, indices.size(), GL_UNSIGNED_INT, 0);
-
-	renderType = TRIANGLES;
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 

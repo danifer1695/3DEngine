@@ -29,6 +29,8 @@ protected:
 	std::string name;
 	MaterialType type;
 
+	bool useNormalMap = true;
+
 	//Shader
 	std::shared_ptr<Shader> baseShader;			//Display shader
 
@@ -59,8 +61,9 @@ public:
 	const std::string		GetName() const	{ return name; }
 
 	//NPBR getters
-	virtual unsigned int getDiffuse()	{ return 0; };	
-	virtual unsigned int getSpecular()	{ return 0; };
+	virtual unsigned int	getDiffuse()		{ return 0; };	
+	virtual unsigned int	getSpecular()		{ return 0; };
+	virtual bool			GetUseNormalMap()	{ return useNormalMap; }
 };
 
 

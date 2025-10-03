@@ -60,11 +60,12 @@ private:
 	//Utilities
 	void ImportModel(std::string name, const char* path);
 	void ImportMaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath);
-	void ImportMaterialBlinn(std::string name, 
+	void ImportMaterialBlinn(std::string name,		//With normals
 		const char* vshaderPath, 
 		const char* fshaderPath, 
 		unsigned int diffuse_map, 
-		unsigned int specular_map);
+		unsigned int specular_map,
+		unsigned int normal_map = 0);
 	void ImportTexture(std::string name, const char* path, bool gamma_correct);
 	void getError(std::string location);
 

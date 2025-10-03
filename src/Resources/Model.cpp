@@ -13,10 +13,10 @@ Model::Model(const char* path)
 // Draw()
 //================================================================
 
-void Model::Draw(RenderType rendering)
+void Model::Draw()
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].Draw(rendering);
+		meshes[i].Draw();
 }
 
 void Model::Draw(Shader& shader)
@@ -53,7 +53,8 @@ void Model::loadModel(std::string path)
 	//RadFile's first argument is the file path to load the model from.
 	//Second argument are post processing options
 	const aiScene* scene = importer.ReadFile(path, 
-		aiProcess_Triangulate | aiProcess_CalcTangentSpace);
+		aiProcess_Triangulate | 
+		aiProcess_CalcTangentSpace);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;

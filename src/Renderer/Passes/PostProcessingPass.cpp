@@ -78,25 +78,21 @@ void PostProcessingPass::RenderItemSelection(Scene& scene)
 
 	//Render outline object where stencil != 1
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-	glStencilMask(0x00);
-	glDisable(GL_DEPTH_TEST); // ensure outline shows
+	glStencilMask(0x00);		//Turn off stencil writing
+	glDisable(GL_DEPTH_TEST);	// ensure outline shows
 
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(-3.5f, -3.5f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //Render in wireframe mode
-	glLineWidth(selectionThickness);	//wireframe lines set to x
+	glEnable(GL_POLYGON_OFFSET_LINE);
+	glPolygonOffset(-1.5f, -1.5f);				//Shift polygons forward to avoing z-fighting
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	//Render in wireframe mode
+	glLineWidth(selectionThickness);			//wireframe lines set to x
 
-	outlineShader->use();
-	outlineShader->setMatrix4("model", selectedObject.transform.GetModelMatrix());
-	outlineShader->setMatrix4("view", scene.GetCamera()->get_view_matrix());
-	outlineShader->setMatrix4("projection", scene.GetProjectionMatrix());
+	//Draw item again, normally this time
 	outlineShader->setVector3("selectColor", selectionColor);
 	selectedObject.getModel()->Draw();
 
 	//restore state
 	glEnable(GL_DEPTH_TEST);
 	glStencilMask(0xFF);
-	glCullFace(GL_BACK);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glLineWidth(1.0f);
