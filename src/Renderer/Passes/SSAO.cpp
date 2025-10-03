@@ -31,7 +31,7 @@ void SSAOPass::SetupShaders()
 
 	ssaoShader->use();
 	ssaoShader->setBool("ssaoEnabled", ssaoEnabled);
-	ssaoShader->setInt("gPosition", 0);
+	ssaoShader->setInt("gDepth", 0);
 	ssaoShader->setInt("gNormal", 1);
 	ssaoShader->setInt("texNoise", 2);
 	ssaoShader->setInt("sampleNr", sampleNr);
@@ -163,10 +163,11 @@ void SSAOPass::GenerateSSAOTex(const Scene& scene, const GBuffer& gBuffer)
 	for (unsigned int i = 0; i < sampleNr; ++i)
 		ssaoShader->setVector3("samples[" + std::to_string(i) + "]", kernel[i]);
 	ssaoShader->setMatrix4("projection", scene.GetProjectionMatrix());
+	ssaoShader->setMatrix4("invProjection", glm::inverse(scene.GetProjectionMatrix()));
 
 	//Bind textures
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gBuffer.GetGPositionTex());
+	glBindTexture(GL_TEXTURE_2D, gBuffer.GetGDepthTex());
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, gBuffer.GetGNormalTex());
 	glActiveTexture(GL_TEXTURE2);

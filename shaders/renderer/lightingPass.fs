@@ -4,7 +4,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 //We take in the information output by the gbuffer (geometry pass)
-uniform sampler2D gPosition;					//check: set
+uniform sampler2D gDepth;						//check: set
 uniform sampler2D gNormal;						//check: set
 uniform sampler2D gAlbedoSpec;					//check: set
 uniform sampler2D AOMap;						//check: set
@@ -19,6 +19,7 @@ uniform float materialShininess;				//check: set
 uniform float farPlane;							//check: set
 uniform mat4 viewMatrix;						//check: set
 uniform mat4 inverseViewMatrix;					//check: set
+uniform mat4 inverseProjMatrix;					//check: set
 	
 //Light info
 struct PointLight
@@ -114,6 +115,21 @@ int DynamicSampling(vec3 FragPos)
 	int sampleCount = int(mix(maxSamples, minSamples, t));
 
 	return sampleCount;
+}
+
+vec3 reconstructPosition(float depth)
+{
+	//NDC coordinates
+	vec3 ndc;
+	ndc.xy = TexCoords * 2.0 - 1.0;
+	ndc.z = depth * 2.0 - 1.0;
+
+	//Return to view space
+	vec4 clipPos = vec4(ndc, 1.0);
+	vec4 viewPos = inverseProjMatrix * clipPos;
+	viewPos /= viewPos.w;
+
+	return viewPos.xyz;
 }
 
 float PointShadowCalculation(PointLight light, int lightIndex, vec3 FragPos, vec3 fragPosWorld)
@@ -295,10 +311,9 @@ void main()
 {
 	//1 - Early depth reject
 	//----------------------
-	vec3 FragPos = texture(gPosition, TexCoords).rgb;
-	float Depth = FragPos.z;
-	//discard fragments that are at depth 1.0 or beyond
-	if(Depth == 0)
+	float Depth = texture(gDepth, TexCoords).r;
+	vec3 FragPos = reconstructPosition(Depth);
+	if(Depth == 1.0)
 		discard;
 
 	//2 - Fetch G-Buffer

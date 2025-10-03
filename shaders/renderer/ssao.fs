@@ -5,7 +5,7 @@ in vec2 TexCoords;
 
 uniform bool ssaoEnabled;		//check: set
 
-uniform sampler2D gPosition;
+uniform sampler2D gDepth;
 uniform sampler2D gNormal;
 uniform sampler2D texNoise;		//4x4 noise texture generated in the SSAO class
 
@@ -20,6 +20,9 @@ uniform float screenHeight;		//check: set
 vec2 noiseScale;
 
 uniform mat4 projection;
+uniform mat4 invProjection;		//check: set
+
+
 
 int DynamicSampling(vec3 FragPos)
 {
@@ -39,23 +42,31 @@ int DynamicSampling(vec3 FragPos)
 	return sampleCount;
 }
 
+vec3 reconstructPosition(vec2 uv, float depth)
+{
+	vec4 clipPos = vec4(uv * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
+	vec4 viewPos = invProjection * clipPos;
+	viewPos /= viewPos.w;
+
+	return viewPos.xyz;
+}
+
 void main()
 {
 	//early fragment discard
 	if(!ssaoEnabled) discard;
 
-	vec3 fragPos =	texture(gPosition, TexCoords).xyz;	//gbuffer sends infor in view
-	if(fragPos.z == 0.0) discard;						//fragments with no geometry in it will return a depth of 0.0
+	float depth = texture(gDepth, TexCoords).r;	//gbuffer sends infor in view
+	if(depth >= 1.0) discard;					//fragments with no geometry in it will return a depth of 0.0
+
+	vec3 fragPos = reconstructPosition(TexCoords, depth);
 
 	//setup noiseScale vector
 	noiseScale = vec2(screenWidth/4.0, screenHeight/4.0);	//noise texture is 4x4 in size
-
-	//get gbuffer data
-	vec3 normal =	normalize(texture(gNormal, TexCoords).rgb);
-
 	vec3 randomVec = normalize(texture(texNoise, TexCoords * noiseScale).xyz);
 
 	//tangent space to view space matrix (for the kernel info)
+	vec3 normal =	normalize(texture(gNormal, TexCoords).rgb);
 	vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
 	vec3 bitangent = cross(normal, tangent);
 	mat3 TBN = mat3(tangent, bitangent, normal);
@@ -80,18 +91,18 @@ void main()
 		offset.xyz = offset.xyz * 0.5 + 0.5;	//Map from clip space [-1,1] to texture coordinates [0,1].
 
 		//sample depth
-		float sampleDepth = texture(gPosition, offset.xy).z;		//world space coordinates of the sampled offset fragment
+		float sampleDepth = texture(gDepth, offset.xy).r;		//world space coordinates of the sampled offset fragment
+		vec3 sampleViewPos = reconstructPosition(offset.xy, sampleDepth);	//cant use depth directly, need view space distances
 
 		//chech range of samples so that fragments that are too far behind dont affect AO
-		float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+		float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleViewPos.z));
 		//if the sampled depth value is larger than the fragment's we add 1 to the occlusion value.
         //if the conditional statement returns 1, its value will be interpolated based on its distance
         //(further away depths will have their impact minimized)
-		occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;
+		occlusion += (sampleViewPos.z >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;
 	}
 
 	//average results
 	occlusion = 1.0 - (occlusion / float(count));
-
 	FragColor = occlusion;
 }

@@ -28,7 +28,7 @@ void LightingPass::Initialize()
 
 	//Texture Unit Assignment
 	//Texture units 0-2 reserved for G-buffer
-	lightPassShader->setInt("gPosition",		0);
+	lightPassShader->setInt("gDepth",			0);
 	lightPassShader->setInt("gNormal",			1);
 	lightPassShader->setInt("gAlbedoSpec",		2);
 	//Texture units 3 for AO
@@ -57,12 +57,13 @@ void LightingPass::Render(Scene& scene, const GBuffer& gBuffer, const GLuint& ss
 	lightPassShader->setFloat("farPlane",				scene.GetFarPlane());
 	lightPassShader->setFloat("materialShininess",		16.0f);
 	lightPassShader->setMatrix4("inverseViewMatrix",	glm::inverse(scene.GetCamera()->get_view_matrix()));
+	lightPassShader->setMatrix4("inverseProjMatrix",	glm::inverse(scene.GetProjectionMatrix()));
 	lightPassShader->setMatrix4("viewMatrix",			scene.GetCamera()->get_view_matrix());
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::UNIFORM_SETUP");
 
 	//bind all gbuffer textures
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gBuffer.GetGPositionTex());
+	glBindTexture(GL_TEXTURE_2D, gBuffer.GetGDepthTex());
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, gBuffer.GetGNormalTex());
 	glActiveTexture(GL_TEXTURE2);
