@@ -29,7 +29,7 @@ void LightingPass::Initialize()
 	//Texture Unit Assignment
 	//Texture units 0-2 reserved for G-buffer
 	lightPassShader->setInt("gDepth",			0);
-	lightPassShader->setInt("gNormal",			1);
+	lightPassShader->setInt("gNormal",			1);		//Glossiness included in 'a' channel
 	lightPassShader->setInt("gAlbedoSpec",		2);
 	//Texture units 3 for AO
 	lightPassShader->setInt("AOMap",			3);

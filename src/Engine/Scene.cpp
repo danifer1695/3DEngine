@@ -44,13 +44,18 @@ void Scene::Init()
 	ImportTexture("test01_diff",	"./assets/textures/test_diffuse.png", false);
 	ImportTexture("test01_spec",	"./assets/textures/test_specular.png", false);
 	ImportTexture("test01_normal",	"./assets/textures/test_normal.png", false);
+
+	ImportTexture("metal_diff",		"./assets/textures/metal/albedo.png", false);
+	ImportTexture("metal_spec",		"./assets/textures/metal/metallic.png", false);
+	ImportTexture("metal_normal",	"./assets/textures/metal/normal.png", false);
 	
 	//initialize materials
 	ImportMaterialBlinn("blinn", "./shaders/Blinn/blinn.vs", "./shaders/Blinn/blinn.fs", textures2D["test01_diff"], textures2D["test01_spec"], textures2D["test01_normal"]);
+	ImportMaterialBlinn("metal", "./shaders/Blinn/blinn.vs", "./shaders/Blinn/blinn.fs", textures2D["metal_diff"], textures2D["metal_spec"], textures2D["metal_normal"], textures2D["metal_spec"]);
 	ImportMaterialBlinn("grey", "./shaders/Blinn/blinn.vs", "./shaders/Blinn/blinn.fs", textures2D["grey_diff"], textures2D["grey_diff"]);
 
 	//initialize items
-	items["sphere"] = std::make_unique<Item>("Sphere", models["sphere"], materials["blinn"], glm::vec3(2.0f, 0.0f, 2.0f));
+	items["sphere"] = std::make_unique<Item>("Sphere", models["sphere"], materials["metal"], glm::vec3(2.0f, 0.0f, 2.0f));
 	items["cube"] = std::make_unique<Item>("Cube", models["cube"], materials["blinn"], glm::vec3(1.0f, 0.0f, -2.0f));
 	items["cone"] = std::make_unique<Item>("Cone", models["cone"], materials["blinn"], glm::vec3(-1.0f, 0.0f, 0.0f));
 	items["plane"] = std::make_unique<Item>("Plane", models["plane"], materials["grey"], glm::vec3(0.0f, 0.0f, 0.0f));
@@ -60,9 +65,9 @@ void Scene::Init()
 	//initialize lights
 
 	CreateLight(POINT_LIGHT);
-	GetPointLightCollection().at(0)->transform.Translate(glm::vec3(0.0f, 4.0f, 0.0f));
+	GetPointLightCollection().at(0)->transform.Translate(glm::vec3(0.0f, 10.0f, 0.0f));
 	GetPointLightCollection().at(0)->SetCastShadows(true);
-	GetPointLightCollection().at(0)->SetIntensity(20.0f);
+	GetPointLightCollection().at(0)->SetIntensity(50.0f);
 
 	getError("INIT");
 }
@@ -117,11 +122,18 @@ void Scene::ImportMaterialBlinn(std::string name, const char* vshaderPath, const
 }
 
 //overloaded method with texture map arguments
-void Scene::ImportMaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath, unsigned int diffuse_map, unsigned int specular_map, unsigned int normal_map)
+void Scene::ImportMaterialBlinn(
+	std::string name, 
+	const char* vshaderPath, 
+	const char* fshaderPath, 
+	unsigned int diffuse_map, 
+	unsigned int specular_map, 
+	unsigned int normal_map,
+	unsigned int glossiness_map)
 {
 	//we check for duplicates
 	if (materials.find(name) == materials.end())
-		materials[name] = std::make_shared<MaterialBlinn>(name, vshaderPath, fshaderPath, diffuse_map, specular_map, normal_map);
+		materials[name] = std::make_shared<MaterialBlinn>(name, vshaderPath, fshaderPath, diffuse_map, specular_map, normal_map, glossiness_map);
 	else
 		std::cout << "SCENE::IMPORT_MATERIAL::WARNING: Material with name " << name << " already exists!" << std::endl;
 }

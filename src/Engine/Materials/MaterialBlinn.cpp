@@ -9,16 +9,23 @@ MaterialBlinn::MaterialBlinn(std::string name, const char* vshaderPath, const ch
 	getError("CONSTRUCTOR");
 }
 
-MaterialBlinn::MaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath, unsigned int diffuseMap, unsigned int specularMap, unsigned int normalMap)
+MaterialBlinn::MaterialBlinn(
+	std::string name, 
+	const char* vshaderPath, 
+	const char* fshaderPath, 
+	unsigned int diffuseMap, 
+	unsigned int specularMap, 
+	unsigned int normalMap,
+	unsigned int glossinessMap)
 	:MaterialBlinn(name, vshaderPath, fshaderPath)
 {
 	diffuse_map = diffuseMap;
 	specular_map = specularMap;
 
-	if (normalMap == 0)
-		useNormalMap = false;
-	else
-		normal_map = normalMap;
+	//Has normal map?
+	normalMap == 0		? useNormalMap = false		: normal_map = normalMap;
+	//Has glossiness map?
+	glossinessMap == 0	? useGlossinessMap = false	: glossiness_map = glossinessMap;
 
 	getError("CONSTRUCTOR::WITH_TEXTURES");
 }
@@ -34,9 +41,24 @@ void MaterialBlinn::bind() const
 	glBindTexture(GL_TEXTURE_2D, specular_map);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, normal_map);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, glossiness_map);
 
 
 	getError("BIND");
+}
+//=============================================================================================
+//getError()
+//=============================================================================================
+
+void MaterialBlinn::SendToShader(const Shader& shader)
+{
+	shader.setInt("diffuseMap", 0);
+	shader.setInt("specularMap", 1);
+	shader.setInt("normalMap", 2);
+	shader.setInt("glossinessMap", 3);
+	shader.setBool("useNormalMap", useNormalMap);
+	shader.setBool("useGlossinessMap", useGlossinessMap);
 }
 //=============================================================================================
 //getError()

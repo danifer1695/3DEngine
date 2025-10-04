@@ -65,7 +65,8 @@ private:
 		const char* fshaderPath, 
 		unsigned int diffuse_map, 
 		unsigned int specular_map,
-		unsigned int normal_map = 0);
+		unsigned int normal_map = 0,
+		unsigned int glossiness_map = 0);
 	void ImportTexture(std::string name, const char* path, bool gamma_correct);
 	void getError(std::string location);
 

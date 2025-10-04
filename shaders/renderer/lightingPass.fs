@@ -245,7 +245,7 @@ float GetAttenuation(float dist, float radius)
 	return smoothFactor / (d * d);
 }
 
-vec3 Lighting_PointLight(PointLight light, int lightIndex, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
+vec3 Lighting_PointLight(PointLight light, int lightIndex, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular, float Glossiness)
 {
 	//discard lights that are not active
 	if(!light.isActive) return vec3(0.0);
@@ -264,7 +264,7 @@ vec3 Lighting_PointLight(PointLight light, int lightIndex, vec3 FragPos, vec3 fr
 	//specular
 	vec3 H = normalize(lightDir + viewDir);		//halfway dir vector
 	float NdotH = max(dot(Normal, H), 0.0);
-	float spec = pow(NdotH, max(1.0, materialShininess)) * Specular;
+	float spec = pow(NdotH, max(1.0, Glossiness)) * Specular;
 	vec3 specular = light.Color * spec;
 
 	//shadows
@@ -279,7 +279,7 @@ vec3 Lighting_PointLight(PointLight light, int lightIndex, vec3 FragPos, vec3 fr
 	return lighting;
 }
 
-vec3 Lighting_DirLight(DirectionalLight light, int lightIndex, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular)
+vec3 Lighting_DirLight(DirectionalLight light, int lightIndex, vec3 FragPos, vec3 fragPosWorld, vec3 Normal, vec3 Diffuse, float Specular, float Glossiness)
 {
 	//discard lights that are not active
 	if(!light.isActive) return vec3(0.0);
@@ -293,7 +293,7 @@ vec3 Lighting_DirLight(DirectionalLight light, int lightIndex, vec3 FragPos, vec
 	//specular
 	vec3 H = normalize(light.Direction + viewDir);		//halfway dir vector
 	float NdotH = max(dot(Normal, H), 0.0);
-	float spec = pow(NdotH, max(1.0, materialShininess)) * Specular;
+	float spec = pow(NdotH, max(1.0, Glossiness)) * Specular;
 	vec3 specular = light.Color * spec;
 
 	//shadows
@@ -319,9 +319,10 @@ void main()
 	//2 - Fetch G-Buffer
 	//---------------------
 	vec3 Normal = normalize(texture(gNormal, TexCoords).rgb);
-	vec3 Diffuse =			texture(gAlbedoSpec, TexCoords).rgb;
-	float Specular =		texture(gAlbedoSpec, TexCoords).a;
-	float AO =				1.0f;
+	vec3 Diffuse			= texture(gAlbedoSpec, TexCoords).rgb;
+	float Specular			= texture(gAlbedoSpec, TexCoords).a;
+	float Glossiness		= texture(gNormal, TexCoords).a * 256.0;
+	float AO				= 1.0f;
 
 	if(ssaoEnabled) AO = texture(AOMap, TexCoords).r;
 
@@ -357,14 +358,14 @@ void main()
 	for(int i = 0; i < count; ++i)
 	{
 		if(numberOfPointLights == 0) break;
-		lighting += Lighting_PointLight(pointLights[i], i, FragPos, fragPosWorld, Normal, Diffuse, Specular);
+		lighting += Lighting_PointLight(pointLights[i], i, FragPos, fragPosWorld, Normal, Diffuse, Specular, Glossiness);
 	}
 
 	count = min(numberOfDirLights, MAX_DIR_LIGHTS);	
 	for(int i = 0; i < count; ++i)
 	{
 		if(numberOfDirLights == 0) break;
-		lighting += Lighting_DirLight(dirLights[i], i, FragPos, fragPosWorld, Normal, Diffuse, Specular);
+		lighting += Lighting_DirLight(dirLights[i], i, FragPos, fragPosWorld, Normal, Diffuse, Specular, Glossiness);
 	}
 
 	FragColor = vec4(lighting, 1.0);

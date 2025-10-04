@@ -29,8 +29,6 @@ protected:
 	std::string name;
 	MaterialType type;
 
-	bool useNormalMap = true;
-
 	//Shader
 	std::shared_ptr<Shader> baseShader;			//Display shader
 
@@ -49,6 +47,7 @@ public:
 	void setView(const glm::mat4& view)				 { baseShader->use(); baseShader->setMatrix4("view", view); }
 
 	virtual void bind() const = 0;
+	virtual void SendToShader(const Shader& shader) = 0;
 	virtual void useMaterial(const glm::mat4& model,
 		const glm::mat4& projection,
 		const glm::mat4& view,
@@ -63,7 +62,6 @@ public:
 	//NPBR getters
 	virtual unsigned int	getDiffuse()		{ return 0; };	
 	virtual unsigned int	getSpecular()		{ return 0; };
-	virtual bool			GetUseNormalMap()	{ return useNormalMap; }
 };
 
 

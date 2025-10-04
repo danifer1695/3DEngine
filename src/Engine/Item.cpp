@@ -38,9 +38,6 @@ void Item::Draw(glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec3 camPos)
 void Item::sendToShader(const Shader& shader)
 {
 	//naming convention should be "diffuseMap" and "specularMap";
-	shader.setInt("diffuseMap", 0);
-	shader.setInt("specularMap", 1);
-	shader.setInt("normalMap", 2);
-	shader.setBool("useNormalMap", material->GetUseNormalMap());
+	material->SendToShader(shader);
 	shader.setMatrix4("model", transform.GetModelMatrix());
 }
