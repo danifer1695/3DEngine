@@ -31,13 +31,14 @@ void LightingPass::Initialize()
 	lightPassShader->setInt("gDepth",			0);
 	lightPassShader->setInt("gNormal",			1);		//Glossiness included in 'a' channel
 	lightPassShader->setInt("gAlbedoSpec",		2);
+	lightPassShader->setInt("gEmissive",		3);
 	//Texture units 3 for AO
-	lightPassShader->setInt("AOMap",			3);
+	lightPassShader->setInt("AOMap",			4);
 	//Texture units 4 for IBL
-	lightPassShader->setInt("irradianceMap",	4);
+	lightPassShader->setInt("irradianceMap",	5);
 	//Texture units 5-beyond for shadow maps
-	lightPassShader->setInt("dirShadowArray",	5);
-	lightPassShader->setInt("pointShadowArray", 6);
+	lightPassShader->setInt("dirShadowArray",	6);
+	lightPassShader->setInt("pointShadowArray", 7);
 
 	Utils::getOpenGLError("LIGHTINGPASS::SHADER_CONFIG::UNIFORM_SETTINGS");
 }
@@ -55,7 +56,7 @@ void LightingPass::Render(Scene& scene, const GBuffer& gBuffer, const GLuint& ss
 	lightPassShader->setInt("numberOfDirLights",		scene.GetDirLightCollection().size());
 	lightPassShader->setInt("numberOfSpotLights",		0);			//***NEEDS UPDATING WHEN IMPLEMENTING SPOTLIGHTS***
 	lightPassShader->setFloat("farPlane",				scene.GetFarPlane());
-	lightPassShader->setFloat("materialShininess",		16.0f);
+	lightPassShader->setFloat("emissiveIntensity",		1.0f);
 	lightPassShader->setMatrix4("inverseViewMatrix",	glm::inverse(scene.GetCamera()->get_view_matrix()));
 	lightPassShader->setMatrix4("inverseProjMatrix",	glm::inverse(scene.GetProjectionMatrix()));
 	lightPassShader->setMatrix4("viewMatrix",			scene.GetCamera()->get_view_matrix());
@@ -69,12 +70,14 @@ void LightingPass::Render(Scene& scene, const GBuffer& gBuffer, const GLuint& ss
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, gBuffer.GetGAlbedoSpecTex());
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, ssaoTex);
+	glBindTexture(GL_TEXTURE_2D, gBuffer.GetGEmissiveTex());
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, scene.GetSkybox()->GetIrradianceMap());
+	glBindTexture(GL_TEXTURE_2D, ssaoTex);
 	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, dirShadowArray);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, scene.GetSkybox()->GetIrradianceMap());
 	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, dirShadowArray);
+	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, pointShadowArray);
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::TEX_BINDING");
 

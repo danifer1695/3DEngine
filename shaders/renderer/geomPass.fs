@@ -2,6 +2,7 @@
 //we export this data to the g-buffer's multiple color attachments we set up
 layout (location = 0) out vec4 gNormal;		//RGB - Normal, A - Glossiness
 layout (location = 1) out vec4 gAlbedoSpec;	//RGB - Albedo, A - Specular
+layout (location = 2) out vec4 gEmissive;	//RGB - Emissive, A - 
 
 in vec2 TexCoords;
 in vec3 FragPos;
@@ -14,9 +15,11 @@ uniform sampler2D diffuseMap;
 uniform sampler2D specularMap;
 uniform sampler2D normalMap;
 uniform sampler2D glossinessMap;
+uniform sampler2D emissiveMap;
 
 uniform bool useNormalMap;
 uniform bool useGlossinessMap;
+uniform bool useEmissiveMap;
 
 void main()
 {
@@ -45,6 +48,10 @@ void main()
 	//Has Glossiness Map?
 	if(useGlossinessMap) gNormal.a = texture(glossinessMap, TexCoords).r;
 	else gNormal.a = 0.1f;
+
+	//Has Emissive Map?
+	if(useEmissiveMap) gEmissive.rgb = texture(emissiveMap, TexCoords).rgb;
+	else gEmissive.rgb = vec3(0.0);
 
 	gAlbedoSpec.rgb = texture(diffuseMap, TexCoords).rgb;
 	gAlbedoSpec.a = texture(specularMap, TexCoords).r;

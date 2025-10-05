@@ -56,9 +56,18 @@ void GBuffer::Init()
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gAlbedoSpec, 0);
 	Utils::getOpenGLError("GBUFFERPASS::INIT::ALBEDOSPEC_BUFFER");
 
+	//gEmissive (emissive (RGB) + AO (A) data buffer texture) - 8 bit precision
+	glGenTextures(1, &gEmissive);
+	glBindTexture(GL_TEXTURE_2D, gEmissive);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth, screenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gEmissive, 0);
+	Utils::getOpenGLError("GBUFFERPASS::INIT::ALBEDOSPEC_BUFFER");
+
 	//we tell OpenGL to which color attachments to draw
-	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-	glDrawBuffers(2, attachments);
+	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
+	glDrawBuffers(3, attachments);
 	Utils::getOpenGLError("GBUFFERPASS::INIT::COLOR_ATTACHMENTS");
 
 	//check if framebuffer is complete

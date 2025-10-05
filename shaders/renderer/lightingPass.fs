@@ -7,6 +7,7 @@ in vec2 TexCoords;
 uniform sampler2D gDepth;						//check: set
 uniform sampler2D gNormal;						//check: set
 uniform sampler2D gAlbedoSpec;					//check: set
+uniform sampler2D gEmissive;					//check: set
 uniform sampler2D AOMap;						//check: set
 
 //Environment
@@ -15,7 +16,7 @@ uniform bool ssaoEnabled;						//check: set
 uniform samplerCube irradianceMap;				//check: set
 
 //Camera & Material
-uniform float materialShininess;				//check: set
+uniform float emissiveIntensity;				//check: set
 uniform float farPlane;							//check: set
 uniform mat4 viewMatrix;						//check: set
 uniform mat4 inverseViewMatrix;					//check: set
@@ -320,6 +321,7 @@ void main()
 	//---------------------
 	vec3 Normal = normalize(texture(gNormal, TexCoords).rgb);
 	vec3 Diffuse			= texture(gAlbedoSpec, TexCoords).rgb;
+	vec3 Emissiveness		= texture(gEmissive, TexCoords).rgb;
 	float Specular			= texture(gAlbedoSpec, TexCoords).a;
 	float Glossiness		= texture(gNormal, TexCoords).a * 256.0;
 	float AO				= 1.0f;
@@ -367,6 +369,9 @@ void main()
 		if(numberOfDirLights == 0) break;
 		lighting += Lighting_DirLight(dirLights[i], i, FragPos, fragPosWorld, Normal, Diffuse, Specular, Glossiness);
 	}
+
+	//Emissiveness
+	lighting += Emissiveness;
 
 	FragColor = vec4(lighting, 1.0);
 }

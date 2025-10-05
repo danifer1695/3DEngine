@@ -19,6 +19,7 @@ private:
 	GLuint gDepth;
 	GLuint gNormal;
 	GLuint gAlbedoSpec;
+	GLuint gEmissive;
 
 	//Initialization
 	void Init();
@@ -36,5 +37,6 @@ public:
 	const GLuint GetGDepthTex() const		{ return gDepth; }
 	const GLuint GetGNormalTex() const		{ return gNormal; }
 	const GLuint GetGAlbedoSpecTex() const	{ return gAlbedoSpec; }
+	const GLuint GetGEmissiveTex() const	{ return gEmissive; }
 };
 
