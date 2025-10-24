@@ -17,6 +17,7 @@
 #include "Lights/DirectionalLight.h"
 #include "../Resources/Skybox.h"
 #include "../Resources/ResourceManager.h"
+#include "../Resources/ModelLoader.h"
 
 #define REVIT_DIRLIGHT std::vector<std::shared_ptr<DirectionalLight>>::reverse_iterator
 #define REVIT_POINTLIGHT std::vector<std::shared_ptr<PointLight>>::reverse_iterator
@@ -39,8 +40,6 @@ private:
 
 	//Asset libraries
 	std::map<std::string, std::shared_ptr<Model>> models;		//collection of models
-	std::map<std::string, std::shared_ptr<Material>> materials;	//collection of materials
-	std::map<std::string, unsigned int> textures2D;
 
 	//Game Objects
 	std::map<std::string, std::unique_ptr<Item>> items;			//collection of items (model + material)
@@ -57,18 +56,8 @@ private:
 	//Initializing
 	void Init();
 
-	//Utilities
-	void ImportModel(std::string name, const char* path);
-	void ImportMaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath);
-	void ImportMaterialBlinn(std::string name,		//With normals
-		const char* vshaderPath, 
-		const char* fshaderPath, 
-		unsigned int diffuse_map, 
-		unsigned int specular_map,
-		unsigned int normal_map = 0,
-		unsigned int glossiness_map = 0,
-		unsigned int emissive_map = 0);
-	void ImportTexture(std::string name, const char* path, bool gamma_correct);
+	////Utilities
+	//void ImportModel(std::string name, const char* path);
 	void getError(std::string location);
 
 public:
@@ -99,8 +88,8 @@ public:
 	const auto&			GetItemCollection() const		{ return items; }
 	auto&				GetDirLightCollection() 		{ return dirLights; }
 	auto&				GetPointLightCollection() 		{ return pointLights; }
-	const auto&			GetMaterialCollection() const	{ return materials; }
-	const auto&			GetModelCollection() const		{ return models; }
+	const auto&			GetMaterialCollection() const	{ return ResourceManager::Get().GetMaterialCollection(); }
+	const auto&			GetModelCollection() const		{ return ResourceManager::Get().GetModelCollection(); }
 	glm::mat4			GetProjectionMatrix() const		{ return projection; }
     const Camera*		GetCamera() const				{ return activeCamera; }
 	Item*				GetSelectedItem()				{ return selectedItem; }
@@ -108,6 +97,6 @@ public:
 	const float			GetFarPlane() const				{ return far_plane; }
 	const float			GetNearPlane() const			{ return near_plane; }
 
-	const unsigned int	GetTexture(std::string name) const;
+	const GLuint	GetTexture(std::string name) const;
 };
 

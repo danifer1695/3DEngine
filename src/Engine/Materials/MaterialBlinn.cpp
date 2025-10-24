@@ -3,22 +3,26 @@
 //===============================================================================================
 //Constructors
 //===============================================================================================
-MaterialBlinn::MaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath)
-	:Material(name, MATERIAL_NONPBR, vshaderPath, fshaderPath)
+MaterialBlinn::MaterialBlinn(std::string name)
+	:Material(name, MATERIAL_NONPBR)
+{
+	getError("CONSTRUCTOR");
+}
+
+MaterialBlinn::MaterialBlinn(std::string name, Model& model)
+	:Material(name, MATERIAL_NONPBR)
 {
 	getError("CONSTRUCTOR");
 }
 
 MaterialBlinn::MaterialBlinn(
 	std::string name, 
-	const char* vshaderPath, 
-	const char* fshaderPath, 
 	unsigned int diffuseMap, 
 	unsigned int specularMap, 
 	unsigned int normalMap,
 	unsigned int glossinessMap,
 	unsigned int emissiveMap)
-	:MaterialBlinn(name, vshaderPath, fshaderPath)
+	:MaterialBlinn(name)
 {
 	diffuse_map = diffuseMap;
 	specular_map = specularMap;

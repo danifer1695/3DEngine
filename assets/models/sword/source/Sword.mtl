@@ -1,2 +1,13 @@
 # Blender 4.4.3 MTL File: 'None'
 # www.blender.org
+
+newmtl Material.001
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Users/danif/Documents/3DEngineCPP/LearnOpenGL/First_Project/Showcase_Project_06_Deferred_Lighting/assets/models/sword/textures/albedo.png
+map_Ns C:/Users/danif/Documents/3DEngineCPP/LearnOpenGL/First_Project/Showcase_Project_06_Deferred_Lighting/assets/models/sword/textures/roughness.png
+map_Ke C:/Users/danif/Documents/3DEngineCPP/LearnOpenGL/First_Project/Showcase_Project_06_Deferred_Lighting/assets/models/sword/textures/emissive.png
+map_Bump -bm 1.000000 C:/Users/danif/Documents/3DEngineCPP/LearnOpenGL/First_Project/Showcase_Project_06_Deferred_Lighting/assets/models/sword/textures/normal.png

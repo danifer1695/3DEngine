@@ -106,15 +106,15 @@ void MaterialPBR::InitShaders()
 	this->brdfShader = std::make_unique<Shader>("PBR_BRDF", BRDF_SHADER_VS, BRDF_SHADER_FS);
 
 	//configure shader
-	baseShader->use();
-	baseShader->setInt("irradianceMap", 0);			//***ATTENTION TO THESE***
-	baseShader->setInt("prefilterMap", 1);
-	baseShader->setInt("brdfLUT", 2);
-	baseShader->setInt("albedoMap", 3);
-	baseShader->setInt("normalMap", 4);
-	baseShader->setInt("metallicMap", 5);
-	baseShader->setInt("roughnessMap", 6);
-	baseShader->setInt("aoMap", 7);
+	//baseShader->use();
+	//baseShader->setInt("irradianceMap", 0);			//***ATTENTION TO THESE***
+	//baseShader->setInt("prefilterMap", 1);
+	//baseShader->setInt("brdfLUT", 2);
+	//baseShader->setInt("albedoMap", 3);
+	//baseShader->setInt("normalMap", 4);
+	//baseShader->setInt("metallicMap", 5);
+	//baseShader->setInt("roughnessMap", 6);
+	//baseShader->setInt("aoMap", 7);
 }
 //===============================================================================================
 //SetupEnvironmentCubemap
@@ -367,9 +367,9 @@ void MaterialPBR::bind() const
 
 void MaterialPBR::useMaterial(const glm::mat4& model, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& camPos)
 {
-	setMatrices(model, projection, view);
+	/*setMatrices(model, projection, view);
 	baseShader->setMatrix3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-	baseShader->setVector3("camPos", camPos);
+	baseShader->setVector3("camPos", camPos);*/
 	bind();
 }
 //===============================================================================================

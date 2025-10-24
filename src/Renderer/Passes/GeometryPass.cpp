@@ -43,7 +43,8 @@ void GeometryPass::Render(const Scene& scene, const GBuffer& gBuffer)
 	{
 		//set texture map uniform values to those of the current item's material
 		item.second->sendToShader(*geomPassShader);
-		item.second->Draw(projection, view, camPos);
+		//NEEDS TO CHANGE TO PER-MESH
+		item.second->Draw(projection, view, *geomPassShader.get());
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

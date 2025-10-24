@@ -59,7 +59,7 @@ private:
 	void SetupBRDFlut();
 
 	//Helpers
-	void bind() const override;
+	void bind() const;
 
 	//Primitives
 	void renderCube();
@@ -80,7 +80,7 @@ public:
 	~MaterialPBR();
 
 	//Methods
-	void useMaterial(const glm::mat4& model, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& camPos) override;
+	void useMaterial(const glm::mat4& model, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& camPos);
 
 	//Debugging
 	GLuint GetBRDFtexture() { return brdfLUT; }

@@ -17,6 +17,16 @@ uniform sampler2D normalMap;
 uniform sampler2D glossinessMap;
 uniform sampler2D emissiveMap;
 
+//non-texture colors
+uniform vec3	diffuseColor;
+uniform float	specularColor;
+uniform vec3	normalColor;
+uniform vec3	emissiveColor;
+uniform float	glossinessColor;
+
+//texture map check
+uniform bool useDiffuseMap;
+uniform bool useSpecularMap;
 uniform bool useNormalMap;
 uniform bool useGlossinessMap;
 uniform bool useEmissiveMap;
@@ -46,13 +56,14 @@ void main()
 	}
 
 	//Has Glossiness Map?
-	if(useGlossinessMap) gNormal.a = texture(glossinessMap, TexCoords).r;
-	else gNormal.a = 0.1f;
+	useGlossinessMap ? gNormal.a = texture(glossinessMap, TexCoords).r : gNormal.a = glossinessColor;
 
 	//Has Emissive Map?
-	if(useEmissiveMap) gEmissive.rgb = texture(emissiveMap, TexCoords).rgb;
-	else gEmissive.rgb = vec3(0.0);
+	useEmissiveMap ? gEmissive.rgb = texture(emissiveMap, TexCoords).rgb : gEmissive.rgb = emissiveColor;
 
-	gAlbedoSpec.rgb = texture(diffuseMap, TexCoords).rgb;
-	gAlbedoSpec.a = texture(specularMap, TexCoords).r;
+	//Has Diffuse Map?
+	useDiffuseMap ? gAlbedoSpec.rgb = texture(diffuseMap, TexCoords).rgb : gAlbedoSpec.rgb = diffuseColor;
+
+	//Has Specular Map?
+	useSpecularMap ? gAlbedoSpec.a = texture(specularMap, TexCoords).r : gAlbedoSpec.a = specularColor;
 }

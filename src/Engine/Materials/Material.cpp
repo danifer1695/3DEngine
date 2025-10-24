@@ -5,17 +5,12 @@
 //===============================================================================================
 
 Material::Material(std::string name, MaterialType type)
-	:name{ name } 
+	:name{ name }, type{type}
 {
-	//create shader
-	this->baseShader = std::make_shared<Shader>("MATERIAL_BASE", BASE_SHADER_VS, BASE_SHADER_FS);
 }
-
-Material::Material(std::string name, MaterialType type, const char* vshaderPath, const char* fshaderPath)
-	:name{name}
+Material::Material(std::string name, MaterialType type, MapPackage textures, ColorPackage colors)
+	:name{ name }, type{ type }, textures{textures}, colors{colors}
 {
-	//create shader
-	this->baseShader = std::make_shared<Shader>("MATERIAL_BASE", vshaderPath, fshaderPath);
 }
 //===============================================================================================
 //Destructor
@@ -25,42 +20,67 @@ Material::~Material()
 {
 	//clean up 
 }
-//===============================================================================================
-//SetMatrices
-//===============================================================================================
-
-void Material::setMatrices(const glm::mat4& model, const glm::mat4& projection, const glm::mat4& view)
-{
-	baseShader->use();
-	baseShader->setMatrix4("model", model); 
-	baseShader->setMatrix4("projection", projection); 
-	baseShader->setMatrix4("view", view); 
-
-}
-//===============================================================================================
-//useMaterial
-//===============================================================================================
-
-void Material::useMaterial(const glm::mat4& model, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& camPos)
-{
-	setMatrices(model, projection, view);
-	baseShader->setMatrix3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-	baseShader->setVector3("camPos", camPos);
-	bind();
-}
 //=============================================================================================
-//getError()
+//bind()
 //=============================================================================================
 
-void Material::getError(std::string location)
+void Material::bind()
 {
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-	{
-		std::cerr << "MATERIAL::" << location << "::OpenGL error: " << err;
-		if (err == 1280) std::cerr << " - GL_INVALID_ENUM.";
-		else if (err == 1286) std::cerr << " - Invalid Framebuffer Operation.";
-		else if (err == 1282) std::cerr << " - GL_INVALID_OPERATION.";
-		std::cout << std::endl;
+	if (textures.DiffuseMaps.empty())		useDiffuseMap = false;		else useDiffuseMap = true;
+	if (textures.SpecularMaps.empty())		useSpecularMap = false;		else useSpecularMap = true;
+	if (textures.NormalMaps.empty())		useNormalMap = false;		else useNormalMap = true;
+	if (textures.EmissiveMaps.empty())		useEmissiveMap = false;		else useEmissiveMap = true;
+	if (textures.GlossinessMaps.empty())	useGlossinessMap = false;	else useGlossinessMap = true;
+
+	try {
+
+		glActiveTexture(GL_TEXTURE0);
+		if (useDiffuseMap) glBindTexture(GL_TEXTURE_2D, textures.DiffuseMaps.at(0));
+
+		glActiveTexture(GL_TEXTURE1);
+		if (useSpecularMap) glBindTexture(GL_TEXTURE_2D, textures.SpecularMaps.at(0));
+
+		glActiveTexture(GL_TEXTURE2);
+		if (useNormalMap) glBindTexture(GL_TEXTURE_2D, textures.NormalMaps.at(0));
+
+		glActiveTexture(GL_TEXTURE3);
+		if (useGlossinessMap) glBindTexture(GL_TEXTURE_2D, textures.GlossinessMaps.at(0));
+
+		glActiveTexture(GL_TEXTURE4);
+		if (useEmissiveMap) glBindTexture(GL_TEXTURE_2D, textures.EmissiveMaps.at(0));
 	}
+	catch (std::exception& e)
+	{
+		std::cout << "MATERIAL::BIND::ERROR - " << e.what() << std::endl;
+	}
+
+	Utils::getOpenGLError("BIND");
+	
+}
+//=============================================================================================
+//SendToShader()
+//=============================================================================================
+
+void Material::SendToShader(const Shader& shader)
+{
+	//texture maps
+	shader.setInt("diffuseMap", 0);
+	shader.setInt("specularMap", 1);
+	shader.setInt("normalMap", 2);
+	shader.setInt("glossinessMap", 3);
+	shader.setInt("emissiveMap", 4);
+
+	//non-texture colors
+	shader.setVector3("diffuseColor",	colors.diffuseColor);
+	shader.setFloat("specularColor",	colors.specularColor);
+	shader.setVector3("normalColor",	colors.normalColor);
+	shader.setVector3("emissiveColor",	colors.emissiveColor);
+	shader.setFloat("glossinessColor",	colors.glossinessColor);
+
+	//texture map checks
+	shader.setBool("useDiffuseMap",		useDiffuseMap);
+	shader.setBool("useSpecularMap",	useSpecularMap);
+	shader.setBool("useNormalMap",		useNormalMap);
+	shader.setBool("useGlossinessMap",	useGlossinessMap);
+	shader.setBool("useEmissiveMap",	useEmissiveMap);
 }

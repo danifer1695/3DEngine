@@ -122,11 +122,11 @@ void ImGuiLayer::RenderAssetsPanel(Scene& scene, unsigned int screenWidth, unsig
 	{
 		//MATERIALS TAB
 		//----------
-		if (ImGui::BeginTabItem("Materials"))
+		/*if (ImGui::BeginTabItem("Materials"))
 		{
 			RenderMaterialsTab(scene);
 			ImGui::EndTabItem();
-		}
+		}*/
 		//MODELS TAB
 		//---------
 		if (ImGui::BeginTabItem("Models"))
@@ -255,26 +255,26 @@ void ImGuiLayer::RenderViewport(Scene& scene, const GLuint& texture, unsigned in
 
 void ImGuiLayer::RenderMaterialsTab(Scene& scene)
 {
-	int i = 0;
-	ImGui::NewLine();
-	for (auto& material : scene.GetMaterialCollection())
-	{
-		ImGui::SameLine();
-		ImGui::PushID(i);	//Unique ID per item
-		
-		//Little thumbnail displaying texture.
-		//eventually to be replaced with a small render of sphere with material on
-		ImTextureID imguiTexID = (ImTextureID)(intptr_t)material.second->getDiffuse();
-		ImGui::ImageButton(material.second->GetName().c_str(),
-			imguiTexID,
-			ImVec2(64.0f, 64.0f),
-			ImVec2(0, 1),
-			ImVec2(1, 0));
-		ImGui::SetItemTooltip(material.second->GetName().c_str());
-		
-		ImGui::PopID();
-		i++;
-	}
+	//int i = 0;
+	//ImGui::NewLine();
+	//for (auto& item : scene.GetItemCollection())
+	//{
+	//	ImGui::SameLine();
+	//	ImGui::PushID(i);	//Unique ID per item
+	//	
+	//	//Little thumbnail displaying texture.
+	//	//eventually to be replaced with a small render of sphere with material on
+	//	ImTextureID imguiTexID = (ImTextureID)(intptr_t)item.second->getDiffuse();
+	//	ImGui::ImageButton(item.second->GetName().c_str(),
+	//		imguiTexID,
+	//		ImVec2(64.0f, 64.0f),
+	//		ImVec2(0, 1),
+	//		ImVec2(1, 0));
+	//	ImGui::SetItemTooltip(item.second->GetName().c_str());
+	//	
+	//	ImGui::PopID();
+	//	i++;
+	//}
 }
 //=============================================================================================
 //RenderModelsTab()

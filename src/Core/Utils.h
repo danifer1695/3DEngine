@@ -48,6 +48,7 @@ namespace Utils
 
 		return dist(engine);
 	}
+
 	//OpenGL
 	//-----------------------------------------------------------------------------------------------
 	inline void getOpenGLError(std::string location)
@@ -61,6 +62,8 @@ namespace Utils
 			else if (err == 1282) std::cerr << " - GL_INVALID_OPERATION.";
 			std::cout << std::endl;
 		}
+
+
 	}
 
 	//Logging

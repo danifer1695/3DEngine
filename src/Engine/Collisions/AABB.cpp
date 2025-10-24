@@ -9,6 +9,8 @@ void AABB::Initialize(std::shared_ptr<Model> model)
 	glm::vec3 tempMin(std::numeric_limits<float>::max());
 	glm::vec3 tempMax(std::numeric_limits<float>::lowest());
 
+	if (model == nullptr) throw std::exception("AABB::INIT::ERROR - Null Model pointer");
+
 	for (const auto& m : model->GetMeshes())
 	{
 		//GetVertexPositions returns a dynamically constructed vector that will 

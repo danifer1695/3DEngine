@@ -38,7 +38,7 @@ void GBuffer::Init()
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepth, 0);
 	Utils::getOpenGLError("GBUFFERPASS::INIT::DEPTH_BUFFER");
 
-	//gNormal (normal data buffer texture) - 16 bit precission
+	//gNormal (normal (RGB) + glossiness (A) data buffer texture) - 16 bit precission
 	glGenTextures(1, &gNormal);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, NULL);

@@ -130,10 +130,10 @@ void PostProcessingPass::Render(Scene& scene, GLuint idTex, GLuint renderTex)
 	//Unbind framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//Unbind textures
-	glActiveTexture(GL_TEXTURE0);
+	/*glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);*/
 
 	Utils::getOpenGLError("POSTPASS::RENDER");
 }
