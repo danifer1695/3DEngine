@@ -4,7 +4,7 @@ Multi-pass 3D engine using OpenGL
 Please note
 -----------
 - Program's entry point is Project_06.cpp
-- This repository is for display purposes only, it has not been optimized to be ran on any foreign machines.
+- This repository is a work in progress, and thus it has not been optimized to be ran on any foreign machines.
 
 Libraries used
 --------------
