@@ -20,11 +20,20 @@
 #include"../Core/Utils.h"
 
 
+enum RenderState
+{
+	RENDER_LIGHT,
+	RENDER_ID
+};
+
 //Renderer class knows how to render objects in the scene, manages framebuffers and render passes
 class Renderer
 {
 private:
 	unsigned int screenWidth, screenHeight;
+
+	//State
+	RenderState state = RENDER_LIGHT;
 
 	//Buffers
 	GBuffer gBuffer;
@@ -58,8 +67,9 @@ public:
 	void Draw(Scene& scene);
 
 	//Setters
-	void				SetSelectColor(glm::vec3 color)		{ postPass.selectionColor = color; }
-	void				SetSelectThickness(float size)		{ postPass.selectionThickness = size; }
+	void				SetSelectColor(glm::vec3 color)			{ postPass.selectionColor = color; }
+	void				SetSelectThickness(float size)			{ postPass.selectionThickness = size; }
+	void				SetRenderState(RenderState newState)	{ state = newState; }
 
 	//Getters
 	const GLuint		GetTexture() const			{ return renderTex; }

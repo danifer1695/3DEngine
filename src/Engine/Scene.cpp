@@ -31,15 +31,15 @@ void Scene::Init()
 	projection = glm::perspective(glm::radians(activeCamera->zoom), (float)sceneWidth / (float)sceneHeight, near_plane, far_plane);
 
 	//initialize textures
-	ResourceManager::Get().ImportTexture("Default",			DEFAULT,	"./assets/textures/Default_Texture_Black.png", false);
+	Utils::Print("SCENE::IMPORTING_DEFAULT_TEXTURE");
+	ResourceManager::Get().ImportTexture("Default",	DEFAULT, "./assets/textures/Default_Texture_Black.png", false);
 
 	//initialize models
-	ModelLoader::Get().ImportModel("Scene", "./assets/scenes/breakfast_room/breakfast_room.obj");
+	ModelLoader::Get().loadModel("Scene", "./assets/scenes/breakfast_room/breakfast_room.obj");
 	
 	try {
 
-		items["Scene"] = std::make_unique<Item>("Scene", 
-			ResourceManager::Get().GetModel("Scene"));
+		items.push_back(Item("Scene", ResourceManager::Get().GetModelHandle("Scene")));
 	}
 	catch (std::exception& e)
 	{
@@ -49,19 +49,11 @@ void Scene::Init()
 	//initialize lights
 
 	CreateLight(POINT_LIGHT);
-	GetPointLightCollection().at(0)->transform.Translate(glm::vec3(0.0f, 10.0f, 0.0f));
+	GetPointLightCollection().at(0)->transform.Translate(glm::vec3(0.0f, 3.0f, 0.0f));
 	GetPointLightCollection().at(0)->SetCastShadows(true);
-	GetPointLightCollection().at(0)->SetIntensity(50.0f);
+	GetPointLightCollection().at(0)->SetIntensity(10.0f);
 
-	getError("INIT");
-}
-//===============================================================================================
-// GetTexture();
-//===============================================================================================
-
-const GLuint Scene::GetTexture(std::string name) const
-{
-	return ResourceManager::Get().GetTexture(name).ID;
+	Utils::getOpenGLError("SCENE::INIT");
 }
 
 //===============================================================================================
@@ -71,20 +63,8 @@ void Scene::UpdateScene()
 {
 	//Update scene
 	projection = glm::perspective(glm::radians(activeCamera->zoom), (float)sceneWidth / (float)sceneHeight, near_plane, far_plane);;
-	getError("UPDATE_SCENE");
+	Utils::getOpenGLError("SCENE::UPDATE_SCENE");
 }
-
-//===============================================================================================
-// ImportModel();
-//===============================================================================================
-//void Scene::ImportModel(std::string name, const char* path)
-//{
-//	//we check for duplicates
-//	if (models.find(name) == models.end())
-//		models[name] = std::make_shared<Model>(path);
-//	else
-//		std::cout << "SCENE::IMPORT_MODEL::WARNING: Element with name " << name << " already exists!" << std::endl;
-//}
 
 //===============================================================================================
 // CreateLight();
@@ -153,18 +133,32 @@ std::vector<std::shared_ptr<Light>> Scene::GetLightCollection() const
 	return toReturn;
 }
 //=============================================================================================
-//getError()
+//GetItem()
 //=============================================================================================
 
-void Scene::getError(std::string location)
+Item* Scene::GetItem(const std::string& name)
 {
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
+	for (Item item : items)
 	{
-		std::cerr << "SCENE::" << location << "::OpenGL error: " << err;
-		if (err == 1280) std::cerr << " - GL_INVALID_ENUM.";
-		else if (err == 1286) std::cerr << " - Invalid Framebuffer Operation.";
-		else if (err == 1282) std::cerr << " - GL_INVALID_OPERATION.";
-		std::cout << std::endl;
+		if (item.GetName() == name)
+			return &item;
+	}
+
+	//return nullptr if nothing was found
+	return nullptr;
+}
+//=============================================================================================
+//UpdateCollisions()
+//=============================================================================================
+
+void Scene::UpdateCollisions()
+{
+	//We will iterate through all items and update their Colliders
+	for (auto& item : items)
+	{
+		if (item.transform.GetIsDirty())
+		{
+			item.GetAABB().Update(item.transform.GetModelMatrix());
+		}
 	}
 }

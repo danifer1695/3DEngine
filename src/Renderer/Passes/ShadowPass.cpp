@@ -105,7 +105,7 @@ void ShadowPass::Render(Scene& scene)
 	//Check Items
 	for (const auto& item : scene.GetItemCollection())
 	{
-		if (item.second->transform.GetIsDirty())
+		if (item.transform.GetIsDirty())
 		{
 			needsUpdate = true;
 			globalUpdate = true;
@@ -140,9 +140,9 @@ void ShadowPass::Render(Scene& scene)
 void ShadowPass::ResetDirtyFlags(Scene& scene)
 {
 	//Reset dirty flags
-	for (const auto& item : scene.GetItemCollection())
+	for (auto& item : scene.GetItemCollection())
 	{
-		item.second->transform.SetIsDirty(false);
+		item.transform.SetIsDirty(false);
 	}
 	for (const auto& light : scene.GetLightCollection())
 	{
@@ -215,9 +215,9 @@ void ShadowPass::CaptureDirShadows(Scene& scene, const size_t& lightIndex)
 
 	//Draw all items in the scene
 	std::cout << "Rendering Direct Shadows" << std::endl;
-	for (const auto& item : scene.GetItemCollection()) {
-		dirShadowShader->setMatrix4("model", item.second->transform.GetModelMatrix());
-		item.second->getModel()->Draw();
+	for (auto& item : scene.GetItemCollection()) {
+		dirShadowShader->setMatrix4("model", item.transform.GetModelMatrix());
+		ResourceManager::Get().GetModel(item.getModelHandle())->Draw();
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -269,11 +269,11 @@ void ShadowPass::CapturePointShadows(Scene& scene, const size_t& lightIndex, con
 		//pointShadowShader->setInt("lightIndex", lightIndex);
 
 		//Render all elements in the scene
-		for (const auto& item : scene.GetItemCollection()) 
+		for (auto& item : scene.GetItemCollection()) 
 		{
 			//Send matrices to shader and draw model
-			pointShadowShader->setMatrix4("model", item.second->transform.GetModelMatrix());
-			item.second->getModel()->Draw();
+			pointShadowShader->setMatrix4("model", item.transform.GetModelMatrix());
+			ResourceManager::Get().GetModel(item.getModelHandle())->Draw();
 		}
 	}
 	//Unbind framebuffer

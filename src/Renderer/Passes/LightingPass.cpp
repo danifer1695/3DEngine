@@ -52,8 +52,8 @@ void LightingPass::Render(Scene& scene, const GBuffer& gBuffer, const GLuint& ss
 
 	lightPassShader->use();
 	lightPassShader->setBool("ssaoEnabled",				ssaoEnabled);
-	lightPassShader->setInt("numberOfPointLights",		scene.GetPointLightCollection().size());
-	lightPassShader->setInt("numberOfDirLights",		scene.GetDirLightCollection().size());
+	lightPassShader->setInt("numberOfPointLights",		(int)scene.GetPointLightCollection().size());
+	lightPassShader->setInt("numberOfDirLights",		(int)scene.GetDirLightCollection().size());
 	lightPassShader->setInt("numberOfSpotLights",		0);			//***NEEDS UPDATING WHEN IMPLEMENTING SPOTLIGHTS***
 	lightPassShader->setFloat("farPlane",				scene.GetFarPlane());
 	lightPassShader->setFloat("emissiveIntensity",		1.0f);

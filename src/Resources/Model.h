@@ -18,7 +18,6 @@ private:
 	std::string name;
 	std::vector<Mesh> meshes;
 	std::string directory;
-	//std::vector<Texture> textures_loaded; //to make sure the same texture isnt loaded multiple times
 
 public:
 	//Constructor
@@ -30,6 +29,7 @@ public:
 	void Draw(Shader& shader, glm::mat4 projection, glm::mat4 view, glm::mat4 model = glm::mat4(1.0f));
 
 	//getters
-	const std::vector<Mesh>& GetMeshes() const;
+	const std::vector<Mesh>&	GetMeshes() const;
+	const std::string&			GetName()	const	{ return name; }
 };
 

@@ -57,7 +57,7 @@ bool RayCaster::IntersectsAABB(const Ray& ray, const AABB& aabb, float& tNear) c
 //CastRay
 //=============================================================================================
 
-Item* RayCaster::CastRay(const Ray& ray, const std::map<std::string, std::unique_ptr<Item>>& items)
+Item* RayCaster::CastRay(const Ray& ray, std::vector<Item>& items)
 {
 	//Cast against all objects
 
@@ -67,7 +67,7 @@ Item* RayCaster::CastRay(const Ray& ray, const std::map<std::string, std::unique
 	for (auto& item : items)
 	{
 		float tNear;	//This variable will be modified dynamically from within IntersectAABB
-		if (IntersectsAABB(ray, item.second->GetAABB(), tNear))		//Returns true if ray intersects aabb
+		if (IntersectsAABB(ray, item.GetAABB(), tNear))		//Returns true if ray intersects aabb
 		{
 			//Utils::Print(item.second->GetName());
 			//Utils::Print(std::to_string(tNear));
@@ -75,7 +75,7 @@ Item* RayCaster::CastRay(const Ray& ray, const std::map<std::string, std::unique
 			{	
 				closestT = tNear;
 				//Utils::Print(item.second->GetName());
-				closest = item.second.get();	
+				closest = &item;	
 			}
 		}
 	}

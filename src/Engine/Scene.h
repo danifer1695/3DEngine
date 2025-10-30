@@ -10,6 +10,7 @@
 #include<memory>
 #include<string>
 #include<map>
+#include<unordered_map>
 
 #include "Item.h"
 #include "Camera.h"
@@ -18,6 +19,7 @@
 #include "../Resources/Skybox.h"
 #include "../Resources/ResourceManager.h"
 #include "../Resources/ModelLoader.h"
+#include "../Core/Utils.h"
 
 #define REVIT_DIRLIGHT std::vector<std::shared_ptr<DirectionalLight>>::reverse_iterator
 #define REVIT_POINTLIGHT std::vector<std::shared_ptr<PointLight>>::reverse_iterator
@@ -42,7 +44,9 @@ private:
 	std::map<std::string, std::shared_ptr<Model>> models;		//collection of models
 
 	//Game Objects
-	std::map<std::string, std::unique_ptr<Item>> items;			//collection of items (model + material)
+	//std::map<std::string, std::unique_ptr<Item>> items;		//collection of items (model + material)
+	std::vector<Item> items;
+
 	std::vector<Camera> cameras;
 
 	Camera* activeCamera = nullptr;
@@ -55,10 +59,6 @@ private:
 
 	//Initializing
 	void Init();
-
-	////Utilities
-	//void ImportModel(std::string name, const char* path);
-	void getError(std::string location);
 
 public:
 	//Constructors
@@ -78,25 +78,24 @@ public:
 	void SetSelectedItem(Item* newSelection) { selectedItem = newSelection; }
 
 	//Methods
-	void CreateLight(LightType type);
+	void				CreateLight(LightType type);
 	REVIT_DIRLIGHT		RemoveDirLight		(REVIT_DIRLIGHT rit);		//returns a reverse iterator
 	REVIT_POINTLIGHT	RemovePointLight	(REVIT_POINTLIGHT rit);		//returns a reverse iterator
+	void				UpdateCollisions();
 	
 	std::vector<std::shared_ptr<Light>> GetLightCollection() const;		//Dynamically creates a vector of all lights of all types
 
 	//Getters
-	const auto&			GetItemCollection() const		{ return items; }
+	Item*				GetItem(const std::string& name);
+	auto&				GetItemCollection()				{ return items; }
 	auto&				GetDirLightCollection() 		{ return dirLights; }
 	auto&				GetPointLightCollection() 		{ return pointLights; }
 	const auto&			GetMaterialCollection() const	{ return ResourceManager::Get().GetMaterialCollection(); }
-	const auto&			GetModelCollection() const		{ return ResourceManager::Get().GetModelCollection(); }
 	glm::mat4			GetProjectionMatrix() const		{ return projection; }
     const Camera*		GetCamera() const				{ return activeCamera; }
 	Item*				GetSelectedItem()				{ return selectedItem; }
 	Skybox*				GetSkybox()	const				{ return skybox.get(); }
 	const float			GetFarPlane() const				{ return far_plane; }
 	const float			GetNearPlane() const			{ return near_plane; }
-
-	const GLuint	GetTexture(std::string name) const;
 };
 

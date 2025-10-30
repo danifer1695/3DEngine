@@ -4,7 +4,7 @@
 //Initialize()
 //===============================================================================================
 
-void AABB::Initialize(std::shared_ptr<Model> model)
+void AABB::Initialize(const Model* model)
 {
 	glm::vec3 tempMin(std::numeric_limits<float>::max());
 	glm::vec3 tempMax(std::numeric_limits<float>::lowest());

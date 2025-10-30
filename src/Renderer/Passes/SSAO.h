@@ -12,6 +12,7 @@
 #include"../GBuffer.h"
 #include"../../Engine/Scene.h"
 #include"../../Resources/Primitives/Quad.h"
+#include"../../Core/Utils.h"
 
 #define SSAO_VS			"./shaders/renderer/ssao.vs"
 #define SSAO_FS			"./shaders/renderer/ssao.fs"
@@ -34,9 +35,6 @@ private:
 	std::unique_ptr<Shader> ssaoBlurShader;
 
 	Quad screenQuad;
-
-	//private methods
-	void getError(std::string location);
 
 	//Initialization
 	void Init();

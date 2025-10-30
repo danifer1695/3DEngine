@@ -74,7 +74,7 @@ void PostProcessingPass::RenderItemSelection(Scene& scene)
 	outlineShader->setMatrix4("model", selectedObject.transform.GetModelMatrix());
 	outlineShader->setMatrix4("view", scene.GetCamera()->get_view_matrix());
 	outlineShader->setMatrix4("projection", scene.GetProjectionMatrix());
-	selectedObject.getModel()->Draw();
+	ResourceManager::Get().GetModel(selectedObject.getModelHandle())->Draw();
 
 	//Render outline object where stencil != 1
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -88,7 +88,7 @@ void PostProcessingPass::RenderItemSelection(Scene& scene)
 
 	//Draw item again, normally this time
 	outlineShader->setVector3("selectColor", selectionColor);
-	selectedObject.getModel()->Draw();
+	ResourceManager::Get().GetModel(selectedObject.getModelHandle())->Draw();
 
 	//restore state
 	glEnable(GL_DEPTH_TEST);
@@ -104,17 +104,14 @@ void PostProcessingPass::RenderItemSelection(Scene& scene)
 //SetupTexture
 //=============================================================================================
 
-void PostProcessingPass::Render(Scene& scene, GLuint idTex, GLuint renderTex)
+void PostProcessingPass::Render(Scene& scene, GLuint renderTex)
 {
 	postProcessingShader->use();
 
 	//Setup textures
-	postProcessingShader->setInt("idTex", 0);
-	postProcessingShader->setInt("renderTex", 1);
+	postProcessingShader->setInt("renderTex", 0);
 	postProcessingShader->setVector2("texelSize", glm::vec2(screenWidth, screenHeight));
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, idTex);
-	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, renderTex);
 
 
@@ -129,11 +126,6 @@ void PostProcessingPass::Render(Scene& scene, GLuint idTex, GLuint renderTex)
 
 	//Unbind framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//Unbind textures
-	/*glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, 0);*/
 
 	Utils::getOpenGLError("POSTPASS::RENDER");
 }

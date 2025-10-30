@@ -24,9 +24,8 @@ public:
 	static ModelLoader& Get();
 
 	//Methods
-	void					ImportModel(std::string name, const char* path);
 	void					processNode(aiNode* node, const aiScene* scene, std::string name, std::vector<Mesh>& meshes, std::string path);
-	Model					loadModel(std::string name, std::string path);
+	Handle					loadModel(std::string name, std::string path);
 	Mesh					processMesh(aiMesh* mesh, const aiScene* scene, std::string path);
 	std::vector<Texture>	LoadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType texType, std::string path);
 };

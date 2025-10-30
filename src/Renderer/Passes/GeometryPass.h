@@ -24,6 +24,6 @@ public:
 	GeometryPass(unsigned int screenWidth, unsigned int screenHeight);
 
 	//Render
-	void Render(const Scene& scene, const GBuffer& gBuffer);
+	void Render(Scene& scene, const GBuffer& gBuffer);
 };
 

@@ -15,7 +15,7 @@ GameObject::GameObject(std::string name, glm::vec3 position, glm::vec3 rotation,
 // processAABB()
 //================================================================
 
-void GameObject::InitializeAABB(std::shared_ptr<Model> model)
+void GameObject::InitializeAABB(const Model* model)
 {
 	aabb.Initialize(model);
 }

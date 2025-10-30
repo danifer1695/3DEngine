@@ -4,12 +4,12 @@
 //Constructor()
 //===============================================================================================
 
-Item::Item(std::string name, std::shared_ptr<Model> model, glm::vec3 worldPos)
-	:model{ model }, GameObject(name, worldPos) 
+Item::Item(std::string name, Handle handle, glm::vec3 worldPos)
+	:modelHandle{ handle }, GameObject(name, worldPos) 
 {
 	IDColor = glm::vec3(Utils::Randf(0.0f, 1.0f), Utils::Randf(0.0f, 1.0f), Utils::Randf(0.0f, 1.0f));
 
-	InitializeAABB(model);
+	InitializeAABB(ResourceManager::Get().GetModel(modelHandle));
 	aabb.Update(transform.GetModelMatrix());	//Need to call update to set up worldPos min and max	
 
 	Utils::getOpenGLError("ITEM::CONSTRUCTOR");
@@ -20,15 +20,7 @@ Item::Item(std::string name, std::shared_ptr<Model> model, glm::vec3 worldPos)
 //===============================================================================================
 void Item::Draw(glm::mat4 projectionMat, glm::mat4 viewMat, Shader& shader)
 {
-	//set shaders, bind textures
-	//material->useMaterial(transform.GetModelMatrix(), projectionMat, viewMat, camPos);
-	//material->bind();
-
-	//Utils::getOpenGLError("ITEM::DRAW::MATERIAL");
-
-	//draw geometry
-
-	model->Draw(shader, projectionMat, viewMat, transform.GetModelMatrix());
+	ResourceManager::Get().GetModel(modelHandle)->Draw(shader, projectionMat, viewMat, transform.GetModelMatrix());
 
 	Utils::getOpenGLError("ITEM::DRAW::MODEL");
 }
@@ -38,7 +30,5 @@ void Item::Draw(glm::mat4 projectionMat, glm::mat4 viewMat, Shader& shader)
 
 void Item::sendToShader(const Shader& shader)
 {
-	//naming convention should be "diffuseMap" and "specularMap";
-	//material->SendToShader(shader);
 	shader.setMatrix4("model", transform.GetModelMatrix());
 }

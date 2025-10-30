@@ -5,6 +5,7 @@
 #include"Ray.h"
 #include"../Engine/Item.h"
 #include"../Engine/Collisions/AABB.h"
+#include"../Resources/ResourceManager.h"
 
 class RayCaster
 {
@@ -14,6 +15,6 @@ private:
 
 public:
 	RayCaster() {};
-	Item* CastRay(const Ray& ray, const std::map<std::string, std::unique_ptr<Item>>& items);
+	Item* CastRay(const Ray& ray, std::vector<Item>& items);
 };
 

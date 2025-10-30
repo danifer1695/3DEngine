@@ -23,7 +23,7 @@ void GeometryPass::Initialize()
 //Render()
 //=============================================================================================
 
-void GeometryPass::Render(const Scene& scene, const GBuffer& gBuffer)
+void GeometryPass::Render(Scene& scene, const GBuffer& gBuffer)
 {
 	//Get transform matrices plus camera position
 	glm::mat4 projection = scene.GetProjectionMatrix();
@@ -39,12 +39,12 @@ void GeometryPass::Render(const Scene& scene, const GBuffer& gBuffer)
 	geomPassShader->setMatrix4("projection", projection);
 	geomPassShader->setMatrix4("view", view);
 
-	for (const auto& item : scene.GetItemCollection())
+	for (auto& item : scene.GetItemCollection())
 	{
 		//set texture map uniform values to those of the current item's material
-		item.second->sendToShader(*geomPassShader);
+		item.sendToShader(*geomPassShader);
 		//NEEDS TO CHANGE TO PER-MESH
-		item.second->Draw(projection, view, *geomPassShader.get());
+		item.Draw(projection, view, *geomPassShader.get());
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

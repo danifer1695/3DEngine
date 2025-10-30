@@ -35,7 +35,7 @@ public:
 	GameObject() :GameObject("default", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f)) {};
 
 	//Collisions
-	void InitializeAABB(std::shared_ptr<Model> model);
+	void InitializeAABB(const Model* model);
 
 	//Setters
 	void SetName(const std::string& newName) { name = newName; }

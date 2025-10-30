@@ -13,7 +13,9 @@ ImGuiLayer::ImGuiLayer(GLFWwindow* window)
 
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
+	ImGui_ImplOpenGL3_Init("#version 400");
+
+	InitHandles();
 
 }
 //=============================================================================================
@@ -31,8 +33,10 @@ ImGuiLayer::~ImGuiLayer()
 //Init()
 //=============================================================================================
 
-void ImGuiLayer::Init(GLFWwindow* window)
+void ImGuiLayer::InitHandles()
 {
+	Utils::Print("IMGUILAYER::INIT_HANDLES:: Handles initialized");
+	defaultTex = ResourceManager::Get().GetTextureHandle("Default");
 }
 //=============================================================================================
 //BeginFrame()
@@ -53,7 +57,9 @@ void ImGuiLayer::EndFrame()
 {
 	//ImGui render frame
 	ImGui::Render();
+	Utils::getOpenGLError("Test1");
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	Utils::getOpenGLError("Test2");
 }
 //=============================================================================================
 //RenderEntityPanel()
@@ -108,7 +114,7 @@ void ImGuiLayer::RenderAssetsPanel(Scene& scene, unsigned int screenWidth, unsig
 	ImGuiIO& io = ImGui::GetIO();
 
 	//Set window parameters
-	ImGui::SetNextWindowSize(ImVec2(screenWidth, panelHeight));
+	ImGui::SetNextWindowSize(ImVec2((float)screenWidth, (float)panelHeight));
 	ImGui::SetNextWindowPos(ImVec2(0, 600));
 
 	//Set window flags
@@ -156,7 +162,7 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 	ImGuiIO& io = ImGui::GetIO();
 
 	//Set window parameters
-	ImGui::SetNextWindowSize(ImVec2(screenWidth - windowWidth, 600));
+	ImGui::SetNextWindowSize(ImVec2((float)(screenWidth - windowWidth), 600.0f));
 	ImGui::SetNextWindowPos(ImVec2(windowWidth, 0));
 
 	//Set window flags
@@ -175,7 +181,9 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 		renderer.GetSSAOPass().SetEnabled(setSSAO);
 
 	if (ImGui::Checkbox("ID pass", &renderIDpass))
-		renderIDpass != renderIDpass;
+	if(renderIDpass) renderer.SetRenderState(RENDER_ID);
+	else renderer.SetRenderState(RENDER_LIGHT);
+	
 
 	//Rendering
 	ImGui::Separator();
@@ -284,20 +292,25 @@ void ImGuiLayer::RenderModelsTab(Scene& scene)
 {
 	int i = 0;
 	ImGui::NewLine();
-	for (auto& model : scene.GetModelCollection())
+
+	for (auto& handle : modelHandles)
 	{
+		Model* model = ResourceManager::Get().GetModel(handle);
+		if (!model) continue;
+
 		ImGui::SameLine();
 		ImGui::PushID(i);	//Unique ID per item
 
 		//Little thumbnail displaying texture.
 		//eventually to be replaced with a small render of sphere with material on
-		ImTextureID imguiTexID = (ImTextureID)(intptr_t)scene.GetTexture("Default");
-		ImGui::ImageButton(model.first.c_str(),
+		GLuint defaultTexture = ResourceManager::Get().GetTexture(defaultTex)->ID;
+		ImTextureID imguiTexID = (ImTextureID)(intptr_t)defaultTexture;
+		ImGui::ImageButton(model->GetName().c_str(),
 			imguiTexID,
 			ImVec2(64.0f, 64.0f),
 			ImVec2(0, 1),
 			ImVec2(1, 0));
-		ImGui::SetItemTooltip(model.first.c_str());
+		ImGui::SetItemTooltip(model->GetName().c_str());
 
 		ImGui::PopID();
 		i++;
@@ -438,25 +451,25 @@ void ImGuiLayer::RenderItemTab(Scene& scene)
 	for (auto& item : scene.GetItemCollection())
 	{
 		//transformation variables
-		glm::vec3 move = item.second->transform.getPosition();
-		glm::vec3 scale = item.second->transform.getScale();
-		glm::vec3 rotate = item.second->transform.getRotation();
+		glm::vec3 move = item.transform.getPosition();
+		glm::vec3 scale = item.transform.getScale();
+		glm::vec3 rotate = item.transform.getRotation();
 
 		ImGui::NewLine();
 		ImGui::PushID(i);	//Unique ID per light
 
-		if (ImGui::TreeNode(item.second->GetName().c_str()))
+		if (ImGui::TreeNode(item.GetName().c_str()))
 		{
 			ImGui::Text("Item Transform:");
 
 			if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
-				item.second->transform.SetPosition(move);
+				item.transform.SetPosition(move);
 
 			if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotate), 0.2f))
-				item.second->transform.SetRotation(rotate);
+				item.transform.SetRotation(rotate);
 
 			if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.2f))
-				item.second->transform.SetScale(scale);
+				item.transform.SetScale(scale);
 
 			ImGui::Separator();
 
@@ -476,6 +489,14 @@ void ImGuiLayer::Render(Scene& scene, Renderer& renderer, unsigned int viewPortW
 	GLuint texture = renderer.GetPostProcessed();
 	if (renderIDpass) texture = renderer.GetIDPass().GetTexture();
 
+	//Check dirty flags
+	if (ResourceManager::Get().GetModelPool().GetIsDirty())
+	{
+		Utils::Print("IMGUILAYER::RENDER:: Updating Item Handles");
+		modelHandles = ResourceManager::Get().GetAllModelHandles();
+		ResourceManager::Get().GetModelPool().SetIsDirty(false);
+	}
+
 	BeginFrame();
 
 	//Add features here
@@ -484,7 +505,6 @@ void ImGuiLayer::Render(Scene& scene, Renderer& renderer, unsigned int viewPortW
 	RenderEntityPanel(scene);
 
 	RenderViewport(scene, texture, screenWidth, screenHeight, viewPortWidth, viewPortHeight);
-	//RenderViewport(scene.GetLightCollection().at(3)->GetShadowMap()->getDepthMap(), viewPortWidth, viewPortHeight);
 
 	RenderScenePanel(renderer, screenWidth);
 

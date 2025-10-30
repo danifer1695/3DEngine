@@ -97,29 +97,41 @@ void Renderer::Draw(Scene& scene)
 	// Keep clear color black, AO calculations rely on the background being this color to discard it
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	//We render shadows,Gbuffer and ssao
-	shadowPass.Render(scene);
-	idPass.Render(scene);
-	geometryPass.Render(scene, gBuffer);
-	ssaoPass.Render(scene, gBuffer);
+	geometryPass.Render(scene, gBuffer);	//Fill GBuffer
 
-	//We copy the GBuffer's depth data over to the renderer's own RBO
-	CopyDepthData();
+	if (state == RENDER_ID)
+	{
+		//Only render ID pass if Renderer is in RENDER_ID state
+		idPass.Render(scene, gBuffer);
+	}
 
-	//We render lighting and skybox to the Renderer's FBO
-	lightingPass.Render(
-		scene, 
-		gBuffer, 
-		ssaoPass.GetTexture(), 
-		ssaoPass.GetEnabled(), 
-		shadowPass.GetDirTextureArray(), 
-		shadowPass.GetPointTextureArray(), 
-		renderFBO);
-	RenderSkybox(scene, renderFBO);
+	else
+	{
+		shadowPass.Render(scene);
+		ssaoPass.Render(scene, gBuffer);
 
-	//Post Processing
-	postPass.Render(scene, idPass.GetTexture(), GetTexture());
+		//We copy the GBuffer's depth data over to the renderer's own RBO
+		CopyDepthData();
 
+		//We render lighting and skybox to the Renderer's FBO
+		lightingPass.Render(
+			scene, 
+			gBuffer, 
+			ssaoPass.GetTexture(), 
+			ssaoPass.GetEnabled(), 
+			shadowPass.GetDirTextureArray(), 
+			shadowPass.GetPointTextureArray(), 
+			renderFBO);
+		RenderSkybox(scene, renderFBO);
+
+		//Post Processing
+		postPass.Render(scene, GetTexture());
+	}
+
+	//reset render data
 	Utils::getOpenGLError("RENDERER::DRAW");
 }

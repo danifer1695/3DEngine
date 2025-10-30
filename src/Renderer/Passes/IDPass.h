@@ -1,5 +1,6 @@
 #pragma once
 #include"../../Engine/Scene.h"
+#include"../../Renderer/GBuffer.h"
 #include"../../Core/Utils.h"
 
 #include <memory>
@@ -15,7 +16,6 @@ private:
 	unsigned int screenWidth, screenHeight;
 
 	GLuint FBO;
-	GLuint RBO;
 	GLuint texture;
 
 	std::unique_ptr<Shader> idPassShader;
@@ -29,7 +29,7 @@ public:
 	IDPass(unsigned int screenWidth, unsigned int screenHeight);
 
 	//Render
-	void Render(Scene& scene);
+	void Render(Scene& scene, const GBuffer& gbuffer);
 
 	//Getters
 	const GLuint GetTexture() const { return texture; }

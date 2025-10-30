@@ -42,7 +42,7 @@ void SSAOPass::SetupShaders()
 	ssaoBlurShader->setBool("ssaoEnabled", ssaoEnabled);
 	ssaoBlurShader->setInt("ssaoInput", 0);
 
-	getError("SETUP_SHADERS");
+	Utils::getOpenGLError("SSAO::SETUP_SHADERS");
 }
 //=============================================================================================
 //SetupFBO()
@@ -65,7 +65,7 @@ void SSAOPass::SetupFBO()
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "SSAOPass Framebuffer not complete!" << std::endl;
 
-	getError("SETUP_FBO::SSAOPass");
+	Utils::getOpenGLError("SSAO::SETUP_FBO::SSAOPass");
 
 	//Blur color buffer
 	glGenFramebuffers(1, &ssaoBlurFBO);
@@ -82,7 +82,7 @@ void SSAOPass::SetupFBO()
 		std::cout << "SSAOPass Blur Framebuffer not complete!" << std::endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	getError("SETUP_FBO::BLUR");
+	Utils::getOpenGLError("SSAO::SETUP_FBO::BLUR");
 }
 //=============================================================================================
 //GenerateKernel()
@@ -117,7 +117,7 @@ void SSAOPass::GenerateKernel()
 		kernel.push_back(sample);
 	}
 
-	getError("GENERATE_KERNEL");
+	Utils::getOpenGLError("SSAO::GENERATE_KERNEL");
 }
 //=============================================================================================
 //GenerateNoiseTexture()
@@ -148,7 +148,7 @@ void SSAOPass::GenerateNoiseTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	getError("GENERATE_NOISE_TEXTURE");
+	Utils::getOpenGLError("SSAO::GENERATE_NOISE_TEXTURE");
 }
 //=============================================================================================
 //GenerateSSAOTex()
@@ -177,7 +177,7 @@ void SSAOPass::GenerateSSAOTex(const Scene& scene, const GBuffer& gBuffer)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	getError("GENERATE_SSAO_TEXTURE");
+	Utils::getOpenGLError("SSAO::GENERATE_SSAO_TEXTURE");
 }
 //=============================================================================================
 //GenerateBlurSSAO()
@@ -204,20 +204,4 @@ void SSAOPass::Render(const Scene& scene, const GBuffer& gBuffer)
 {
 	GenerateSSAOTex(scene, gBuffer);
 	GenerateBlurSSAO();
-}
-//=============================================================================================
-//getError()
-//=============================================================================================
-
-void SSAOPass::getError(std::string location)
-{
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-	{
-		std::cerr << "SSAOPass::" << location << "::OpenGL error: " << err;
-		if (err == 1280) std::cerr << " - GL_INVALID_ENUM.";
-		else if (err == 1286) std::cerr << " - Invalid Framebuffer Operation.";
-		else if (err == 1282) std::cerr << " - GL_INVALID_OPERATION.";
-		std::cout << std::endl;
-	}
 }

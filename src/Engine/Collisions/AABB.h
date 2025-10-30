@@ -27,7 +27,7 @@ public:
 	}
 	
 	//Methods
-	void Initialize(std::shared_ptr<Model> model);
+	void Initialize(const Model* model);
 	void ComputeLocalCorners();
 	void Update(glm::mat4 modelMatrix);
 };

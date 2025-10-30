@@ -13,7 +13,8 @@ void main()
 {
 	vec4 viewPos = view * model * vec4(aPos, 1.0);
     FragPos = viewPos.xyz; 
-    TexCoords = aTexCoords;
+
+	TexCoords = aTexCoords;
 
 	gl_Position = projection * viewPos;
 }

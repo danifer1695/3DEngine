@@ -15,7 +15,7 @@ private:
 	bool renderIDpass = false;
 
 	//Initialization
-	void Init(GLFWwindow* window);
+	void InitHandles();
 
 	//Runtime methods
 	//---------------
@@ -43,6 +43,10 @@ private:
 	//Elements
 	void RenderDirLight(Scene& scene, size_t& index);
 	void RenderPointLight(Scene& scene, size_t& index);
+
+	//Handles
+	Handle defaultTex;
+	std::vector<Handle> modelHandles;
 
 public:
 	//Constructor

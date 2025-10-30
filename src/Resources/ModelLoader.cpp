@@ -11,25 +11,10 @@ ModelLoader& ModelLoader::Get()
 	return instance;
 }
 //===============================================================================================
-// ImportModel();
-//===============================================================================================
-
-void ModelLoader::ImportModel(std::string name, const char* path)
-{
-	try {
-		ResourceManager::Get().ImportModel(name, loadModel(name, path));
-	}
-	catch (std::exception& e)
-	{
-		Utils::Print(e.what());
-	}
-	
-}
-//===============================================================================================
 // loadModel();
 //===============================================================================================
 
-Model ModelLoader::loadModel(std::string name, std::string path)
+Handle ModelLoader::loadModel(std::string name, std::string path)
 {
 	Assimp::Importer importer;
 	//scenes are assimp's data structure containing all the models' data
@@ -48,9 +33,10 @@ Model ModelLoader::loadModel(std::string name, std::string path)
 	std::vector<Mesh> meshes;
 	processNode(scene->mRootNode, scene, name, meshes, directory);
 
-	//Utils::Print(std::to_string(meshes.size()));
+	//Import model to Resource manager, return handle
+	Handle handle = ResourceManager::Get().ImportModel(name, meshes, directory);
 
-	return Model(name, meshes, directory);
+	return handle;
 }
 
 //================================================================
@@ -64,10 +50,6 @@ void ModelLoader::processNode(
 	std::vector<Mesh>& meshes, 
 	std::string path) {
 	//This is a recursive function that will process the given node, and then its children, 
-
-	Utils::Print("Processing node: " + std::string(node->mName.C_Str()) +
-		" | Meshes: " + std::to_string(node->mNumMeshes) +
-		" | Children: " + std::to_string(node->mNumChildren));
 
 	//process all the node's meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
@@ -92,8 +74,6 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, std::string pa
 	std::vector<unsigned int> indices;
 	MapPackage textures;
 	ColorPackage colors;
-
-	auto* textureCollection = &ResourceManager::Get().GetTextureCollection();
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		Vertex vertex;
@@ -144,7 +124,6 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, std::string pa
 
 	//meshes contain indexes to material objects. to get the material, we need to index the scene's 
 	//mMaterials array. We access the index through mMaterialIndex
-	Utils::Print("Material index: " + std::to_string(mesh->mMaterialIndex));
 	if (mesh->mMaterialIndex >= 0) {
 		//we retrieve the aiMaterial object from the scene's aiMaterials array
 		//a material object internally stores  an array of texture locations for each texture type.
@@ -190,13 +169,9 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, std::string pa
 		{
 			auto loadedTexs = LoadMaterialTextures(material, iter.first, iter.second, path);
 
-			Utils::Print("Textures loaded: " + std::to_string(loadedTexs.size()));
-
 			for (size_t i = 0; i < loadedTexs.size(); ++i)
 			{
 				std::string texName = loadedTexs.at(i).texPath;
-
-				ResourceManager::Get().AddTexture(loadedTexs.at(i), texName.c_str());
 
 				//We fill the texture map package depending on the texture type being processed
 				switch (iter.second)
@@ -240,7 +215,6 @@ std::vector<Texture> ModelLoader::LoadMaterialTextures(
 
 	std::vector<Texture> toReturn;
 
-	Utils::Print("Textures: " + std::to_string(mat->GetTextureCount(type)));
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
 
 		aiString aiNewPath;
@@ -251,21 +225,8 @@ std::vector<Texture> ModelLoader::LoadMaterialTextures(
 		bool isAbsolute = newPath.find(':') != std::string::npos || newPath[0] == '/' || newPath[0] == '\\';
 		newPath = isAbsolute ? newPath : (path + "/" + newPath);
 
-		//we compare the incoming texture to already stored textures to see if we need it load it
-		if (ResourceManager::Get().ContainsTexture(newPath.c_str()))
-		{
-			Texture texture = ResourceManager::Get().GetTextureFromPath(newPath.c_str());
-			toReturn.push_back(texture);
-		}
-		else 
-		{
-			//if texture hasn't been loaded already, load it;
-			Texture texture;
-			texture.ID = ResourceManager::Get().loadTexture(newPath.c_str(), false);
-			texture.texType = texType;
-			texture.texPath = newPath.c_str();
-			toReturn.push_back(texture);
-		}
+		Handle texHandle = ResourceManager::Get().ImportTexture(newPath, texType, newPath.c_str(), false);
+		toReturn.push_back(*ResourceManager::Get().GetTexture(texHandle));
 	}
 
 	//if no textures were loaded, use default texture instead

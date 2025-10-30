@@ -4,17 +4,26 @@
 
 #include<vector>
 #include<queue>
+#include<iostream>
 
 template <typename T>
 class ResourcePool
 {
 private:
+	bool dirty = true;
 	std::vector<T> resources;				//the actual resources we want to pool (textures, models, ...)
 	std::vector<unsigned int> generations;	//equal in size to 'resources' to match indices
 	std::queue<unsigned int> freeList;		//to keep track of free indices within the 'resources' vector
 
+	std::vector<bool> active;				//Tracks which 'resource' elements are currently valid
+
 public:
 
+	//=============================================================================================
+	//Constructors
+	//=============================================================================================
+	
+	ResourcePool() {};
 	//=============================================================================================
 	//add()
 	//=============================================================================================
@@ -29,16 +38,21 @@ public:
 		//check if there are any freed up spaces within 'resources'
 		if (!freeList.empty())
 		{
-			index = freeList.pop();
+			index = freeList.front();
+			freeList.pop();
 			resources[index] = std::move(resource);
+			active[index] = true;
 		}
 		else
 		{
 			index = resources.size();
 			resources.emplace_back(std::move(resource));
 			generations.push_back(0);
+			active.push_back(true);
 		}
 
+		dirty = true;
+		std::cout << "Resource Added to Pool" << std::endl;
 		return Handle(index, generations[index]);
 	}
 
@@ -52,10 +66,25 @@ public:
 
 		//return nullptr if the handle is obsolete (generations dont match)
 		if (generations[handle.index] != handle.generation) return nullptr;	
+		if (!active[handle.index]) return nullptr;
 
 		return &resources[handle.index];
 	}
 
+	std::vector<T*> GetAll()
+	{
+		std::vector<T*> pointers;
+		pointers.reserve(resources.size());
+
+		for (unsigned int i = 0; i < (unsigned int)resources.size(); i++)
+		{
+			//only add active elements
+			if (active[i])
+				pointers.push_back(&resources[i]);
+		}
+
+		return pointers;
+	}
 	//=============================================================================================
 	//Remove()
 	//=============================================================================================
@@ -69,6 +98,35 @@ public:
 
 		//add remaining index to the list(queue) of free spaces
 		freeList.push(handle.index);
+
+		//mark this 'resources' index as inactive
+		active[handle.index] = false;
+
+		dirty = true;
 	}
+
+	//=============================================================================================
+	//GetCollection()
+	//=============================================================================================
+	const std::vector<Handle> GetAllHandles() const
+	{
+		std::vector<Handle> toReturn;
+		toReturn.reserve(resources.size());
+
+		for (unsigned int i = 0; i < resources.size(); i++)
+		{
+			if(active[i])
+				toReturn.push_back({ i, generations[i] });	//return only active handles
+		}
+
+		return toReturn;
+	}
+
+	//=============================================================================================
+	//Get/Set()
+	//=============================================================================================
+	const bool	GetIsDirty() const			{ return dirty; }
+
+	void		SetIsDirty(bool val)		{ dirty = val; }
 };
 

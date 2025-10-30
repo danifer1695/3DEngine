@@ -21,14 +21,6 @@ void IDPass::SetupFBO()
 {
 	glGenFramebuffers(1, &FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-	glGenRenderbuffers(1, &RBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, screenWidth, screenHeight);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, RBO);
-
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Utils::getOpenGLError("IDPASS::SETUP_FRAMEBUFFER");
@@ -61,12 +53,17 @@ void IDPass::SetupTexture()
 //SetupTexture
 //=============================================================================================
 
-void IDPass::Render(Scene& scene)
+void IDPass::Render(Scene& scene, const GBuffer& gbuffer)
 {
 	idPassShader->use();
 
 	idPassShader->setMatrix4("projection", scene.GetProjectionMatrix());
 	idPassShader->setMatrix4("view", scene.GetCamera()->get_view_matrix());
+	idPassShader->setInt("gDepth", 0);
+
+	//Bind Textures
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, gbuffer.GetGDepthTex());
 
 	glViewport(0, 0, screenWidth, screenHeight);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -74,9 +71,9 @@ void IDPass::Render(Scene& scene)
 
 	for (const auto& item : scene.GetItemCollection())
 	{
-		idPassShader->setMatrix4("model", item.second->transform.GetModelMatrix());
-		idPassShader->setVector3("idColor", item.second->getIDColor());
-		item.second->getModel()->Draw();
+		idPassShader->setMatrix4("model", item.transform.GetModelMatrix());
+		idPassShader->setVector3("idColor", item.getIDColor());
+		ResourceManager::Get().GetModel(item.getModelHandle())->Draw();
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

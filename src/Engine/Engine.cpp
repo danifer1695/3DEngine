@@ -141,13 +141,7 @@ void Engine::Run()
 void Engine::UpdateCollisions()
 {
 	//Update AABBs
-	for (const auto& item : scene->GetItemCollection())
-	{
-		if (item.second->transform.GetIsDirty())
-		{
-			item.second->GetAABB().Update(item.second->transform.GetModelMatrix());
-		}
-	}
+	scene->UpdateCollisions();
 }
 //=============================================================================================
 //ProcessInput

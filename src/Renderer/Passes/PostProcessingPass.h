@@ -5,6 +5,7 @@
 #include"../Shader.h"
 #include"../../Engine/Scene.h"
 #include"../../Core/Utils.h"
+#include"../../Resources/ResourceManager.h"
 #include"../../Resources/Primitives/Quad.h"
 
 #define POST_SHADER_VS "./shaders/renderer/postProcessingPass.vs"
@@ -42,7 +43,7 @@ public:
 	float selectionThickness = 3.0f;
 
 	//Render
-	void Render(Scene& scene, GLuint idTex, GLuint renderTex);
+	void Render(Scene& scene, GLuint renderTex);
 
 	//Getters
 	const GLuint GetTexture() const { return texture; }

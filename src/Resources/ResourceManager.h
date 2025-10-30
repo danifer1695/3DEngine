@@ -7,7 +7,6 @@
 #include<unordered_map>
 
 #include"../../../stb_image.h"
-#include"../Engine/Materials/MaterialBlinn.h"
 #include"../Core/Utils.h"
 #include"Model.h"
 #include"Texture.h"
@@ -22,10 +21,12 @@ private:
 	//Libraries
 	std::unordered_map<std::string, std::shared_ptr<Material>>	materials;	//collection of materials
 	std::unordered_map<std::string, std::shared_ptr<Shader>>	shaders;	//collection of shaders
-	std::unordered_map<std::string, std::shared_ptr<Model>>		models;		//collection of models
-	std::unordered_map<std::string, std::shared_ptr<Texture>>	textures2D;
 
 	ResourcePool<Texture> textures;
+	ResourcePool<Model> models;
+
+	std::unordered_map<std::string, Handle> textureIndex;
+	std::unordered_map<std::string, Handle> modelIndex;
 
 public:
 
@@ -44,24 +45,24 @@ public:
 		unsigned int emissive_map);
 
 	//Texture handling
-	void AddTexture(Texture tex, std::string name);	//Add texture to collection without loading
-	void ImportTexture(std::string name, TextureType type, const char* path, bool gamma_correct);
-	void ImportModel(std::string name, Model model);
-	bool ContainsTexture(const Texture& tex);
-	bool ContainsTexture(const char* path);
+	Handle		ImportTexture(std::string name, TextureType type, const char* path, bool gamma_correct);
+	Handle		GetTextureHandle(std::string name)	{ return textureIndex[name]; }
+	Texture*	GetTexture(const Handle& handle)	{ return textures.Get(handle); }
+
+	GLuint		loadHDRi(char const* path);
+	GLuint		loadTexture(char const* path, bool gammaCorrection);
+
+	//Model handling
+	Handle		ImportModel(std::string name, std::vector<Mesh> meshes, std::string directory);
+	Handle		GetModelHandle(std::string name)	{ return modelIndex[name]; }
+	const auto	GetAllModelHandles() const			{ return models.GetAllHandles(); }
+	Model*		GetModel(const Handle& handle)		{ return models.Get(handle); }
+	auto&		GetModelPool()						{ return models; }
 
 	//Getters
-	static ResourceManager& Get();
+	static ResourceManager&		Get();
 
 	const auto&					GetMaterialCollection() const		{ return materials; }
-	auto&						GetModelCollection()				{ return models; }
-	auto&						GetTextureCollection()				{ return textures2D; }
-	Texture						GetTexture(std::string name);
-	Texture						GetTexture(GLuint id);				//no need to return a ref, its just an ID
-	Texture						GetTextureFromPath(const char* path);		//no need to return a ref, its just an ID
 	std::shared_ptr<Material>	GetMaterial(std::string name)		{ return materials[name]; }
-	std::shared_ptr<Model>		GetModel(std::string name)			{ return models[name]; }
-	GLuint		 loadTexture(char const* path, bool gammaCorrection);
-	unsigned int loadHDRi(char const* path);
 };
 
