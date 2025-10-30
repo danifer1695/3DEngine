@@ -101,10 +101,10 @@ void Renderer::Draw(Scene& scene)
 	glCullFace(GL_BACK);
 
 	//We render shadows,Gbuffer and ssao
-	geometryPass.Render(scene, gBuffer);	//Fill GBuffer
 
 	if (state == RENDER_ID)
 	{
+		geometryPass.Render(scene, gBuffer);	//Fill GBuffer
 		//Only render ID pass if Renderer is in RENDER_ID state
 		idPass.Render(scene, gBuffer);
 	}
@@ -112,6 +112,7 @@ void Renderer::Draw(Scene& scene)
 	else
 	{
 		shadowPass.Render(scene);
+		geometryPass.Render(scene, gBuffer);	//Fill GBuffer
 		ssaoPass.Render(scene, gBuffer);
 
 		//We copy the GBuffer's depth data over to the renderer's own RBO

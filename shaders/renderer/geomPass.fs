@@ -39,7 +39,7 @@ void main()
 	if(useNormalMap) 
 	{
 		vec3 normalTex = texture(normalMap, TexCoords).rgb;
-		normalTex = normalize(normalTex * 2.0 - 1.0);	//convert [0, 1] to [-1, 1]
+		normalTex = normalize(normalTex * 2.0 + 1.0);	//convert [0, 1] to [-1, 1]
 
 		vec3 T = normalize(Tangent);
 		vec3 N = normalize(Normal);
@@ -48,11 +48,11 @@ void main()
 		mat3 TBN = mat3(T, B, N);
 		vec3 finalNormal = TBN * normalTex;
 
-		gNormal.rgb	= normalize(finalNormal);
+		gNormal.rgb	= normalize(finalNormal) * 0.5 + 0.5;
 	}
 	else
 	{
-		gNormal.rgb = normalize(Normal);
+		gNormal.rgb = normalize(Normal) * 0.5 + 0.5;
 	}
 
 	//Has Glossiness Map?

@@ -319,7 +319,7 @@ void main()
 
 	//2 - Fetch G-Buffer
 	//---------------------
-	vec3 Normal = normalize(texture(gNormal, TexCoords).rgb);
+	vec3 Normal				= normalize(texture(gNormal, TexCoords).rgb * 2.0 - 1.0);
 	vec3 Diffuse			= texture(gAlbedoSpec, TexCoords).rgb;
 	vec3 Emissiveness		= texture(gEmissive, TexCoords).rgb;
 	float Specular			= texture(gAlbedoSpec, TexCoords).a;
@@ -329,7 +329,7 @@ void main()
 	if(ssaoEnabled) AO = texture(AOMap, TexCoords).r;
 
 	vec3 fragPosWorld = (inverseViewMatrix * vec4(FragPos, 1.0)).xyz;
-	vec3 Ambient = Diffuse * 0.3 * AO;
+	vec3 Ambient = Diffuse * 0.1 * AO;
 
 	//3 - Environment - tinted ambient
 	//--------------------------------

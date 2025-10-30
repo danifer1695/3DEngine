@@ -302,7 +302,7 @@ void ImGuiLayer::RenderModelsTab(Scene& scene)
 		ImGui::PushID(i);	//Unique ID per item
 
 		//Little thumbnail displaying texture.
-		//eventually to be replaced with a small render of sphere with material on
+		//eventually to be replaced with a small render of item
 		GLuint defaultTexture = ResourceManager::Get().GetTexture(defaultTex)->ID;
 		ImTextureID imguiTexID = (ImTextureID)(intptr_t)defaultTexture;
 		ImGui::ImageButton(model->GetName().c_str(),

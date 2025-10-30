@@ -108,6 +108,7 @@ void LightingPass::Render(Scene& scene, const GBuffer& gBuffer, const GLuint& ss
 
 	screenQuad.Draw();
 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER");
 }
 //=============================================================================================
