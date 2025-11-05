@@ -11,7 +11,6 @@ Model::Model(std::string name, std::vector<Mesh> meshes, std::string directory)
 	{
 		this->meshes.push_back(mesh);
 	}
-	//Utils::Print(std::to_string(this->meshes.size()));
 }
 //================================================================
 // Draw()

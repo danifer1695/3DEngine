@@ -13,8 +13,48 @@ LightingPass::LightingPass(unsigned int screenWidth, unsigned int screenHeight)
 //Initialize
 //=============================================================================================
 
+void LightingPass::SetupFBO()
+{
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glGenTextures(1, &screenTex);
+	glBindTexture(GL_TEXTURE_2D, screenTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTex, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	Utils::getOpenGLError("POSTPASS::SETUP_TEXTURE");
+
+	Utils::getOpenGLError("POSTPASS::SETUP_FBO");
+}
+//=============================================================================================
+//Initialize
+//=============================================================================================
+
 void LightingPass::Initialize()
 {
+	//Initialize FBO and Render textures
+	//----------------------------------
+	//SetupFBO();
+
 	//Build and compile shaders
 	//-------------------------
 	lightPassShader = std::make_unique<Shader>("LIGHTPASS", LIGHTPASS_SHADER_VS, LIGHTPASS_SHADER_FS);

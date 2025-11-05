@@ -13,23 +13,23 @@ void main()
 
 	//==========================================================================================
 	//if skybox is of type SKY_IMAGE, sample cubemap texture
-	if(skybox_type == 0)
-	{
-		envColor = texture(cubeMap, WorldPos).rgb;
-
-		//HDR tonemap and gamma correction done in screenShader
-		float exposure = 1.5;
-		envColor = vec3(1.0) - exp(-envColor * exposure);
-		envColor = pow(envColor, vec3(1.0/2.2));
-	}
+//	if(skybox_type == 0)
+//	{
+//		envColor = texture(cubeMap, WorldPos).rgb;
+//
+//		//HDR tonemap and gamma correction done in screenShader
+//		float exposure = 1.5;
+//		envColor = vec3(1.0) - exp(-envColor * exposure);
+//		envColor = pow(envColor, vec3(1.0/2.2));
+//	}
 
 	//==========================================================================================
 	//if skybox is of type SKY_GRADIENT, return interpolated value based on UV's y coords
-	if(skybox_type == 1)
-	{
+	//if(skybox_type == 1)
+	//{
 		float domeValue = min(smoothstep(-1.0, 1.0, WorldPos.y) + 0.3, 0.8);
 		envColor = vec3(domeValue);
-	}
+	//}
 
 	//==========================================================================================
 	

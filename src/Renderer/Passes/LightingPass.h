@@ -13,7 +13,7 @@ class LightingPass
 private:
 	//Data
 	unsigned int screenWidth, screenHeight;
-	GLuint FBO;
+	GLuint FBO, RBO;
 	GLuint screenTex;
 
 	//State
@@ -30,6 +30,7 @@ private:
 
 	//Initialize
 	void Initialize();
+	void SetupFBO();
 	void SetupDirShadowArray();
 
 	//Helpers
@@ -49,5 +50,9 @@ public:
 		const GLuint& dirShadowArray, 
 		const GLuint& pointShadowArray, 
 		const GLuint& targetFBO);
+
+	//Getters
+	const GLuint& GetTexture() { return screenTex; }
+	GLuint& GetFBO() { return FBO; }
 };
 

@@ -163,7 +163,7 @@ void ShadowPass::UpdateShadows(Scene& scene, bool globalUpdate)
 	for (size_t i = 0; i < numberOfPointLights; ++i)
 	{
 		//skip if light casts no shadows or if its not dirty
-		if (!scene.GetPointLightCollection().at(i)->castShadows) continue;
+		if (!scene.GetPointLightCollection().at(i)->GetCastShadows()) continue;
 		//if update isn't global and shadow isnt dirty, we skip
 		if (!globalUpdate && !scene.GetPointLightCollection().at(i)->transform.GetIsDirty()) continue;
 
@@ -174,7 +174,7 @@ void ShadowPass::UpdateShadows(Scene& scene, bool globalUpdate)
 	for (size_t i = 0; i < numberOfDirLights; ++i)
 	{
 		//skip if light casts no shadows or if its not dirty
-		if (!scene.GetDirLightCollection().at(i)->castShadows) continue;
+		if (!scene.GetDirLightCollection().at(i)->GetCastShadows()) continue;
 		//if update isn't global and shadow isnt dirty, we skip
 		if (!globalUpdate && !scene.GetDirLightCollection().at(i)->transform.GetIsDirty()) continue;
 		

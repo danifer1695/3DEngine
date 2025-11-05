@@ -32,10 +32,13 @@ void Scene::Init()
 
 	//initialize textures
 	Utils::Print("SCENE::IMPORTING_DEFAULT_TEXTURE");
-	ResourceManager::Get().ImportTexture("Default",	DEFAULT, "./assets/textures/Default_Texture_Black.png", false);
+	ResourceManager::Get().ImportTexture("Light_Icon",	DEFAULT, "./assets/textures/Light_Icon.png", false);
+	ResourceManager::Get().ImportTexture("Default",	DEFAULT, "./assets/textures/Default_Texture.png", false);
+	ResourceManager::Get().ImportTexture("Default_Black",	DEFAULT, "./assets/textures/Default_Texture_Black.png", false);
 
 	//initialize models
 	ModelLoader::Get().loadModel("Scene", "./assets/scenes/breakfast_room/breakfast_room.obj");
+	ModelLoader::Get().loadModel("Cube", "./assets/models/cube.obj");
 	
 	try {
 
@@ -49,9 +52,22 @@ void Scene::Init()
 	//initialize lights
 
 	CreateLight(POINT_LIGHT);
-	GetPointLightCollection().at(0)->transform.Translate(glm::vec3(0.0f, 3.0f, 0.0f));
-	GetPointLightCollection().at(0)->SetCastShadows(true);
+	GetPointLightCollection().at(0)->transform.Translate(glm::vec3(-2.0f, 2.6f, 4.0f));
+	GetPointLightCollection().at(0)->SetCastShadows(false);
 	GetPointLightCollection().at(0)->SetIntensity(10.0f);
+	GetPointLightCollection().at(0)->SetColor(glm::vec3(1.0f, 0.667f, 0.31f));
+
+	CreateLight(POINT_LIGHT);
+	GetPointLightCollection().at(1)->transform.Translate(glm::vec3(-4.4f, 2.6f, -2.2f));
+	GetPointLightCollection().at(1)->SetCastShadows(false);
+	GetPointLightCollection().at(1)->SetIntensity(3.0f);
+	GetPointLightCollection().at(1)->SetColor(glm::vec3(0.84f, 0.7f, 0.39f));
+
+	CreateLight(DIRECTIONAL_LIGHT);
+	GetDirLightCollection().at(0)->transform.Translate(glm::vec3(56.6f, 13.8f, 15.2f));
+	GetDirLightCollection().at(0)->SetCastShadows(true);
+	GetDirLightCollection().at(0)->SetIntensity(0.5f);
+	GetDirLightCollection().at(0)->SetColor(glm::vec3(0.961f, 0.914f, 0.8f));
 
 	Utils::getOpenGLError("SCENE::INIT");
 }

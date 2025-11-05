@@ -7,6 +7,11 @@ PostProcessingPass::PostProcessingPass(unsigned int screenWidth, unsigned int sc
 {
 	postProcessingShader = std::make_unique<Shader>("POST_PROCESSING_SHADER", POST_SHADER_VS, POST_SHADER_FS);
 	outlineShader = std::make_unique<Shader>("OUTLINE_SHADER", OUTLINE_SHADER_VS, OUTLINE_SHADER_FS);
+	iconShader = std::make_unique<Shader>("ICON_SHADER", ICON_SHADER_VS, ICON_SHADER_FS);
+
+	//Handles
+	h_lightIconTexture = ResourceManager::Get().GetTextureHandle("Light_Icon");
+
 	SetupFBO();
 	SetupTexture();
 }
@@ -98,7 +103,66 @@ void PostProcessingPass::RenderItemSelection(Scene& scene)
 	glLineWidth(1.0f);
 
 	glPolygonOffset(0.0f, 0.0f);
+	glDisable(GL_STENCIL_TEST);
 	glDisable(GL_POLYGON_OFFSET_FILL);
+}
+//=============================================================================================
+//SetupTexture
+//=============================================================================================
+
+void PostProcessingPass::RenderIcons(Scene& scene)
+{
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//Precalculate rotation-less view matrix
+	glm::mat4 view = scene.GetCamera()->get_view_matrix();
+	glm::mat3 noRotView = glm::mat3(view);
+	noRotView = glm::transpose(noRotView);
+
+	iconShader->use();
+	iconShader->setMatrix4("view", view);
+	iconShader->setMatrix4("projection", scene.GetProjectionMatrix());
+	iconShader->setInt("iconTexture", 0);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, ResourceManager::Get().GetTexture(h_lightIconTexture)->ID);
+
+	for (const auto& light : scene.GetPointLightCollection())
+	{
+		//Pointer to the light's icon
+		Icon* icon = light->GetIcon();
+
+		//Create rotation-less model matrix
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), light->transform.getPosition());
+		model = glm::scale(model, glm::vec3(icon->GetScale()));
+
+		model *= glm::mat4(noRotView);
+		iconShader->setMatrix4("model", model);
+
+		//Draw icon quad
+		icon->Draw();
+	}
+
+	for (const auto& light : scene.GetDirLightCollection())
+	{
+		//Pointer to the light's icon
+		Icon* icon = light->GetIcon();
+
+		//Create rotation-less model matrix
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), light->transform.getPosition());
+		model = glm::scale(model, glm::vec3(icon->GetScale()));
+
+		model *= glm::mat4(noRotView);
+		iconShader->setMatrix4("model", model);
+
+		//Draw icon quad
+		icon->Draw();
+	}
+
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 }
 //=============================================================================================
 //SetupTexture
@@ -120,9 +184,12 @@ void PostProcessingPass::Render(Scene& scene, GLuint renderTex)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	screenQuad.Draw();
+
 	//Setup selected Item's id data
-	//if selectedItem == nullptr, return impossible color vec3(2.0)
 	if (scene.GetSelectedItem() != nullptr) RenderItemSelection(scene);
+
+	//Render Icons
+	if(renderIcons) RenderIcons(scene);
 
 	//Unbind framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

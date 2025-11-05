@@ -154,6 +154,7 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 {
 	int windowWidth = 800 + 400;
 	bool setSSAO = renderer.GetSSAOPass().GetEnabled();
+	bool renderIcons = renderer.GetPostPass().GetRenderIcons();
 
 	//select tool values
 	glm::vec3 selectColor = renderer.GetSelectColor();
@@ -184,6 +185,8 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 	if(renderIDpass) renderer.SetRenderState(RENDER_ID);
 	else renderer.SetRenderState(RENDER_LIGHT);
 	
+	if (ImGui::Checkbox("Icons visible", &renderIcons))
+		renderer.GetPostPass().ToggleIcons();
 
 	//Rendering
 	ImGui::Separator();
@@ -346,19 +349,27 @@ void ImGuiLayer::RenderDirLight(Scene& scene, size_t& i)
 	for (auto rit = scene.GetDirLightCollection().rbegin(); rit != scene.GetDirLightCollection().rend(); )
 	{
 		//light state variables
-		glm::vec3 move = rit->get()->transform.getPosition();
-		bool castShadow = rit->get()->GetCastShadows();
-		bool softShadow = rit->get()->GetSoftShadows();
+		glm::vec3 move		= rit->get()->transform.getPosition();
+		glm::vec3 color		= rit->get()->GetColor();
+		float intensity		= rit->get()->GetIntensity();
+		bool active			= rit->get()->GetActive();
+		bool castShadow		= rit->get()->GetCastShadows();
+		bool softShadow		= rit->get()->GetSoftShadows();
 
 		ImGui::NewLine();
 		ImGui::PushID(i);	//Unique ID per light
 
 		if (ImGui::TreeNode(rit->get()->GetName().c_str()))
 		{
-
-			ImGui::Checkbox("Active", &rit->get()->active);
-			ImGui::ColorEdit3("Light Color", glm::value_ptr(rit->get()->color), ImGuiColorEditFlags_NoInputs);
-			ImGui::DragFloat("Intensity", &rit->get()->intensity, 0.05f, 0.01f, 100.0f, "%.3f");
+			//Active state
+			if (ImGui::Checkbox("Active", &active))
+				rit->get()->SetActive(active);
+			//Light Color
+			if(ImGui::ColorEdit3("Light Color", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs))
+				rit->get()->SetColor(color);
+			//Intensity
+			if (ImGui::DragFloat("Intensity", &intensity, 0.05f, 0.01f, 100.0f, "%.3f"))
+				rit->get()->SetIntensity(intensity);
 
 			ImGui::Text("Light Transform:");
 			if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
@@ -396,10 +407,13 @@ void ImGuiLayer::RenderPointLight(Scene& scene, size_t& i)
 	for (auto rit = scene.GetPointLightCollection().rbegin(); rit != scene.GetPointLightCollection().rend(); )
 	{
 		//light state variables
-		glm::vec3 move =	rit->get()->transform.getPosition();
-		bool castShadow =	rit->get()->GetCastShadows();
-		bool softShadow =	rit->get()->GetSoftShadows();
-		float radius =		rit->get()->GetRadius();
+		glm::vec3 move		= rit->get()->transform.getPosition();
+		glm::vec3 color		= rit->get()->GetColor();
+		float intensity		= rit->get()->GetIntensity();
+		bool active			= rit->get()->GetActive();
+		bool castShadow		= rit->get()->GetCastShadows();
+		bool softShadow		= rit->get()->GetSoftShadows();
+		float radius		= rit->get()->GetRadius();
 
 		ImGui::NewLine();
 		ImGui::PushID(i);	//Unique ID per light
@@ -407,15 +421,21 @@ void ImGuiLayer::RenderPointLight(Scene& scene, size_t& i)
 		if (ImGui::TreeNode(rit->get()->GetName().c_str()))
 		{
 
-			ImGui::Checkbox("Active", &rit->get()->active);
-			ImGui::ColorEdit3("Light Color", glm::value_ptr(rit->get()->color), ImGuiColorEditFlags_NoInputs);
-			ImGui::DragFloat("Intensity", &rit->get()->intensity, 0.5f, 0.01f, 100.0f, "%.3f");
-
+			//Active state
+			if (ImGui::Checkbox("Active", &active))
+				rit->get()->SetActive(active);
+			//Light Color
+			if (ImGui::ColorEdit3("Light Color", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs))
+				rit->get()->SetColor(color);
+			//Intensity
+			if (ImGui::DragFloat("Intensity", &intensity, 0.05f, 0.01f, 100.0f, "%.3f"))
+				rit->get()->SetIntensity(intensity);
+			//Radius
 			if(ImGui::DragFloat("Radius", &radius, 0.5f, 0.01f, 100.0f, "%.3f"))
 				rit->get()->SetRadius(radius);
 
 			ImGui::Text("Light Transform:");
-			if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
+			if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.05f))
 				rit->get()->transform.SetPosition(move);
 
 			if (ImGui::Checkbox("Cast Shadows", &castShadow))

@@ -62,8 +62,27 @@ namespace Utils
 			else if (err == 1282) std::cerr << " - GL_INVALID_OPERATION.";
 			std::cout << std::endl;
 		}
+	}
 
+	/*This function takes in two framebuffers - source and desination - and copies depth data from
+	source to destination*/
+	inline void CopyDepthData(const GLuint& source, GLuint& destination, 
+		unsigned int screenWidth, unsigned int screenHeight)
+	{
+		//Bind source as read, and destination as draw
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, source);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destination);
 
+		//Copy depth buffer
+		glBlitFramebuffer(
+			0, 0, screenWidth, screenHeight,
+			0, 0, screenWidth, screenHeight,
+			GL_DEPTH_BUFFER_BIT,
+			GL_NEAREST
+		);
+
+		//Unbind framebuffers
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	//Logging

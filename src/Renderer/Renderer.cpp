@@ -129,7 +129,7 @@ void Renderer::Draw(Scene& scene)
 			renderFBO);
 		RenderSkybox(scene, renderFBO);
 
-		//Post Processing
+		//Post Processing (GetTexture() returns 'renderTex')
 		postPass.Render(scene, GetTexture());
 	}
 

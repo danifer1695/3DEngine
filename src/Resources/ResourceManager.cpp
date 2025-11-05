@@ -97,34 +97,6 @@ GLuint ResourceManager::loadHDRi(char const* path)
 
 	return hdrTexture;
 }
-//===============================================================================================
-// ImportMaterial();
-//===============================================================================================
-
-//void ResourceManager::ImportMaterialBlinn(std::string name, const char* vshaderPath, const char* fshaderPath)
-//{
-//	//we check for duplicates
-//	if (materials.find(name) == materials.end())
-//		materials[name] = std::make_shared<MaterialBlinn>(name, 0);
-//	else
-//		std::cout << "SCENE::IMPORT_MATERIAL::WARNING: Material with name " << name << " already exists!" << std::endl;
-//}
-//
-////overloaded method with texture map arguments
-//void ResourceManager::ImportMaterialBlinn(
-//	std::string name,
-//	unsigned int diffuse_map,
-//	unsigned int specular_map,
-//	unsigned int normal_map,
-//	unsigned int glossiness_map,
-//	unsigned int emissive_map)
-//{
-//	//we check for duplicates
-//	if (materials.find(name) == materials.end())
-//		materials[name] = std::make_shared<MaterialBlinn>(name, diffuse_map, specular_map, normal_map, glossiness_map, emissive_map);
-//	else
-//		std::cout << "RESOURCE_MANAGER::IMPORT_MATERIAL::WARNING: Material with name " << name << " already exists!" << std::endl;
-//}
 //=============================================================================================
 //ImportTexture()
 //=============================================================================================

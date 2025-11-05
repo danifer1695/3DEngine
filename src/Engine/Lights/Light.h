@@ -10,6 +10,7 @@
 
 #include"../GameObject.h"
 #include"../../Renderer/Shader.h"
+#include"../../Resources/Icon.h"
 #include"ShadowMap.h"
 
 enum LightType
@@ -23,7 +24,6 @@ class Light : public GameObject
 {
 protected:
 
-public:
 	//State
 	bool active = true;
 
@@ -35,8 +35,10 @@ public:
 	bool castShadows;
 	bool softShadows = true;
 
-	//Shadow Maps
+	//Icon
+	Icon icon;
 
+public:
 	//Constructors
 	Light(std::string name,
 		LightType type, 
@@ -55,9 +57,16 @@ public:
 	const LightType		GetLightType() const	{ return type; }
 	const bool			GetCastShadows() const	{ return castShadows; }
 	const bool			GetSoftShadows() const	{ return softShadows; }
+	const bool			GetActive() const		{ return active; }
+	const glm::vec3		GetColor() const		{ return color; }
+	const float			GetIntensity() const	{ return intensity; }
+
+	Icon*				GetIcon()				{ return &icon; }
 
 	//Setters
+	void SetActive(const bool& act)			{ active = act; }
 	void SetIntensity(const float& i)		{ intensity = i; }
+	void SetColor(const glm::vec3 newColor) { color = newColor; }
 	void SetCastShadows(const float& cast)	{ castShadows = cast;			transform.SetIsDirty(true); }
 	void ToggleCastShadows()				{ castShadows = !castShadows;	transform.SetIsDirty(true); }
 	void SetSoftShadows(const float& soft)	{ softShadows = soft;			transform.SetIsDirty(true); }

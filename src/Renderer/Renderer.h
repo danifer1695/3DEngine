@@ -72,11 +72,12 @@ public:
 	void				SetRenderState(RenderState newState)	{ state = newState; }
 
 	//Getters
-	const GLuint		GetTexture() const			{ return renderTex; }
-	SSAOPass&			GetSSAOPass()				{ return ssaoPass; }
-	const IDPass&		GetIDPass() const			{ return idPass; }
-	const GLuint		GetPostProcessed() const	{ return postPass.GetTexture(); }
-	const glm::vec3		GetSelectColor() const		{ return postPass.selectionColor; }	//pass by value
-	const float			GetSelectThicness() const	{ return postPass.selectionThickness; }	//pass by value
+	const GLuint			GetTexture() const			{ return renderTex; }
+	SSAOPass&				GetSSAOPass()				{ return ssaoPass; }
+	const IDPass&			GetIDPass() const			{ return idPass; }
+	PostProcessingPass& 	GetPostPass()				{ return postPass; }
+	const GLuint			GetPostProcessed() const	{ return postPass.GetTexture(); }
+	const glm::vec3			GetSelectColor() const		{ return postPass.selectionColor; }	//pass by value
+	const float				GetSelectThicness() const	{ return postPass.selectionThickness; }	//pass by value
 };
 
