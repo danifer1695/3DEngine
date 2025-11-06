@@ -57,6 +57,7 @@ void PostProcessingPass::SetupTexture()
 
 	Utils::getOpenGLError("POSTPASS::SETUP_TEXTURE");
 }
+
 //=============================================================================================
 //RenderItemSelection
 //=============================================================================================
@@ -107,14 +108,18 @@ void PostProcessingPass::RenderItemSelection(Scene& scene)
 	glDisable(GL_POLYGON_OFFSET_FILL);
 }
 //=============================================================================================
-//SetupTexture
+//RenderIcons()
 //=============================================================================================
 
-void PostProcessingPass::RenderIcons(Scene& scene)
+void PostProcessingPass::RenderIcons(Scene& scene, const GBuffer& gbuffer)
 {
-	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//We copy the depth data from the Gbuffer to our current FBO
+	Utils::CopyDepthData(gbuffer.GetFBO(), FBO, screenWidth, screenHeight);
 
 	//Precalculate rotation-less view matrix
 	glm::mat4 view = scene.GetCamera()->get_view_matrix();
@@ -136,7 +141,7 @@ void PostProcessingPass::RenderIcons(Scene& scene)
 
 		//Create rotation-less model matrix
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), light->transform.getPosition());
-		model = glm::scale(model, glm::vec3(icon->GetScale()));
+		model = glm::scale(model, glm::vec3(iconSize));
 
 		model *= glm::mat4(noRotView);
 		iconShader->setMatrix4("model", model);
@@ -162,13 +167,13 @@ void PostProcessingPass::RenderIcons(Scene& scene)
 	}
 
 	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 }
 //=============================================================================================
 //SetupTexture
 //=============================================================================================
 
-void PostProcessingPass::Render(Scene& scene, GLuint renderTex)
+void PostProcessingPass::Render(Scene& scene, GLuint renderTex, const GBuffer& gbuffer)
 {
 	postProcessingShader->use();
 
@@ -189,7 +194,7 @@ void PostProcessingPass::Render(Scene& scene, GLuint renderTex)
 	if (scene.GetSelectedItem() != nullptr) RenderItemSelection(scene);
 
 	//Render Icons
-	if(renderIcons) RenderIcons(scene);
+	if(renderIcons) RenderIcons(scene, gbuffer);
 
 	//Unbind framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

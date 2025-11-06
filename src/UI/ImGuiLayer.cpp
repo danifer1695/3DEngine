@@ -152,13 +152,14 @@ void ImGuiLayer::RenderAssetsPanel(Scene& scene, unsigned int screenWidth, unsig
 
 void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 {
-	int windowWidth = 800 + 400;
-	bool setSSAO = renderer.GetSSAOPass().GetEnabled();
-	bool renderIcons = renderer.GetPostPass().GetRenderIcons();
+	int windowWidth		= 800 + 400;
+	float iconSize		= renderer.GetPostPass().GetIconSize();
+	bool setSSAO		= renderer.GetSSAOPass().GetEnabled();
+	bool renderIcons	= renderer.GetPostPass().GetRenderIcons();
 
 	//select tool values
-	glm::vec3 selectColor = renderer.GetSelectColor();
-	float selectThicness = renderer.GetSelectThicness();
+	glm::vec3 selectColor	= renderer.GetSelectColor();
+	float selectThicness	= renderer.GetSelectThicness();
 
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -185,10 +186,16 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 	if(renderIDpass) renderer.SetRenderState(RENDER_ID);
 	else renderer.SetRenderState(RENDER_LIGHT);
 	
+	//Icon rendering settings
+	ImGui::Separator();
+	ImGui::Text("Icons");
 	if (ImGui::Checkbox("Icons visible", &renderIcons))
 		renderer.GetPostPass().ToggleIcons();
 
-	//Rendering
+	if (ImGui::DragFloat("Icon size", &iconSize, 0.005f, 0.05f, 1.0f, "%.3f"))
+		renderer.GetPostPass().SetIconSize(iconSize);
+
+	//Selection tool display settings
 	ImGui::Separator();
 	ImGui::Text("Selection Tool");
 

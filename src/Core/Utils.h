@@ -82,7 +82,7 @@ namespace Utils
 		);
 
 		//Unbind framebuffers
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, destination);
 	}
 
 	//Logging

@@ -7,6 +7,7 @@
 #include"../../Core/Utils.h"
 #include"../../Resources/ResourceManager.h"
 #include"../../Resources/Primitives/Quad.h"
+#include"../../Renderer/GBuffer.h"
 
 #define POST_SHADER_VS "./shaders/renderer/postProcessingPass.vs"
 #define POST_SHADER_FS "./shaders/renderer/postProcessingPass.fs"
@@ -30,8 +31,9 @@ private:
 
 	Quad screenQuad;
 
-	//State
+	//Icons
 	bool renderIcons = true;
+	float iconSize = 0.2f;
 
 	//Handles
 	Handle h_lightIconTexture;
@@ -42,7 +44,7 @@ private:
 
 	//Helpers
 	void RenderItemSelection(Scene& scene);
-	void RenderIcons(Scene& scene);
+	void RenderIcons(Scene& scene, const GBuffer& gbuffer);
 
 public:
 	//Constructor
@@ -53,14 +55,16 @@ public:
 	float selectionThickness = 3.0f;
 
 	//Render
-	void Render(Scene& scene, GLuint renderTex);
+	void Render(Scene& scene, GLuint renderTex, const GBuffer& gbuffer);
 	void ToggleIcons() { renderIcons = !renderIcons; }
 
 	//Getters
 	const GLuint	GetTexture() const		{ return texture; }
 	const bool		GetRenderIcons() const	{ return renderIcons; }
+	const float		GetIconSize() const		{ return iconSize; }
 
 	//Setters
-	void SetRenderIcons(bool set) { renderIcons = set; }
+	void SetRenderIcons(bool set)	{ renderIcons = set; }
+	void SetIconSize(float set)		{ iconSize = set; }
 };
 
