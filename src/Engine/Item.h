@@ -26,6 +26,7 @@ public:
 	//Methods
 	void	Draw(glm::mat4 projectionMat, glm::mat4 viewMat, Shader& shader);
 	void	sendToShader(const Shader& shader);
+	virtual void RenderImGuiPanel() override;
 
 	//Getters
 	const Handle				getModelHandle() const	{ return modelHandle; }

@@ -5,7 +5,7 @@
 
 #include "../../Engine/GameObject.h"
 
-class Quad : public GameObject
+class Quad
 {
 private:
 	GLuint VAO = 0, VBO = 0;

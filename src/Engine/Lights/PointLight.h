@@ -21,6 +21,7 @@ public:
 		const Shader& shader, 
 		const size_t& lightIndex, 
 		const glm::mat4& view) const;
+	virtual void RenderImGuiPanel() override;
 
 	//getter
 	const float GetRadius() const { return radius; }

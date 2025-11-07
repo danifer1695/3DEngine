@@ -25,10 +25,35 @@ void Item::Draw(glm::mat4 projectionMat, glm::mat4 viewMat, Shader& shader)
 	Utils::getOpenGLError("ITEM::DRAW::MODEL");
 }
 //=============================================================================================
-//getError()
+//sendToShader()
 //=============================================================================================
 
 void Item::sendToShader(const Shader& shader)
 {
 	shader.setMatrix4("model", transform.GetModelMatrix());
+}
+
+//=============================================================================================
+//RenderImGuiPanel()
+//=============================================================================================
+void Item::RenderImGuiPanel()
+{
+	//transformation variables
+	glm::vec3 move = transform.getPosition();
+	glm::vec3 scale = transform.getScale();
+	glm::vec3 rotate = transform.getRotation();
+
+	ImGui::Text(name.c_str());
+	ImGui::NewLine();
+	
+	ImGui::Text("Item Transform:");
+
+	if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
+		transform.SetPosition(move);
+
+	if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotate), 0.2f))
+		transform.SetRotation(rotate);
+
+	if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.2f))
+		transform.SetScale(scale);
 }

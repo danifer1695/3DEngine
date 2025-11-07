@@ -24,6 +24,7 @@ public:
 		const size_t& lightIndex, 
 		const glm::mat4& view, 
 		const glm::mat4& lightSpaceMatrix) const;
+	virtual void RenderImGuiPanel() override;
 
 	//Setters
 	void SetTarget(const glm::vec3& tar) { target = tar; }

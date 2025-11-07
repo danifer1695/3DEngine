@@ -83,6 +83,13 @@ void ImGuiLayer::RenderEntityPanel(Scene& scene)
 
 	if (ImGui::BeginTabBar("Entities"))
 	{
+		//SELECTION TAB
+		//----------
+		if (ImGui::BeginTabItem("Selection"))
+		{
+			RenderSelectionTab(scene);
+			ImGui::EndTabItem();
+		}
 		//LIGHTS TAB
 		//----------
 		if (ImGui::BeginTabItem("Lights"))
@@ -165,7 +172,7 @@ void ImGuiLayer::RenderScenePanel(Renderer& renderer, unsigned int screenWidth)
 
 	//Set window parameters
 	ImGui::SetNextWindowSize(ImVec2((float)(screenWidth - windowWidth), 600.0f));
-	ImGui::SetNextWindowPos(ImVec2(windowWidth, 0));
+	ImGui::SetNextWindowPos(ImVec2((float)windowWidth, 0));
 
 	//Set window flags
 	ImGuiWindowFlags windowFlags = 0;
@@ -217,8 +224,8 @@ void ImGuiLayer::RenderViewport(Scene& scene, const GLuint& texture, unsigned in
 
 	//Set window parameters
 	int windowOffsetX = 400;
-	ImGui::SetNextWindowSize(ImVec2(viewPortWidth, viewPortHeight));
-	ImGui::SetNextWindowPos(ImVec2(windowOffsetX, 0));
+	ImGui::SetNextWindowSize(ImVec2((float)viewPortWidth, (float)viewPortHeight));
+	ImGui::SetNextWindowPos(ImVec2((float)windowOffsetX, 0));
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));	//set padding to 0
 
 	//Set window flags
@@ -355,38 +362,12 @@ void ImGuiLayer::RenderDirLight(Scene& scene, size_t& i)
 	//Loop through Directional Lights using iterators
 	for (auto rit = scene.GetDirLightCollection().rbegin(); rit != scene.GetDirLightCollection().rend(); )
 	{
-		//light state variables
-		glm::vec3 move		= rit->get()->transform.getPosition();
-		glm::vec3 color		= rit->get()->GetColor();
-		float intensity		= rit->get()->GetIntensity();
-		bool active			= rit->get()->GetActive();
-		bool castShadow		= rit->get()->GetCastShadows();
-		bool softShadow		= rit->get()->GetSoftShadows();
-
 		ImGui::NewLine();
 		ImGui::PushID(i);	//Unique ID per light
 
 		if (ImGui::TreeNode(rit->get()->GetName().c_str()))
 		{
-			//Active state
-			if (ImGui::Checkbox("Active", &active))
-				rit->get()->SetActive(active);
-			//Light Color
-			if(ImGui::ColorEdit3("Light Color", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs))
-				rit->get()->SetColor(color);
-			//Intensity
-			if (ImGui::DragFloat("Intensity", &intensity, 0.05f, 0.01f, 100.0f, "%.3f"))
-				rit->get()->SetIntensity(intensity);
-
-			ImGui::Text("Light Transform:");
-			if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
-				rit->get()->transform.SetPosition(move);
-
-			if (ImGui::Checkbox("Cast Shadows", &castShadow))
-				rit->get()->ToggleCastShadows();
-
-			if (ImGui::Checkbox("Soft Shadows", &softShadow))
-				rit->get()->ToggleSoftShadows();
+			rit->get()->RenderImGuiPanel();
 
 			ImGui::NewLine();
 			if (ImGui::Button("Remove"))
@@ -413,14 +394,6 @@ void ImGuiLayer::RenderPointLight(Scene& scene, size_t& i)
 {
 	for (auto rit = scene.GetPointLightCollection().rbegin(); rit != scene.GetPointLightCollection().rend(); )
 	{
-		//light state variables
-		glm::vec3 move		= rit->get()->transform.getPosition();
-		glm::vec3 color		= rit->get()->GetColor();
-		float intensity		= rit->get()->GetIntensity();
-		bool active			= rit->get()->GetActive();
-		bool castShadow		= rit->get()->GetCastShadows();
-		bool softShadow		= rit->get()->GetSoftShadows();
-		float radius		= rit->get()->GetRadius();
 
 		ImGui::NewLine();
 		ImGui::PushID(i);	//Unique ID per light
@@ -428,28 +401,7 @@ void ImGuiLayer::RenderPointLight(Scene& scene, size_t& i)
 		if (ImGui::TreeNode(rit->get()->GetName().c_str()))
 		{
 
-			//Active state
-			if (ImGui::Checkbox("Active", &active))
-				rit->get()->SetActive(active);
-			//Light Color
-			if (ImGui::ColorEdit3("Light Color", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs))
-				rit->get()->SetColor(color);
-			//Intensity
-			if (ImGui::DragFloat("Intensity", &intensity, 0.05f, 0.01f, 100.0f, "%.3f"))
-				rit->get()->SetIntensity(intensity);
-			//Radius
-			if(ImGui::DragFloat("Radius", &radius, 0.5f, 0.01f, 100.0f, "%.3f"))
-				rit->get()->SetRadius(radius);
-
-			ImGui::Text("Light Transform:");
-			if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.05f))
-				rit->get()->transform.SetPosition(move);
-
-			if (ImGui::Checkbox("Cast Shadows", &castShadow))
-				rit->get()->ToggleCastShadows();
-
-			if (ImGui::Checkbox("Soft Shadows", &softShadow))
-				rit->get()->ToggleSoftShadows();
+			rit->get()->RenderImGuiPanel();
 
 			ImGui::NewLine();
 			if (ImGui::Button("Remove"))
@@ -504,6 +456,20 @@ void ImGuiLayer::RenderItemTab(Scene& scene)
 		}
 		ImGui::PopID();
 		i++;
+	}
+}
+//=============================================================================================
+//RenderSelectionTab()
+//=============================================================================================
+
+void ImGuiLayer::RenderSelectionTab(Scene& scene)
+{
+	//Render selected Item's UI window
+	//If GetSelectedItem returns nullptr, render nothing.
+	Item* selection = scene.GetSelectedItem();
+	if (selection != nullptr)
+	{
+		selection->RenderImGuiPanel();
 	}
 }
 //=============================================================================================

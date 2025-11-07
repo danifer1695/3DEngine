@@ -37,6 +37,7 @@ private:
 	//Tabs
 	void RenderLightTab(Scene& scene);
 	void RenderItemTab(Scene& scene);
+	void RenderSelectionTab(Scene& scene);
 	void RenderMaterialsTab(Scene& scene);
 	void RenderModelsTab(Scene& scene);
 

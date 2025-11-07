@@ -6,6 +6,10 @@
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
 
+#include"../../vendors/ImGui/imgui.h"
+#include"../../vendors/ImGui/imgui_impl_opengl3.h"
+#include"../../vendors/ImGui/imgui_impl_glfw.h"
+
 #include<memory>
 
 #include"Transform.h"
@@ -33,6 +37,9 @@ public:
 		glm::vec3 rotation = glm::vec3(0.0f),
 		glm::vec3 scale = glm::vec3(1.0f));
 	GameObject() :GameObject("default", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f)) {};
+
+	//UI
+	virtual void RenderImGuiPanel() = 0;
 
 	//Collisions
 	void InitializeAABB(const Model* model);

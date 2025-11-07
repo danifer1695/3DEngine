@@ -33,3 +33,37 @@ void DirectionalLight::sendToShader(const Shader& shader, const size_t& lightInd
 
 	Utils::getOpenGLError("POINTLIGHT::SEND_TO_SHADER");
 }
+//=============================================================================================
+//RenderImGuiPanel()
+//=============================================================================================
+
+void DirectionalLight::RenderImGuiPanel()
+{
+	//light state variables
+	glm::vec3 move		= transform.getPosition();
+	glm::vec3 color		= GetColor();
+	float intensity		= GetIntensity();
+	bool active			= GetActive();
+	bool castShadow		= GetCastShadows();
+	bool softShadow		= GetSoftShadows();
+
+	//Active state
+	if (ImGui::Checkbox("Active", &active))
+		SetActive(active);
+	//Light Color
+	if (ImGui::ColorEdit3("Light Color", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs))
+		SetColor(color);
+	//Intensity
+	if (ImGui::DragFloat("Intensity", &intensity, 0.05f, 0.01f, 100.0f, "%.3f"))
+		SetIntensity(intensity);
+
+	ImGui::Text("Light Transform:");
+	if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
+		transform.SetPosition(move);
+
+	if (ImGui::Checkbox("Cast Shadows", &castShadow))
+		ToggleCastShadows();
+
+	if (ImGui::Checkbox("Soft Shadows", &softShadow))
+		ToggleSoftShadows();
+}
