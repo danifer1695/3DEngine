@@ -39,12 +39,17 @@ void GeometryPass::Render(Scene& scene, const GBuffer& gBuffer)
 	geomPassShader->setMatrix4("projection", projection);
 	geomPassShader->setMatrix4("view", view);
 
-	for (auto& item : scene.GetItemCollection())
+	//Draw all items
+	for (auto& obj : scene.GetGameObjectCollection())
 	{
-		//set texture map uniform values to those of the current item's material
-		item.sendToShader(*geomPassShader);
-		//NEEDS TO CHANGE TO PER-MESH
-		item.Draw(projection, view, *geomPassShader.get());
+		//Dynamic cast to make sure current gameObject is of Item type
+		if(auto item = std::dynamic_pointer_cast<Item>(obj))
+		{
+			//set texture map uniform values to those of the current item's material
+			item->sendToShader(*geomPassShader);
+			//NEEDS TO CHANGE TO PER-MESH
+			item->Draw(projection, view, *geomPassShader.get());
+		}
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

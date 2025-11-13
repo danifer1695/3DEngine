@@ -28,6 +28,7 @@ public:
 	
 	//Methods
 	void Initialize(const Model* model);
+	void InitializeWithCube(const std::vector<glm::vec3>& verts);
 	void ComputeLocalCorners();
 	void Update(glm::mat4 modelMatrix);
 };

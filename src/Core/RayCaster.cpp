@@ -53,32 +53,5 @@ bool RayCaster::IntersectsAABB(const Ray& ray, const AABB& aabb, float& tNear) c
 
 	return tmin <= tmax;
 }
-//=============================================================================================
-//CastRay
-//=============================================================================================
 
-Item* RayCaster::CastRay(const Ray& ray, std::vector<Item>& items)
-{
-	//Cast against all objects
 
-	Item* closest = nullptr;
-	float closestT = std::numeric_limits<float>::max();
-
-	for (auto& item : items)
-	{
-		float tNear;	//This variable will be modified dynamically from within IntersectAABB
-		if (IntersectsAABB(ray, item.GetAABB(), tNear))		//Returns true if ray intersects aabb
-		{
-			//Utils::Print(item.second->GetName());
-			//Utils::Print(std::to_string(tNear));
-			if (tNear < closestT)
-			{	
-				closestT = tNear;
-				//Utils::Print(item.second->GetName());
-				closest = &item;	
-			}
-		}
-	}
-
-	return closest;
-}

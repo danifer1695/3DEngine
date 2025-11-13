@@ -5,11 +5,11 @@
 //===============================================================================================
 
 Item::Item(std::string name, Handle handle, glm::vec3 worldPos)
-	:modelHandle{ handle }, GameObject(name, worldPos) 
+	:h_Model{ handle }, GameObject(name, worldPos) 
 {
 	IDColor = glm::vec3(Utils::Randf(0.0f, 1.0f), Utils::Randf(0.0f, 1.0f), Utils::Randf(0.0f, 1.0f));
 
-	InitializeAABB(ResourceManager::Get().GetModel(modelHandle));
+	InitializeAABB(ResourceManager::Get().GetModel(h_Model));
 	aabb.Update(transform.GetModelMatrix());	//Need to call update to set up worldPos min and max	
 
 	Utils::getOpenGLError("ITEM::CONSTRUCTOR");
@@ -20,7 +20,7 @@ Item::Item(std::string name, Handle handle, glm::vec3 worldPos)
 //===============================================================================================
 void Item::Draw(glm::mat4 projectionMat, glm::mat4 viewMat, Shader& shader)
 {
-	ResourceManager::Get().GetModel(modelHandle)->Draw(shader, projectionMat, viewMat, transform.GetModelMatrix());
+	ResourceManager::Get().GetModel(h_Model)->Draw(shader, projectionMat, viewMat, transform.GetModelMatrix());
 
 	Utils::getOpenGLError("ITEM::DRAW::MODEL");
 }
@@ -48,12 +48,20 @@ void Item::RenderImGuiPanel()
 	
 	ImGui::Text("Item Transform:");
 
-	if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
+	if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.05f))
 		transform.SetPosition(move);
 
-	if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotate), 0.2f))
+	if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotate), 0.05f))
 		transform.SetRotation(rotate);
 
-	if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.2f))
+	if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.05f))
 		transform.SetScale(scale);
+}
+
+//=============================================================================================
+//RenderImGuiPanel()
+//=============================================================================================
+void Item::DrawModel()
+{
+	ResourceManager::Get().GetModel(h_Model)->Draw();
 }

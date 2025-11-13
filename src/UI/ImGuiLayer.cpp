@@ -36,7 +36,7 @@ ImGuiLayer::~ImGuiLayer()
 void ImGuiLayer::InitHandles()
 {
 	Utils::Print("IMGUILAYER::INIT_HANDLES:: Handles initialized");
-	defaultTex = ResourceManager::Get().GetTextureHandle("Default");
+	defaultTex = ResourceManager::Get().GetTextureHandle("Item_Icon");
 }
 //=============================================================================================
 //BeginFrame()
@@ -258,17 +258,44 @@ void ImGuiLayer::RenderViewport(Scene& scene, const GLuint& texture, unsigned in
 
 	if (coordsInRange && io.MouseClicked[0])
 	{
-		Ray ray = scene.GetCamera()->GenerateRay(relativeMouseX, relativeMouseY, viewPortWidth, viewPortHeight, scene.GetProjectionMatrix());
+		Ray ray = scene.GetCamera()->GenerateRay(relativeMouseX, relativeMouseY, (float)viewPortWidth, (float)viewPortHeight, scene.GetProjectionMatrix());
 		RayCaster raycaster;
 
-		if (Item* hit = raycaster.CastRay(ray, scene.GetItemCollection()))
+		if (auto hit = raycaster.CastRay(ray, scene.GetGameObjectCollection()))
 		{
 			Utils::Print("Picked: " + hit->GetName());
 			std::cout << "Clicked at (" << relativeMouseX << ", " << relativeMouseY << ")" << std::endl;
 			
 			scene.SetSelectedItem(hit);
 		}
-		else scene.SetSelectedItem(nullptr);
+
+		////Check items
+		//if (auto hit = raycaster.CastRay(ray, scene.GetItemCollection()))
+		//{
+		//	Utils::Print("Picked: " + hit->GetName());
+		//	std::cout << "Clicked at (" << relativeMouseX << ", " << relativeMouseY << ")" << std::endl;
+		//	
+		//	scene.SetSelectedItem(hit);
+		//}
+
+		////Check lights
+		////Directional lights
+		//else if (auto hit = raycaster.CastRay(ray, scene.GetDirLightCollection()))
+		//{
+		//	Utils::Print("Picked: " + hit->GetName());
+		//	std::cout << "Clicked at (" << relativeMouseX << ", " << relativeMouseY << ")" << std::endl;
+
+		//	scene.SetSelectedItem(hit);
+		//}
+		////Point Lights
+		//else if (auto hit = raycaster.CastRay(ray, scene.GetPointLightCollection()))
+		//{
+		//	Utils::Print("Picked: " + hit->GetName());
+		//	std::cout << "Clicked at (" << relativeMouseX << ", " << relativeMouseY << ")" << std::endl;
+
+		//	scene.SetSelectedItem(hit);
+		//}
+		//else scene.SetSelectedItem(nullptr);
 	}
 
 	ImGui::End();
@@ -359,31 +386,36 @@ void ImGuiLayer::RenderLightTab(Scene& scene)
 
 void ImGuiLayer::RenderDirLight(Scene& scene, size_t& i)
 {
-	//Loop through Directional Lights using iterators
-	for (auto rit = scene.GetDirLightCollection().rbegin(); rit != scene.GetDirLightCollection().rend(); )
+	for (auto rit = scene.GetGameObjectCollection().rbegin(); rit != scene.GetGameObjectCollection().rend(); )
 	{
-		ImGui::NewLine();
-		ImGui::PushID(i);	//Unique ID per light
-
-		if (ImGui::TreeNode(rit->get()->GetName().c_str()))
+		//Dynamic cast to make sure the current GameObject is of DirectionalLight type
+		//returns nullptr if its anything else
+		if(auto dirlight = std::dynamic_pointer_cast<DirectionalLight>(*rit))
 		{
-			rit->get()->RenderImGuiPanel();
-
 			ImGui::NewLine();
-			if (ImGui::Button("Remove"))
-			{
-				rit = scene.RemoveDirLight(rit);
-				ImGui::TreePop();
-				ImGui::PopID();
-				continue;	//skip ++rit so we dont skip an element
-			}
+			ImGui::PushID((int)i);	//Unique ID per light
 
-			ImGui::Separator();
-			ImGui::TreePop();
+			if (ImGui::TreeNode(rit->get()->GetName().c_str()))
+			{
+				rit->get()->RenderImGuiPanel();
+
+				ImGui::NewLine();
+				if (ImGui::Button("Remove"))
+				{
+					rit = scene.RemoveGameObject(rit);
+					ImGui::TreePop();
+					ImGui::PopID();
+					continue;	//skip ++rit so we dont skip an element
+				}
+
+				ImGui::Separator();
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
+			i++;
 		}
-		ImGui::PopID();
+		//advance iterator
 		++rit;
-		i++;
 	}
 }
 //=============================================================================================
@@ -392,32 +424,38 @@ void ImGuiLayer::RenderDirLight(Scene& scene, size_t& i)
 
 void ImGuiLayer::RenderPointLight(Scene& scene, size_t& i)
 {
-	for (auto rit = scene.GetPointLightCollection().rbegin(); rit != scene.GetPointLightCollection().rend(); )
+	for (auto rit = scene.GetGameObjectCollection().rbegin(); rit != scene.GetGameObjectCollection().rend(); )
 	{
-
-		ImGui::NewLine();
-		ImGui::PushID(i);	//Unique ID per light
-
-		if (ImGui::TreeNode(rit->get()->GetName().c_str()))
+		//Dynamic cast to make sure the current GameObject is of PointLight type
+		//returns nullptr if its anything else
+		if (auto dirlight = std::dynamic_pointer_cast<PointLight>(*rit))
 		{
-
-			rit->get()->RenderImGuiPanel();
-
 			ImGui::NewLine();
-			if (ImGui::Button("Remove"))
-			{
-				rit = scene.RemovePointLight(rit);
-				ImGui::TreePop();
-				ImGui::PopID();
-				continue;	//skip ++rit so we dont skip an element
-			}
+			ImGui::PushID((int)i);	//Unique ID per light
 
-			ImGui::Separator();
-			ImGui::TreePop();
+			if (ImGui::TreeNode(rit->get()->GetName().c_str()))
+			{
+
+				rit->get()->RenderImGuiPanel();
+
+				ImGui::NewLine();
+				if (ImGui::Button("Remove"))
+				{
+					rit = scene.RemoveGameObject(rit);
+					ImGui::TreePop();
+					ImGui::PopID();
+					continue;	//skip ++rit so we dont skip an element
+				}
+
+				ImGui::Separator();
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
+			i++;
 		}
-		ImGui::PopID();
+
+		//advance iterator
 		++rit;
-		i++;
 	}
 }
 //=============================================================================================
@@ -427,35 +465,38 @@ void ImGuiLayer::RenderPointLight(Scene& scene, size_t& i)
 void ImGuiLayer::RenderItemTab(Scene& scene)
 {
 	int i = 0;
-	for (auto& item : scene.GetItemCollection())
+	for (auto& obj : scene.GetGameObjectCollection())
 	{
-		//transformation variables
-		glm::vec3 move = item.transform.getPosition();
-		glm::vec3 scale = item.transform.getScale();
-		glm::vec3 rotate = item.transform.getRotation();
-
-		ImGui::NewLine();
-		ImGui::PushID(i);	//Unique ID per light
-
-		if (ImGui::TreeNode(item.GetName().c_str()))
+		if(auto item = std::dynamic_pointer_cast<Item>(obj))
 		{
-			ImGui::Text("Item Transform:");
+			//transformation variables
+			glm::vec3 move = item->transform.getPosition();
+			glm::vec3 scale = item->transform.getScale();
+			glm::vec3 rotate = item->transform.getRotation();
 
-			if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
-				item.transform.SetPosition(move);
+			ImGui::NewLine();
+			ImGui::PushID(i);	//Unique ID per light
 
-			if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotate), 0.2f))
-				item.transform.SetRotation(rotate);
+			if (ImGui::TreeNode(item->GetName().c_str()))
+			{
+				ImGui::Text("Item Transform:");
 
-			if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.2f))
-				item.transform.SetScale(scale);
+				if (ImGui::DragFloat3("Position", glm::value_ptr(move), 0.2f))
+					item->transform.SetPosition(move);
 
-			ImGui::Separator();
+				if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotate), 0.2f))
+					item->transform.SetRotation(rotate);
 
-			ImGui::TreePop();
+				if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.2f))
+					item->transform.SetScale(scale);
+
+				ImGui::Separator();
+
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
+			i++;
 		}
-		ImGui::PopID();
-		i++;
 	}
 }
 //=============================================================================================
@@ -466,7 +507,7 @@ void ImGuiLayer::RenderSelectionTab(Scene& scene)
 {
 	//Render selected Item's UI window
 	//If GetSelectedItem returns nullptr, render nothing.
-	Item* selection = scene.GetSelectedItem();
+	std::shared_ptr<GameObject> selection = scene.GetSelectedItem();
 	if (selection != nullptr)
 	{
 		selection->RenderImGuiPanel();

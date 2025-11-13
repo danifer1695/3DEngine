@@ -3,7 +3,7 @@
 #include<string>
 #include<iostream>
 
-#include "../../Engine/GameObject.h"
+#include<glad/glad.h>
 
 class Quad
 {

@@ -41,8 +41,8 @@ private:
 	//Update
 	void UpdateShadows(Scene& scene, bool globalUpdate);
 	void ResetDirtyFlags(Scene& scene);
-	void CaptureDirShadows(Scene& scene, const size_t& lightIndex);
-	void CapturePointShadows(Scene& scene, const size_t& lightIndex, const glm::mat4& shadowProj);
+	void CaptureDirShadows(Scene& scene, const size_t& lightIndex, std::shared_ptr<DirectionalLight> dl);
+	void CapturePointShadows(Scene& scene, const size_t& lightIndex, std::shared_ptr<PointLight> pl, const glm::mat4& shadowProj);
 
 public:
 	//Constructors

@@ -10,7 +10,7 @@ public:
 	//constructor
 	PointLight(
 		const std::string name =		"Point Light",
-		const glm::vec3& position_in =	glm::vec3(1.0f),
+		const glm::vec3& position_in =	glm::vec3(0.0f),
 		const glm::vec3& color_in =		glm::vec3(1.0f),
 		const bool castShadows_in =		false,
 		float radius_in =				50.0f,

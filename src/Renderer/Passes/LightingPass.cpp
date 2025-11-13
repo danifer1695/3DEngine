@@ -92,8 +92,8 @@ void LightingPass::Render(Scene& scene, const GBuffer& gBuffer, const GLuint& ss
 
 	lightPassShader->use();
 	lightPassShader->setBool("ssaoEnabled",				ssaoEnabled);
-	lightPassShader->setInt("numberOfPointLights",		(int)scene.GetPointLightCollection().size());
-	lightPassShader->setInt("numberOfDirLights",		(int)scene.GetDirLightCollection().size());
+	lightPassShader->setInt("numberOfPointLights",		(int)scene.GetPointLightCount());
+	lightPassShader->setInt("numberOfDirLights",		(int)scene.GetDirLightCount());
 	lightPassShader->setInt("numberOfSpotLights",		0);			//***NEEDS UPDATING WHEN IMPLEMENTING SPOTLIGHTS***
 	lightPassShader->setFloat("farPlane",				scene.GetFarPlane());
 	lightPassShader->setFloat("emissiveIntensity",		1.0f);
@@ -122,23 +122,33 @@ void LightingPass::Render(Scene& scene, const GBuffer& gBuffer, const GLuint& ss
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::TEX_BINDING");
 
 	//point lights info to shader
-	for (size_t i = 0; i < scene.GetPointLightCollection().size(); ++i)
+	//We need specific indexes for each type of light, so we will use these variables to keep
+	//track of them
+	int dirLightIndex = 0;
+	int pointLightIndex = 0;
+	//iterate through all gameobjects
+	for (auto& obj : scene.GetGameObjectCollection())
 	{
-		//conditional: if GL_TEXTURE0 + texUnitIndex exceeds GL_TEXTURE31, break the loop
-		if (scene.GetPointLightCollection().size() == 0) break;
-		auto* pl = dynamic_cast<PointLight*>(scene.GetPointLightCollection().at(i).get());
-
-		SendPointLightToShader(pl, scene, i);
+		if (auto pl = std::dynamic_pointer_cast<PointLight>(obj))
+		{
+			SendPointLightToShader(pl.get(), scene, pointLightIndex);
+			pointLightIndex++;
+		}
+		if (auto dl = std::dynamic_pointer_cast<DirectionalLight>(obj))
+		{
+			SendDirLightToShader(dl.get(), scene, dirLightIndex);
+			dirLightIndex++;
+		}
 	}
 
 	//send directional lights info to shader
-	for (size_t i = 0; i < scene.GetDirLightCollection().size(); ++i)
+	/*for (size_t i = 0; i < scene.GetDirLightCollection().size(); ++i)
 	{
 		if (scene.GetDirLightCollection().size() == 0) break;
 		auto* dl = dynamic_cast<DirectionalLight*>(scene.GetDirLightCollection().at(i).get());
 
 		SendDirLightToShader(dl, scene, i);
-	}
+	}*/
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::LIGHTINFO_TO_SHADER");
 
 	//bind render framebuffer

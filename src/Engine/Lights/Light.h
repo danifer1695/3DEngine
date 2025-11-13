@@ -11,6 +11,7 @@
 #include"../GameObject.h"
 #include"../../Renderer/Shader.h"
 #include"../../Resources/Icon.h"
+#include"../../Resources/Primitives/Cube.h"
 #include"ShadowMap.h"
 
 enum LightType
@@ -37,6 +38,7 @@ protected:
 
 	//Icon
 	Icon icon;
+	Cube aabbCube;
 
 public:
 	//Constructors
@@ -52,6 +54,7 @@ public:
 
 	//methods
 	glm::mat4 GetModelMatrix() const = delete;	//we wont need a model matrix for a light object
+	virtual void DrawModel() { std::cout << "This should not show up" << std::endl; };				//This will be used to draw the icon's outline when selected
 
 	//Getters
 	const LightType		GetLightType() const	{ return type; }

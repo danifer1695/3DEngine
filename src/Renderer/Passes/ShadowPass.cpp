@@ -97,15 +97,13 @@ void ShadowPass::SetupPointShadowArray()
 
 void ShadowPass::Render(Scene& scene)
 {
-	auto lights = scene.GetLightCollection();
-
 	bool needsUpdate = false;
 	bool globalUpdate = false;
 
 	//Check Items
-	for (const auto& item : scene.GetItemCollection())
+	for (const auto& item : scene.GetGameObjectCollection())
 	{
-		if (item.transform.GetIsDirty())
+		if (item->transform.GetIsDirty())
 		{
 			needsUpdate = true;
 			globalUpdate = true;
@@ -113,18 +111,29 @@ void ShadowPass::Render(Scene& scene)
 		}
 	}
 
-	//Check lights if items are all clean
-	if (!needsUpdate)
-	{
-		for (const auto& light : lights)
-		{
-			if (light->transform.GetIsDirty())
-			{
-				needsUpdate = true;
-				break;
-			}
-		}
-	}
+	//Check Items
+	//for (const auto& item : scene.GetItemCollection())
+	//{
+	//	if (item->transform.GetIsDirty())
+	//	{
+	//		needsUpdate = true;
+	//		globalUpdate = true;
+	//		break;
+	//	}
+	//}
+
+	////Check lights if items are all clean
+	//if (!needsUpdate)
+	//{
+	//	for (const auto& light : lights)
+	//	{
+	//		if (light->transform.GetIsDirty())
+	//		{
+	//			needsUpdate = true;
+	//			break;
+	//		}
+	//	}
+	//}
 
 	//If scene is not clean, update shadows, and reset dirty flags
 	if (needsUpdate)
@@ -140,14 +149,18 @@ void ShadowPass::Render(Scene& scene)
 void ShadowPass::ResetDirtyFlags(Scene& scene)
 {
 	//Reset dirty flags
-	for (auto& item : scene.GetItemCollection())
+	for (auto& obj : scene.GetGameObjectCollection())
 	{
-		item.transform.SetIsDirty(false);
+		obj->transform.SetIsDirty(false);
+	}
+	/*for (auto& item : scene.GetItemCollection())
+	{
+		item->transform.SetIsDirty(false);
 	}
 	for (const auto& light : scene.GetLightCollection())
 	{
 		light->transform.SetIsDirty(false);
-	}
+	}*/
 }
 //=============================================================================================
 //UpdateShadows
@@ -156,38 +169,64 @@ void ShadowPass::ResetDirtyFlags(Scene& scene)
 void ShadowPass::UpdateShadows(Scene& scene, bool globalUpdate)
 {
 	glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, scene.GetNearPlane(), scene.GetFarPlane());
-	size_t numberOfPointLights = scene.GetPointLightCollection().size();
-	size_t numberOfDirLights = scene.GetDirLightCollection().size();
+	size_t numberOfPointLights = scene.GetPointLightCount();
+	size_t numberOfDirLights = scene.GetDirLightCount();
 
-	//We loop through all of the scene's lights
-	for (size_t i = 0; i < numberOfPointLights; ++i)
+	//Light type indexes
+	size_t dirLightIndex = 0;
+	size_t pointLightIndex = 0;
+
+	for (auto& obj : scene.GetGameObjectCollection())
 	{
-		//skip if light casts no shadows or if its not dirty
-		if (!scene.GetPointLightCollection().at(i)->GetCastShadows()) continue;
-		//if update isn't global and shadow isnt dirty, we skip
-		if (!globalUpdate && !scene.GetPointLightCollection().at(i)->transform.GetIsDirty()) continue;
+		//Dynamic cast to only to make sure we are working with the light type we want
+		if (auto pl = std::dynamic_pointer_cast<PointLight>(obj))
+		{
+			if (!pl->GetCastShadows()) continue;
+			if (!globalUpdate && !pl->transform.GetIsDirty()) continue;
 
-		CapturePointShadows(scene, i, shadowProj);
+			CapturePointShadows(scene, pointLightIndex, pl, shadowProj);
+			pointLightIndex++;
+			continue;
+		}
+		if (auto dl = std::dynamic_pointer_cast<DirectionalLight>(obj))
+		{
+			if (!dl->GetCastShadows()) continue;
+			if (!globalUpdate && !dl->transform.GetIsDirty()) continue;
+
+			CaptureDirShadows(scene, dirLightIndex, dl);
+			dirLightIndex++;
+			continue;
+		}
 	}
 
-	//We loop through all of the scene's lights
-	for (size_t i = 0; i < numberOfDirLights; ++i)
-	{
-		//skip if light casts no shadows or if its not dirty
-		if (!scene.GetDirLightCollection().at(i)->GetCastShadows()) continue;
-		//if update isn't global and shadow isnt dirty, we skip
-		if (!globalUpdate && !scene.GetDirLightCollection().at(i)->transform.GetIsDirty()) continue;
-		
-		CaptureDirShadows(scene, i);
-	}
+	////We loop through all of the scene's lights
+	//for (size_t i = 0; i < numberOfPointLights; ++i)
+	//{
+	//	//skip if light casts no shadows or if its not dirty
+	//	if (!scene.GetPointLightCollection().at(i)->GetCastShadows()) continue;
+	//	//if update isn't global and shadow isnt dirty, we skip
+	//	if (!globalUpdate && !scene.GetPointLightCollection().at(i)->transform.GetIsDirty()) continue;
+
+	//	CapturePointShadows(scene, i, shadowProj);
+	//}
+
+	////We loop through all of the scene's lights
+	//for (size_t i = 0; i < numberOfDirLights; ++i)
+	//{
+	//	//skip if light casts no shadows or if its not dirty
+	//	if (!scene.GetDirLightCollection().at(i)->GetCastShadows()) continue;
+	//	//if update isn't global and shadow isnt dirty, we skip
+	//	if (!globalUpdate && !scene.GetDirLightCollection().at(i)->transform.GetIsDirty()) continue;
+	//	
+	//	CaptureDirShadows(scene, i);
+	//}
 }
 //=============================================================================================
 //CaptureDirShadows
 //=============================================================================================
 
-void ShadowPass::CaptureDirShadows(Scene& scene, const size_t& lightIndex)
+void ShadowPass::CaptureDirShadows(Scene& scene, const size_t& lightIndex, std::shared_ptr<DirectionalLight> dl)
 {
-	auto dl = scene.GetDirLightCollection()[lightIndex];
 	glm::vec3 lightPos = dl->transform.getPosition();
 	glm::vec3 lightTarget = dl->GetTarget();
 
@@ -215,9 +254,12 @@ void ShadowPass::CaptureDirShadows(Scene& scene, const size_t& lightIndex)
 
 	//Draw all items in the scene
 	std::cout << "Rendering Direct Shadows" << std::endl;
-	for (auto& item : scene.GetItemCollection()) {
-		dirShadowShader->setMatrix4("model", item.transform.GetModelMatrix());
-		ResourceManager::Get().GetModel(item.getModelHandle())->Draw();
+	for (auto& obj : scene.GetGameObjectCollection()) {
+		if(auto item = std::dynamic_pointer_cast<Item>(obj))
+		{
+			dirShadowShader->setMatrix4("model", item->transform.GetModelMatrix());
+			ResourceManager::Get().GetModel(item->getModelHandle())->Draw();
+		}
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -226,9 +268,8 @@ void ShadowPass::CaptureDirShadows(Scene& scene, const size_t& lightIndex)
 //CapturePointShadows
 //=============================================================================================
 
-void ShadowPass::CapturePointShadows(Scene& scene, const size_t& lightIndex, const glm::mat4& shadowProj)
+void ShadowPass::CapturePointShadows(Scene& scene, const size_t& lightIndex, std::shared_ptr<PointLight> pl, const glm::mat4& shadowProj)
 {
-	auto pl = scene.GetPointLightCollection()[lightIndex];
 	glm::vec3 lightPos = pl->transform.getPosition();
 
 	//Create transform matrices for shadow capturing
@@ -269,11 +310,14 @@ void ShadowPass::CapturePointShadows(Scene& scene, const size_t& lightIndex, con
 		//pointShadowShader->setInt("lightIndex", lightIndex);
 
 		//Render all elements in the scene
-		for (auto& item : scene.GetItemCollection()) 
+		for (auto& obj : scene.GetGameObjectCollection()) 
 		{
-			//Send matrices to shader and draw model
-			pointShadowShader->setMatrix4("model", item.transform.GetModelMatrix());
-			ResourceManager::Get().GetModel(item.getModelHandle())->Draw();
+			if(auto item = std::dynamic_pointer_cast<Item>(obj))
+			{
+				//Send matrices to shader and draw model
+				pointShadowShader->setMatrix4("model", item->transform.GetModelMatrix());
+				ResourceManager::Get().GetModel(item->getModelHandle())->Draw();
+			}
 		}
 	}
 	//Unbind framebuffer

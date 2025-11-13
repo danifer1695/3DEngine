@@ -23,6 +23,7 @@
 
 #define REVIT_DIRLIGHT std::vector<std::shared_ptr<DirectionalLight>>::reverse_iterator
 #define REVIT_POINTLIGHT std::vector<std::shared_ptr<PointLight>>::reverse_iterator
+#define REVIT_GO std::vector<std::shared_ptr<GameObject>>::reverse_iterator
 
 //Scene class holds information on what exists, where all objects are and their properties
 class Scene
@@ -38,24 +39,23 @@ private:
 	glm::vec3 cam_start_pos = glm::vec3(-1.5f, 2.0f, 12.0f);
 	glm::mat4 projection;										//projection matrix
 	float far_plane = 200.0f;									//frustrum far plane
-	float near_plane = 0.1f;									//frustrum near plane
-
-	//Asset libraries
-	std::map<std::string, std::shared_ptr<Model>> models;		//collection of models
+	float near_plane = 0.1f;									//frustrum near plan
 
 	//Game Objects
-	//std::map<std::string, std::unique_ptr<Item>> items;		//collection of items (model + material)
-	std::vector<Item> items;
-
+	unsigned int dirLightCount = 0;
+	unsigned int pointLightCount = 0;
+	unsigned int itemCount = 0;
 	std::vector<Camera> cameras;
 
 	Camera* activeCamera = nullptr;
-	Item* selectedItem = nullptr;
+	std::vector<std::shared_ptr<GameObject>> gameObjects;
+	//std::vector<std::shared_ptr<Item>> items;
+	std::shared_ptr<GameObject> selectedItem = nullptr;
 	std::unique_ptr<Skybox> skybox;
 
 	//Lights
-	std::vector<std::shared_ptr<PointLight>> pointLights;
-	std::vector<std::shared_ptr<DirectionalLight>> dirLights;
+	//std::vector<std::shared_ptr<PointLight>> pointLights;
+	//std::vector<std::shared_ptr<DirectionalLight>> dirLights;
 
 	//Initializing
 	void Init();
@@ -75,27 +75,33 @@ public:
 	void SetCameraRotation(glm::vec2 delta){activeCamera->process_mouse_movement(delta);}
 	void SetCameraMovement(Camera_Movement direction, float dt) { activeCamera->process_keyboard(direction, dt); }
 	void SetCameraSprint(bool isSprinting) { activeCamera->is_sprinting(isSprinting); }
-	void SetSelectedItem(Item* newSelection) { selectedItem = newSelection; }
+	void SetSelectedItem(std::shared_ptr<GameObject> newSelection) { selectedItem = newSelection; }
 
 	//Methods
-	void				CreateLight(LightType type);
-	REVIT_DIRLIGHT		RemoveDirLight		(REVIT_DIRLIGHT rit);		//returns a reverse iterator
-	REVIT_POINTLIGHT	RemovePointLight	(REVIT_POINTLIGHT rit);		//returns a reverse iterator
+	std::shared_ptr<Light> CreateLight(LightType type);
+	//REVIT_DIRLIGHT		RemoveDirLight		(REVIT_DIRLIGHT rit);		//returns a reverse iterator
+	//REVIT_POINTLIGHT	RemovePointLight	(REVIT_POINTLIGHT rit);		//returns a reverse iterator
+	REVIT_GO			RemoveGameObject	(REVIT_GO rit);
 	void				UpdateCollisions();
+	std::shared_ptr<Item> CreateItem(std::string name, Handle h_model);
 	
-	std::vector<std::shared_ptr<Light>> GetLightCollection() const;		//Dynamically creates a vector of all lights of all types
+	//std::vector<std::shared_ptr<Light>> GetLightCollection() const;		//Dynamically creates a vector of all lights of all types
 
 	//Getters
-	Item*				GetItem(const std::string& name);
-	auto&				GetItemCollection()				{ return items; }
-	auto&				GetDirLightCollection() 		{ return dirLights; }
-	auto&				GetPointLightCollection() 		{ return pointLights; }
-	const auto&			GetMaterialCollection() const	{ return ResourceManager::Get().GetMaterialCollection(); }
-	glm::mat4			GetProjectionMatrix() const		{ return projection; }
-    const Camera*		GetCamera() const				{ return activeCamera; }
-	Item*				GetSelectedItem()				{ return selectedItem; }
-	Skybox*				GetSkybox()	const				{ return skybox.get(); }
-	const float			GetFarPlane() const				{ return far_plane; }
-	const float			GetNearPlane() const			{ return near_plane; }
+	std::shared_ptr<Item>	GetItem(const std::string& name);
+	//auto&					GetItemCollection()				{ return items; }
+	//auto&					GetDirLightCollection() 		{ return dirLights; }
+	//auto&					GetPointLightCollection() 		{ return pointLights; }
+	unsigned int			GetDirLightCount()				{ return dirLightCount; }
+	unsigned int			GetPointLightCount()			{ return pointLightCount; }
+	unsigned int			GetItemCount()					{ return itemCount; }
+	auto&					GetGameObjectCollection()		{ return gameObjects; }
+	const auto&				GetMaterialCollection() const	{ return ResourceManager::Get().GetMaterialCollection(); }
+	glm::mat4				GetProjectionMatrix() const		{ return projection; }
+    const Camera*			GetCamera() const				{ return activeCamera; }
+	Skybox*					GetSkybox()	const				{ return skybox.get(); }
+	const float				GetFarPlane() const				{ return far_plane; }
+	const float				GetNearPlane() const			{ return near_plane; }
+	std::shared_ptr<GameObject>	GetSelectedItem()			{ return selectedItem; }
 };
 

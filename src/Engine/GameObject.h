@@ -39,7 +39,10 @@ public:
 	GameObject() :GameObject("default", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f)) {};
 
 	//UI
-	virtual void RenderImGuiPanel() = 0;
+	virtual void RenderImGuiPanel() {};
+
+	//Draw
+	virtual void DrawModel() {};
 
 	//Collisions
 	void InitializeAABB(const Model* model);
@@ -51,5 +54,6 @@ public:
 	//Getters
 	const bool			GetSelected() const		{ return selected; }
 	const std::string	GetName() const			{ return name; }
+	AABB&				GetAABB()				{ return aabb; }
 };
 

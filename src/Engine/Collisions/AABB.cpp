@@ -34,6 +34,32 @@ void AABB::Initialize(const Model* model)
 		this->min.x << ", " << this->min.y << ", " << this->min.z << "), Max: (" <<
 		this->max.x << ", " << this->max.y << ", " << this->max.z << ")." << std::endl;*/
 }
+
+void AABB::InitializeWithCube(const std::vector<glm::vec3>& verts)
+{
+	//This is a special initializer for the Cube class in Resources/Primitives/Cube.h
+	//Will only work with geometry with a similar vertex information layout, which is:
+	// --> for each vertex: pos.x, pos.y, pos.z, texCoords.x, texCoords.y
+
+	glm::vec3 tempMin(std::numeric_limits<float>::max());
+	glm::vec3 tempMax(std::numeric_limits<float>::lowest());
+
+	for (const auto& vert : verts)
+	{
+		//Each vertex has 5 floats each, position is stored in the first three (index times 5 + 0 for x, 1 for y, 2 for z)
+		tempMin = glm::min(tempMin, vert);
+		tempMax = glm::max(tempMax, vert);	
+	}
+
+	this->min = tempMin;
+	this->max = tempMax;
+
+	ComputeLocalCorners();
+
+	/*std::cout << "AABB initialized - Min: (" << 
+		this->min.x << ", " << this->min.y << ", " << this->min.z << "), Max: (" <<
+		this->max.x << ", " << this->max.y << ", " << this->max.z << ")." << std::endl;*/
+}
 //===============================================================================================
 //Update()
 //===============================================================================================

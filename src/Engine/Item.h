@@ -15,9 +15,7 @@ private:
 	//Data
 	glm::vec3 IDColor = glm::vec3(1.0f);	//we can get a unique ID by adding all channels up.
 
-	//std::shared_ptr<Model> model;
-	Handle modelHandle;
-	//std::shared_ptr<Material> material;
+	Handle h_Model;
 
 public:
 	//Constructor
@@ -27,11 +25,11 @@ public:
 	void	Draw(glm::mat4 projectionMat, glm::mat4 viewMat, Shader& shader);
 	void	sendToShader(const Shader& shader);
 	virtual void RenderImGuiPanel() override;
+	virtual void DrawModel() override;
 
 	//Getters
-	const Handle				getModelHandle() const	{ return modelHandle; }
+	const Handle				getModelHandle() const	{ return h_Model; }
 	const glm::vec3				getIDColor() const		{ return IDColor; }
 	float						GetID()					{ return IDColor.x + IDColor.y + IDColor.z; }
-	AABB&						GetAABB()				{ return aabb; }
 };
 

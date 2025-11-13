@@ -31,43 +31,38 @@ void Scene::Init()
 	projection = glm::perspective(glm::radians(activeCamera->zoom), (float)sceneWidth / (float)sceneHeight, near_plane, far_plane);
 
 	//initialize textures
-	Utils::Print("SCENE::IMPORTING_DEFAULT_TEXTURE");
+	Utils::Print("LOG - SCENE::IMPORTING_DEFAULT_TEXTURES");
 	ResourceManager::Get().ImportTexture("Light_Icon",	DEFAULT, "./assets/textures/Light_Icon.png", false);
+	ResourceManager::Get().ImportTexture("Item_Icon",	DEFAULT, "./assets/textures/Item_Icon.png", false);
 	ResourceManager::Get().ImportTexture("Default",	DEFAULT, "./assets/textures/Default_Texture.png", false);
 	ResourceManager::Get().ImportTexture("Default_Black",	DEFAULT, "./assets/textures/Default_Texture_Black.png", false);
 
 	//initialize models
+	Utils::Print("LOG - SCENE::IMPORTING_DEFAULT_MODELS");
 	ModelLoader::Get().loadModel("Scene", "./assets/scenes/breakfast_room/breakfast_room.obj");
 	ModelLoader::Get().loadModel("Cube", "./assets/models/cube.obj");
 	
-	try {
-
-		items.push_back(Item("Scene", ResourceManager::Get().GetModelHandle("Scene")));
-	}
-	catch (std::exception& e)
-	{
-		Utils::Print(e.what());
-	}
+	CreateItem("Scene", ResourceManager::Get().GetModelHandle("Scene"));
 
 	//initialize lights
 
 	CreateLight(POINT_LIGHT);
-	GetPointLightCollection().at(0)->transform.Translate(glm::vec3(-2.0f, 2.6f, 4.0f));
+	/*GetPointLightCollection().at(0)->transform.SetPosition(glm::vec3(-2.0f, 2.6f, 4.0f));
 	GetPointLightCollection().at(0)->SetCastShadows(false);
 	GetPointLightCollection().at(0)->SetIntensity(10.0f);
-	GetPointLightCollection().at(0)->SetColor(glm::vec3(1.0f, 0.667f, 0.31f));
+	GetPointLightCollection().at(0)->SetColor(glm::vec3(1.0f, 0.667f, 0.31f));*/
 
 	CreateLight(POINT_LIGHT);
-	GetPointLightCollection().at(1)->transform.Translate(glm::vec3(-4.4f, 2.6f, -2.2f));
+	/*GetPointLightCollection().at(1)->transform.SetPosition(glm::vec3(-4.1f, 2.4f, -1.95f));
 	GetPointLightCollection().at(1)->SetCastShadows(false);
 	GetPointLightCollection().at(1)->SetIntensity(3.0f);
-	GetPointLightCollection().at(1)->SetColor(glm::vec3(0.84f, 0.7f, 0.39f));
+	GetPointLightCollection().at(1)->SetColor(glm::vec3(0.84f, 0.7f, 0.39f));*/
 
 	CreateLight(DIRECTIONAL_LIGHT);
-	GetDirLightCollection().at(0)->transform.Translate(glm::vec3(56.6f, 13.8f, 15.2f));
+	/*GetDirLightCollection().at(0)->transform.SetPosition(glm::vec3(56.6f, 13.8f, 15.2f));
 	GetDirLightCollection().at(0)->SetCastShadows(true);
 	GetDirLightCollection().at(0)->SetIntensity(0.5f);
-	GetDirLightCollection().at(0)->SetColor(glm::vec3(0.961f, 0.914f, 0.8f));
+	GetDirLightCollection().at(0)->SetColor(glm::vec3(0.961f, 0.914f, 0.8f));*/
 
 	Utils::getOpenGLError("SCENE::INIT");
 }
@@ -83,81 +78,140 @@ void Scene::UpdateScene()
 }
 
 //===============================================================================================
+// CreateItem();
+//===============================================================================================
+std::shared_ptr<Item> Scene::CreateItem(std::string name, Handle h_model)
+{
+	try {
+		std::shared_ptr<Item> item = std::make_shared<Item>(name, h_model);
+		gameObjects.push_back(item);
+
+		//update count
+		itemCount++;
+
+		return item;
+	}
+	catch (std::exception& e)
+	{
+		Utils::Print(e.what());
+	}
+
+	return nullptr;
+}
+//===============================================================================================
 // CreateLight();
 //===============================================================================================
 
-void Scene::CreateLight(LightType type)
+std::shared_ptr<Light> Scene::CreateLight(LightType type)
 {
+	//We create a light shared pointer, add it to its appropriate light vector, and return it
 	if (type == POINT_LIGHT)
 	{
-		pointLights.push_back(std::make_shared<PointLight>("Point Light " + std::to_string(pointLights.size() + 1)));
+		auto pointLight = std::make_shared<PointLight>("Point Light " + std::to_string(gameObjects.size() + 1));
+		gameObjects.push_back(pointLight);
+
+		//update count
+		pointLightCount++;
+
+		return pointLight;
 	}
 	else if (type == DIRECTIONAL_LIGHT)
 	{
-		dirLights.push_back(std::make_shared<DirectionalLight>("Directional Light " + std::to_string(dirLights.size() + 1)));
+		auto dirLight = std::make_shared<DirectionalLight>("Directional Light " + std::to_string(gameObjects.size() + 1));
+		gameObjects.push_back(dirLight);
+
+		//update count
+		dirLightCount++;
+
+		return dirLight;
 	}
 }
 //=============================================================================================
 //RemoveDirLight()
 //=============================================================================================
-
-REVIT_DIRLIGHT Scene::RemoveDirLight(REVIT_DIRLIGHT rit)
+  
+REVIT_GO Scene::RemoveGameObject(REVIT_GO rit)
 {
-	if (rit != dirLights.rend())
+	if (rit != gameObjects.rend())
 	{
-		// erase returns a forward iterator
-		auto it = dirLights.erase((rit + 1).base());
+		//Update object counts
+		if (std::dynamic_pointer_cast<DirectionalLight>(*rit)) dirLightCount--;
+		else if (std::dynamic_pointer_cast<PointLight>(*rit)) pointLightCount--;
+		else if (std::dynamic_pointer_cast<Item>(*rit)) itemCount--;
 
+		// erase returns a forward iterator
+		auto it = gameObjects.erase((rit + 1).base());
+		
 		// convert forward iterator back to reverse iterator
 		return std::make_reverse_iterator(it);
 	}
+
+
 	return rit;
 }
+//REVIT_DIRLIGHT Scene::RemoveDirLight(REVIT_DIRLIGHT rit)
+//{
+//	if (rit != dirLights.rend())
+//	{
+//		// erase returns a forward iterator
+//		auto it = dirLights.erase((rit + 1).base());
+//
+//		// convert forward iterator back to reverse iterator
+//		return std::make_reverse_iterator(it);
+//	}
+//	return rit;
+//}
 //=============================================================================================
 //RemovePointLight()
 //=============================================================================================
 
-REVIT_POINTLIGHT Scene::RemovePointLight(REVIT_POINTLIGHT rit)
-{
-	if (rit != pointLights.rend())
-	{
-		// erase returns a forward iterator
-		auto it = pointLights.erase((rit + 1).base());
-
-		// convert forward iterator back to reverse iterator
-		return std::make_reverse_iterator(it);
-	}
-	return rit;
-}
+//REVIT_POINTLIGHT Scene::RemovePointLight(REVIT_POINTLIGHT rit)
+//{
+//	if (rit != pointLights.rend())
+//	{
+//		// erase returns a forward iterator
+//		auto it = pointLights.erase((rit + 1).base());
+//
+//		// convert forward iterator back to reverse iterator
+//		return std::make_reverse_iterator(it);
+//	}
+//	return rit;
+//}
 //=============================================================================================
 //GetLightCollection()
 //=============================================================================================
 
-std::vector<std::shared_ptr<Light>> Scene::GetLightCollection() const
-{
-	std::vector<std::shared_ptr<Light>> toReturn;
-
-	for (auto light : dirLights)
-	{
-		toReturn.push_back(light);
-	}
-	for (auto light : pointLights)
-	{
-		toReturn.push_back(light);
-	}
-
-	return toReturn;
-}
+//std::vector<std::shared_ptr<Light>> Scene::GetLightCollection() const
+//{
+//	std::vector<std::shared_ptr<Light>> toReturn;
+//
+//	for (auto light : dirLights)
+//	{
+//		toReturn.push_back(light);
+//	}
+//	for (auto light : pointLights)
+//	{
+//		toReturn.push_back(light);
+//	}
+//
+//	return toReturn;
+//}
 //=============================================================================================
 //GetItem()
 //=============================================================================================
 
-Item* Scene::GetItem(const std::string& name)
+std::shared_ptr<Item> Scene::GetItem(const std::string& name)
 {
-	for (Item item : items)
+	for (auto& obj : gameObjects)
 	{
-		if (item.GetName() == name)
-			return &item;
+		//We are looping through all kinds of gameobjects so we want to make sure we are
+		//only dealing with Item types.
+		//Dynamic cast returns nullptr if not an Item class object
+		if (auto item = std::dynamic_pointer_cast<Item>(obj))
+		{
+			if (item->GetName() == name)
+				return item;
+		}
 	}
 
 	//return nullptr if nothing was found
@@ -170,11 +224,32 @@ Item* Scene::GetItem(const std::string& name)
 void Scene::UpdateCollisions()
 {
 	//We will iterate through all items and update their Colliders
-	for (auto& item : items)
+	for (auto& go : gameObjects)
 	{
-		if (item.transform.GetIsDirty())
+		if (go->transform.GetIsDirty())
 		{
-			item.GetAABB().Update(item.transform.GetModelMatrix());
+			go->GetAABB().Update(go->transform.GetModelMatrix());
 		}
 	}
+	/*for (auto& item : items)
+	{
+		if (item->transform.GetIsDirty())
+		{
+			item->GetAABB().Update(item->transform.GetModelMatrix());
+		}
+	}
+	for (auto& dir : dirLights)
+	{
+		if (dir->transform.GetIsDirty())
+		{
+			dir->GetAABB().Update(dir->transform.GetModelMatrix());
+		}
+	}
+	for (auto& point : pointLights)
+	{
+		if (point->transform.GetIsDirty())
+		{
+			point->GetAABB().Update(point->transform.GetModelMatrix());
+		}
+	}*/
 }

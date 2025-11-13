@@ -69,11 +69,14 @@ void IDPass::Render(Scene& scene, const GBuffer& gbuffer)
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (const auto& item : scene.GetItemCollection())
+	for (const auto& obj : scene.GetGameObjectCollection())
 	{
-		idPassShader->setMatrix4("model", item.transform.GetModelMatrix());
-		idPassShader->setVector3("idColor", item.getIDColor());
-		ResourceManager::Get().GetModel(item.getModelHandle())->Draw();
+		if(auto item = std::dynamic_pointer_cast<Item>(obj))
+		{
+			idPassShader->setMatrix4("model", item->transform.GetModelMatrix());
+			idPassShader->setVector3("idColor", item->getIDColor());
+			ResourceManager::Get().GetModel(item->getModelHandle())->Draw();
+		}
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

@@ -21,7 +21,6 @@ private:
 
 public:
 	//Constructor
-	//Model(const char* path);
 	Model(std::string name, std::vector<Mesh> meshes, std::string directory);
 
 	//Drawing
