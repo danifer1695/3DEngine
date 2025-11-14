@@ -154,18 +154,18 @@ void ImGuiLayer::RenderAssetsPanel(Scene& scene, unsigned int screenWidth, unsig
 
 	if (ImGui::BeginTabBar("Assets"))
 	{
-		//TEXTURES TAB
-		//----------
-		if (ImGui::BeginTabItem("Textures"))
-		{
-			RenderTexturesTab(scene);
-			ImGui::EndTabItem();
-		}
 		//MODELS TAB
 		//---------
 		if (ImGui::BeginTabItem("Models"))
 		{
 			RenderModelsTab(scene);
+			ImGui::EndTabItem();
+		}
+		//TEXTURES TAB
+		//----------
+		if (ImGui::BeginTabItem("Textures"))
+		{
+			RenderTexturesTab(scene);
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();

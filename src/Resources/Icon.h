@@ -23,6 +23,7 @@ public:
 
 	//Getters
 	const float GetScale() const { return scale; }
+	Handle GetTextureHandle() { return h_texture; }
 
 	//Setters
 	void SetScale(float s) { scale = s; }

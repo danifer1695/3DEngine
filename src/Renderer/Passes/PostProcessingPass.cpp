@@ -131,8 +131,8 @@ void PostProcessingPass::RenderIcons(Scene& scene, const GBuffer& gbuffer)
 	iconShader->setMatrix4("projection", scene.GetProjectionMatrix());
 	iconShader->setInt("iconTexture", 0);
 
+	//Set active texture unit
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, ResourceManager::Get().GetTexture(h_lightIconTexture)->ID);
 
 	for (const auto& obj : scene.GetGameObjectCollection())
 	{
@@ -141,11 +141,15 @@ void PostProcessingPass::RenderIcons(Scene& scene, const GBuffer& gbuffer)
 			//Pointer to the light's icon
 			Icon* icon = light->GetIcon();
 
+			//Bind icon texture
+			glBindTexture(GL_TEXTURE_2D, ResourceManager::Get().GetTexture(icon->GetTextureHandle())->ID);
+
 			//Create rotation-less model matrix
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), light->transform.getPosition());
 			model = glm::scale(model, glm::vec3(iconSize));
 
 			model *= glm::mat4(noRotView);
+			iconShader->setVector3("lightColor", light->GetColor());
 			iconShader->setMatrix4("model", model);
 
 			//Draw icon quad

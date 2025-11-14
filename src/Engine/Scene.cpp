@@ -33,6 +33,7 @@ void Scene::Init()
 	//initialize textures
 	Utils::Print("LOG - SCENE::IMPORTING_DEFAULT_TEXTURES");
 	ResourceManager::Get().ImportTexture("Light_Icon",	DEFAULT, "./assets/textures/Light_Icon.png", false);
+	ResourceManager::Get().ImportTexture("Dir_Light_Icon",	DEFAULT, "./assets/textures/Dir_Light_Icon.png", false);
 	ResourceManager::Get().ImportTexture("Item_Icon",	DEFAULT, "./assets/textures/Item_Icon.png", false);
 	ResourceManager::Get().ImportTexture("Default",	DEFAULT, "./assets/textures/Default_Texture.png", false);
 	ResourceManager::Get().ImportTexture("Default_Black",	DEFAULT, "./assets/textures/Default_Texture_Black.png", false);
