@@ -153,22 +153,6 @@ void PostProcessingPass::RenderIcons(Scene& scene, const GBuffer& gbuffer)
 		}
 	}
 
-	//for (const auto& light : scene.GetDirLightCollection())
-	//{
-	//	//Pointer to the light's icon
-	//	Icon* icon = light->GetIcon();
-
-	//	//Create rotation-less model matrix
-	//	glm::mat4 model = glm::translate(glm::mat4(1.0f), light->transform.getPosition());
-	//	model = glm::scale(model, glm::vec3(icon->GetScale()));
-
-	//	model *= glm::mat4(noRotView);
-	//	iconShader->setMatrix4("model", model);
-
-	//	//Draw icon quad
-	//	icon->Draw();
-	//}
-
 	glDisable(GL_BLEND);
 	//glEnable(GL_DEPTH_TEST);
 }

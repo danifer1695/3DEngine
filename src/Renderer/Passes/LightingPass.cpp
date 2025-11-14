@@ -140,15 +140,6 @@ void LightingPass::Render(Scene& scene, const GBuffer& gBuffer, const GLuint& ss
 			dirLightIndex++;
 		}
 	}
-
-	//send directional lights info to shader
-	/*for (size_t i = 0; i < scene.GetDirLightCollection().size(); ++i)
-	{
-		if (scene.GetDirLightCollection().size() == 0) break;
-		auto* dl = dynamic_cast<DirectionalLight*>(scene.GetDirLightCollection().at(i).get());
-
-		SendDirLightToShader(dl, scene, i);
-	}*/
 	Utils::getOpenGLError("LIGHTINGPASS::RENDER::LIGHTINFO_TO_SHADER");
 
 	//bind render framebuffer
@@ -183,6 +174,7 @@ void LightingPass::SendDirLightToShader(DirectionalLight* dl, Scene& scene, size
 	glm::mat4 lightView = glm::lookAt(dl->transform.getPosition(), dl->GetTarget(), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
+	//========Debugging==========
 	//Utils::Print("Sending dirLights[" + std::to_string(lightIndex) + "]");
 
 	lightPassShader->use();

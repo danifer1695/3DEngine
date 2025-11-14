@@ -19,6 +19,7 @@ private:
 
 	//Runtime methods
 	//---------------
+	void Update();
 	void BeginFrame();
 	void EndFrame();
 
@@ -38,7 +39,7 @@ private:
 	void RenderLightTab(Scene& scene);
 	void RenderItemTab(Scene& scene);
 	void RenderSelectionTab(Scene& scene);
-	void RenderMaterialsTab(Scene& scene);
+	void RenderTexturesTab(Scene& scene);
 	void RenderModelsTab(Scene& scene);
 
 	//Elements
@@ -48,6 +49,7 @@ private:
 	//Handles
 	Handle defaultTex;
 	std::vector<Handle> modelHandles;
+	std::vector<Handle> textureHandles;
 
 public:
 	//Constructor

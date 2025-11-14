@@ -47,7 +47,9 @@ public:
 	//Texture handling
 	Handle		ImportTexture(std::string name, TextureType type, const char* path, bool gamma_correct);
 	Handle		GetTextureHandle(std::string name)	{ return textureIndex[name]; }
+	const auto	GetAllTextureHandles() const		{ return textures.GetAllHandles(); }
 	Texture*	GetTexture(const Handle& handle)	{ return textures.Get(handle); }
+	auto&		GetTexturePool()					{ return textures; }
 
 	GLuint		loadHDRi(char const* path);
 	GLuint		loadTexture(char const* path, bool gammaCorrection);

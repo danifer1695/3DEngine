@@ -64,6 +64,27 @@ void ImGuiLayer::EndFrame()
 //=============================================================================================
 //RenderEntityPanel()
 //=============================================================================================
+void ImGuiLayer::Update()
+{
+	//Check Model dirty flags
+	if (ResourceManager::Get().GetModelPool().GetIsDirty())
+	{
+		Utils::Print("IMGUILAYER::RENDER:: Updating Model Handles");
+		modelHandles = ResourceManager::Get().GetAllModelHandles();
+		ResourceManager::Get().GetModelPool().SetIsDirty(false);
+	}
+	//Check Texture dirty flags
+	if (ResourceManager::Get().GetTexturePool().GetIsDirty())
+	{
+		Utils::Print("IMGUILAYER::RENDER:: Updating Texture Handles");
+		textureHandles = ResourceManager::Get().GetAllTextureHandles();
+		ResourceManager::Get().GetTexturePool().SetIsDirty(false);
+	}
+}
+
+//=============================================================================================
+//RenderEntityPanel()
+//=============================================================================================
 
 void ImGuiLayer::RenderEntityPanel(Scene& scene)
 {
@@ -133,13 +154,13 @@ void ImGuiLayer::RenderAssetsPanel(Scene& scene, unsigned int screenWidth, unsig
 
 	if (ImGui::BeginTabBar("Assets"))
 	{
-		//MATERIALS TAB
+		//TEXTURES TAB
 		//----------
-		/*if (ImGui::BeginTabItem("Materials"))
+		if (ImGui::BeginTabItem("Textures"))
 		{
-			RenderMaterialsTab(scene);
+			RenderTexturesTab(scene);
 			ImGui::EndTabItem();
-		}*/
+		}
 		//MODELS TAB
 		//---------
 		if (ImGui::BeginTabItem("Models"))
@@ -268,34 +289,10 @@ void ImGuiLayer::RenderViewport(Scene& scene, const GLuint& texture, unsigned in
 			
 			scene.SetSelectedItem(hit);
 		}
-
-		////Check items
-		//if (auto hit = raycaster.CastRay(ray, scene.GetItemCollection()))
-		//{
-		//	Utils::Print("Picked: " + hit->GetName());
-		//	std::cout << "Clicked at (" << relativeMouseX << ", " << relativeMouseY << ")" << std::endl;
-		//	
-		//	scene.SetSelectedItem(hit);
-		//}
-
-		////Check lights
-		////Directional lights
-		//else if (auto hit = raycaster.CastRay(ray, scene.GetDirLightCollection()))
-		//{
-		//	Utils::Print("Picked: " + hit->GetName());
-		//	std::cout << "Clicked at (" << relativeMouseX << ", " << relativeMouseY << ")" << std::endl;
-
-		//	scene.SetSelectedItem(hit);
-		//}
-		////Point Lights
-		//else if (auto hit = raycaster.CastRay(ray, scene.GetPointLightCollection()))
-		//{
-		//	Utils::Print("Picked: " + hit->GetName());
-		//	std::cout << "Clicked at (" << relativeMouseX << ", " << relativeMouseY << ")" << std::endl;
-
-		//	scene.SetSelectedItem(hit);
-		//}
-		//else scene.SetSelectedItem(nullptr);
+		else
+		{
+			scene.SetSelectedItem(nullptr);
+		}
 	}
 
 	ImGui::End();
@@ -305,28 +302,48 @@ void ImGuiLayer::RenderViewport(Scene& scene, const GLuint& texture, unsigned in
 //RenderMaterialsTab()
 //=============================================================================================
 
-void ImGuiLayer::RenderMaterialsTab(Scene& scene)
+void ImGuiLayer::RenderTexturesTab(Scene& scene)
 {
-	//int i = 0;
-	//ImGui::NewLine();
-	//for (auto& item : scene.GetItemCollection())
-	//{
-	//	ImGui::SameLine();
-	//	ImGui::PushID(i);	//Unique ID per item
-	//	
-	//	//Little thumbnail displaying texture.
-	//	//eventually to be replaced with a small render of sphere with material on
-	//	ImTextureID imguiTexID = (ImTextureID)(intptr_t)item.second->getDiffuse();
-	//	ImGui::ImageButton(item.second->GetName().c_str(),
-	//		imguiTexID,
-	//		ImVec2(64.0f, 64.0f),
-	//		ImVec2(0, 1),
-	//		ImVec2(1, 0));
-	//	ImGui::SetItemTooltip(item.second->GetName().c_str());
-	//	
-	//	ImGui::PopID();
-	//	i++;
-	//}
+	int i = 0;
+	ImGui::NewLine();
+
+	for (auto& handle : textureHandles)
+	{
+		Texture* texture = ResourceManager::Get().GetTexture(handle);
+		if (!texture) continue;
+
+		ImGui::SameLine();
+		ImGui::PushID(i);	//Unique ID per item
+
+		//Thumbnail image
+		ImTextureID imguiTexID = (ImTextureID)(intptr_t)texture->ID;
+
+
+		ImGui::ImageButton(texture->texPath.c_str(),
+			imguiTexID,
+			ImVec2(64.0f, 64.0f),
+			ImVec2(0, 1),
+			ImVec2(1, 0)
+		);
+
+		ImGui::SetItemTooltip(texture->texPath.c_str());
+
+		//Open popup by right clicking
+		ImGui::OpenPopupOnItemClick("Texture popup", ImGuiPopupFlags_MouseButtonLeft);
+
+		//Define popup menu
+		if (ImGui::BeginPopupContextItem("Texture popup"))
+		{
+			if (ImGui::Selectable("Apply to selected (Not implemented)"))
+			{
+				//scene.CreateItem(texture->texPath, handle);
+			}
+			ImGui::EndPopup();
+		}
+
+		ImGui::PopID();
+		i++;
+	}
 }
 //=============================================================================================
 //RenderModelsTab()
@@ -345,16 +362,30 @@ void ImGuiLayer::RenderModelsTab(Scene& scene)
 		ImGui::SameLine();
 		ImGui::PushID(i);	//Unique ID per item
 
-		//Little thumbnail displaying texture.
-		//eventually to be replaced with a small render of item
+		//Thumbnail image
 		GLuint defaultTexture = ResourceManager::Get().GetTexture(defaultTex)->ID;
 		ImTextureID imguiTexID = (ImTextureID)(intptr_t)defaultTexture;
+
+
 		ImGui::ImageButton(model->GetName().c_str(),
 			imguiTexID,
 			ImVec2(64.0f, 64.0f),
 			ImVec2(0, 1),
-			ImVec2(1, 0));
+			ImVec2(1, 0)
+		);
+
 		ImGui::SetItemTooltip(model->GetName().c_str());
+
+		//Open popup by right clicking
+		ImGui::OpenPopupOnItemClick("Model popup", ImGuiPopupFlags_MouseButtonLeft);
+
+		//Define popup menu
+		if (ImGui::BeginPopupContextItem("Model popup"))
+		{
+			if (ImGui::Selectable("Add to scene"))
+				scene.CreateItem(model->GetName(), handle);
+			ImGui::EndPopup();
+		}
 
 		ImGui::PopID();
 		i++;
@@ -523,13 +554,7 @@ void ImGuiLayer::Render(Scene& scene, Renderer& renderer, unsigned int viewPortW
 	GLuint texture = renderer.GetPostProcessed();
 	if (renderIDpass) texture = renderer.GetIDPass().GetTexture();
 
-	//Check dirty flags
-	if (ResourceManager::Get().GetModelPool().GetIsDirty())
-	{
-		Utils::Print("IMGUILAYER::RENDER:: Updating Item Handles");
-		modelHandles = ResourceManager::Get().GetAllModelHandles();
-		ResourceManager::Get().GetModelPool().SetIsDirty(false);
-	}
+	Update();
 
 	BeginFrame();
 

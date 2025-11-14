@@ -21,8 +21,6 @@
 #include "../Resources/ModelLoader.h"
 #include "../Core/Utils.h"
 
-#define REVIT_DIRLIGHT std::vector<std::shared_ptr<DirectionalLight>>::reverse_iterator
-#define REVIT_POINTLIGHT std::vector<std::shared_ptr<PointLight>>::reverse_iterator
 #define REVIT_GO std::vector<std::shared_ptr<GameObject>>::reverse_iterator
 
 //Scene class holds information on what exists, where all objects are and their properties
@@ -49,13 +47,8 @@ private:
 
 	Camera* activeCamera = nullptr;
 	std::vector<std::shared_ptr<GameObject>> gameObjects;
-	//std::vector<std::shared_ptr<Item>> items;
 	std::shared_ptr<GameObject> selectedItem = nullptr;
 	std::unique_ptr<Skybox> skybox;
-
-	//Lights
-	//std::vector<std::shared_ptr<PointLight>> pointLights;
-	//std::vector<std::shared_ptr<DirectionalLight>> dirLights;
 
 	//Initializing
 	void Init();
@@ -79,19 +72,12 @@ public:
 
 	//Methods
 	std::shared_ptr<Light> CreateLight(LightType type);
-	//REVIT_DIRLIGHT		RemoveDirLight		(REVIT_DIRLIGHT rit);		//returns a reverse iterator
-	//REVIT_POINTLIGHT	RemovePointLight	(REVIT_POINTLIGHT rit);		//returns a reverse iterator
 	REVIT_GO			RemoveGameObject	(REVIT_GO rit);
 	void				UpdateCollisions();
 	std::shared_ptr<Item> CreateItem(std::string name, Handle h_model);
 	
-	//std::vector<std::shared_ptr<Light>> GetLightCollection() const;		//Dynamically creates a vector of all lights of all types
-
 	//Getters
 	std::shared_ptr<Item>	GetItem(const std::string& name);
-	//auto&					GetItemCollection()				{ return items; }
-	//auto&					GetDirLightCollection() 		{ return dirLights; }
-	//auto&					GetPointLightCollection() 		{ return pointLights; }
 	unsigned int			GetDirLightCount()				{ return dirLightCount; }
 	unsigned int			GetPointLightCount()			{ return pointLightCount; }
 	unsigned int			GetItemCount()					{ return itemCount; }

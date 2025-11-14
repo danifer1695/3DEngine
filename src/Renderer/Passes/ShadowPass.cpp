@@ -111,30 +111,6 @@ void ShadowPass::Render(Scene& scene)
 		}
 	}
 
-	//Check Items
-	//for (const auto& item : scene.GetItemCollection())
-	//{
-	//	if (item->transform.GetIsDirty())
-	//	{
-	//		needsUpdate = true;
-	//		globalUpdate = true;
-	//		break;
-	//	}
-	//}
-
-	////Check lights if items are all clean
-	//if (!needsUpdate)
-	//{
-	//	for (const auto& light : lights)
-	//	{
-	//		if (light->transform.GetIsDirty())
-	//		{
-	//			needsUpdate = true;
-	//			break;
-	//		}
-	//	}
-	//}
-
 	//If scene is not clean, update shadows, and reset dirty flags
 	if (needsUpdate)
 	{
@@ -153,14 +129,6 @@ void ShadowPass::ResetDirtyFlags(Scene& scene)
 	{
 		obj->transform.SetIsDirty(false);
 	}
-	/*for (auto& item : scene.GetItemCollection())
-	{
-		item->transform.SetIsDirty(false);
-	}
-	for (const auto& light : scene.GetLightCollection())
-	{
-		light->transform.SetIsDirty(false);
-	}*/
 }
 //=============================================================================================
 //UpdateShadows
@@ -198,28 +166,6 @@ void ShadowPass::UpdateShadows(Scene& scene, bool globalUpdate)
 			continue;
 		}
 	}
-
-	////We loop through all of the scene's lights
-	//for (size_t i = 0; i < numberOfPointLights; ++i)
-	//{
-	//	//skip if light casts no shadows or if its not dirty
-	//	if (!scene.GetPointLightCollection().at(i)->GetCastShadows()) continue;
-	//	//if update isn't global and shadow isnt dirty, we skip
-	//	if (!globalUpdate && !scene.GetPointLightCollection().at(i)->transform.GetIsDirty()) continue;
-
-	//	CapturePointShadows(scene, i, shadowProj);
-	//}
-
-	////We loop through all of the scene's lights
-	//for (size_t i = 0; i < numberOfDirLights; ++i)
-	//{
-	//	//skip if light casts no shadows or if its not dirty
-	//	if (!scene.GetDirLightCollection().at(i)->GetCastShadows()) continue;
-	//	//if update isn't global and shadow isnt dirty, we skip
-	//	if (!globalUpdate && !scene.GetDirLightCollection().at(i)->transform.GetIsDirty()) continue;
-	//	
-	//	CaptureDirShadows(scene, i);
-	//}
 }
 //=============================================================================================
 //CaptureDirShadows
@@ -245,7 +191,7 @@ void ShadowPass::CaptureDirShadows(Scene& scene, const size_t& lightIndex, std::
 		GL_DEPTH_ATTACHMENT,
 		dirShadowArray,
 		0,									//mip level
-		lightIndex						//layer - we pass the DIRECTIONAL LIGHT INDEX, we only want dir lights here
+		(GLint)lightIndex						//layer - we pass the DIRECTIONAL LIGHT INDEX, we only want dir lights here
 	);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);

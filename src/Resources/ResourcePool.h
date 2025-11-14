@@ -52,7 +52,7 @@ public:
 		}
 
 		dirty = true;
-		std::cout << "Resource Added to Pool" << std::endl;
+		//std::cout << "Resource Added to Pool" << std::endl;
 		return Handle(index, generations[index]);
 	}
 

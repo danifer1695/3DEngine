@@ -47,22 +47,31 @@ void Scene::Init()
 	//initialize lights
 
 	CreateLight(POINT_LIGHT);
-	/*GetPointLightCollection().at(0)->transform.SetPosition(glm::vec3(-2.0f, 2.6f, 4.0f));
-	GetPointLightCollection().at(0)->SetCastShadows(false);
-	GetPointLightCollection().at(0)->SetIntensity(10.0f);
-	GetPointLightCollection().at(0)->SetColor(glm::vec3(1.0f, 0.667f, 0.31f));*/
+	if(auto light = std::dynamic_pointer_cast<PointLight>(GetGameObjectCollection().back()))
+	{
+		light->transform.SetPosition(glm::vec3(-2.0f, 2.6f, 4.0f));
+		light->SetCastShadows(false);
+		light->SetIntensity(10.0f);
+		light->SetColor(glm::vec3(1.0f, 0.667f, 0.31f));
+	}
 
 	CreateLight(POINT_LIGHT);
-	/*GetPointLightCollection().at(1)->transform.SetPosition(glm::vec3(-4.1f, 2.4f, -1.95f));
-	GetPointLightCollection().at(1)->SetCastShadows(false);
-	GetPointLightCollection().at(1)->SetIntensity(3.0f);
-	GetPointLightCollection().at(1)->SetColor(glm::vec3(0.84f, 0.7f, 0.39f));*/
+	if (auto light = std::dynamic_pointer_cast<PointLight>(GetGameObjectCollection().back()))
+	{
+		light->transform.SetPosition(glm::vec3(-4.1f, 2.4f, -1.95f));
+		light->SetCastShadows(false);
+		light->SetIntensity(3.0f);
+		light->SetColor(glm::vec3(0.84f, 0.7f, 0.39f));
+	}
 
 	CreateLight(DIRECTIONAL_LIGHT);
-	/*GetDirLightCollection().at(0)->transform.SetPosition(glm::vec3(56.6f, 13.8f, 15.2f));
-	GetDirLightCollection().at(0)->SetCastShadows(true);
-	GetDirLightCollection().at(0)->SetIntensity(0.5f);
-	GetDirLightCollection().at(0)->SetColor(glm::vec3(0.961f, 0.914f, 0.8f));*/
+	if (auto light = std::dynamic_pointer_cast<DirectionalLight>(GetGameObjectCollection().back()))
+	{
+		light->transform.SetPosition(glm::vec3(56.6f, 13.8f, 15.2f));
+		light->SetCastShadows(true);
+		light->SetIntensity(0.5f);
+		light->SetColor(glm::vec3(0.961f, 0.914f, 0.8f));
+	}
 
 	Utils::getOpenGLError("SCENE::INIT");
 }
@@ -149,53 +158,6 @@ REVIT_GO Scene::RemoveGameObject(REVIT_GO rit)
 
 	return rit;
 }
-//REVIT_DIRLIGHT Scene::RemoveDirLight(REVIT_DIRLIGHT rit)
-//{
-//	if (rit != dirLights.rend())
-//	{
-//		// erase returns a forward iterator
-//		auto it = dirLights.erase((rit + 1).base());
-//
-//		// convert forward iterator back to reverse iterator
-//		return std::make_reverse_iterator(it);
-//	}
-//	return rit;
-//}
-//=============================================================================================
-//RemovePointLight()
-//=============================================================================================
-
-//REVIT_POINTLIGHT Scene::RemovePointLight(REVIT_POINTLIGHT rit)
-//{
-//	if (rit != pointLights.rend())
-//	{
-//		// erase returns a forward iterator
-//		auto it = pointLights.erase((rit + 1).base());
-//
-//		// convert forward iterator back to reverse iterator
-//		return std::make_reverse_iterator(it);
-//	}
-//	return rit;
-//}
-//=============================================================================================
-//GetLightCollection()
-//=============================================================================================
-
-//std::vector<std::shared_ptr<Light>> Scene::GetLightCollection() const
-//{
-//	std::vector<std::shared_ptr<Light>> toReturn;
-//
-//	for (auto light : dirLights)
-//	{
-//		toReturn.push_back(light);
-//	}
-//	for (auto light : pointLights)
-//	{
-//		toReturn.push_back(light);
-//	}
-//
-//	return toReturn;
-//}
 //=============================================================================================
 //GetItem()
 //=============================================================================================
@@ -231,25 +193,4 @@ void Scene::UpdateCollisions()
 			go->GetAABB().Update(go->transform.GetModelMatrix());
 		}
 	}
-	/*for (auto& item : items)
-	{
-		if (item->transform.GetIsDirty())
-		{
-			item->GetAABB().Update(item->transform.GetModelMatrix());
-		}
-	}
-	for (auto& dir : dirLights)
-	{
-		if (dir->transform.GetIsDirty())
-		{
-			dir->GetAABB().Update(dir->transform.GetModelMatrix());
-		}
-	}
-	for (auto& point : pointLights)
-	{
-		if (point->transform.GetIsDirty())
-		{
-			point->GetAABB().Update(point->transform.GetModelMatrix());
-		}
-	}*/
 }
